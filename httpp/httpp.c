@@ -41,10 +41,6 @@
 #include <avl/avl.h>
 #include "httpp.h"
 
-#if defined(_WIN32) && !defined(HAVE_STRCASECMP)
-#define strcasecmp stricmp
-#endif
-
 #define MAX_HEADERS 32
 
 /* internal functions */

@@ -53,14 +53,6 @@
 #include <netdb.h>
 #else
 #include <winsock2.h>
-#define vsnprintf _vsnprintf
-#define EINPROGRESS WSAEINPROGRESS
-#define ENOTSOCK WSAENOTSOCK
-#define EWOULDBLOCK WSAEWOULDBLOCK
-#define EALREADY WSAEALREADY
-#define socklen_t    int
-#ifndef __MINGW32__
-#define va_copy(ap1, ap2) memcpy(&ap1, &ap2, sizeof(va_list))
 #endif
 #endif
 
