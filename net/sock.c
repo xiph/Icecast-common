@@ -154,6 +154,12 @@ int sock_recoverable(int error)
 #if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
     case EWOULDBLOCK:
 #endif
+#if defined (WSAEWOULDBLOCK) && WSAEWOULDBLOCK != EWOULDBLOCK
+    case WSAEWOULDBLOCK:
+#endif
+#if defined (WSAEINPROGRESS) && WSAEINPROGRESS != EINPROGRESS
+    case WSAEINPROGRESS:
+#endif
 #ifdef ERESTART
     case ERESTART:
 #endif
@@ -172,6 +178,12 @@ int sock_stalled (int error)
     case EALREADY:
 #if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
     case EWOULDBLOCK:
+#endif
+#if defined (WSAEWOULDBLOCK) && WSAEWOULDBLOCK != EWOULDBLOCK
+    case WSAEWOULDBLOCK:
+#endif
+#if defined (WSAEINPROGRESS) && WSAEINPROGRESS != EINPROGRESS
+    case WSAEINPROGRESS:
 #endif
 #ifdef ERESTART
     case ERESTART:
