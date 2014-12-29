@@ -54,7 +54,6 @@
 #else
 #include <winsock2.h>
 #endif
-#endif
 
 #include "sock.h"
 #include "resolver.h"
