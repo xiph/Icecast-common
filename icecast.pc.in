@@ -1,0 +1,15 @@
+# libicecast pkg-config source file
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+cppflags=@ICECAST_CPPFLAGS@
+cflags_only=@ICECAST_CFLAGS@
+
+Name: Icecast
+Description: icecast common code library
+Version: @VERSION@
+Requires.private: @ICECAST_REQUIRES@
+Libs: -L${libdir} -lshout
+Cflags: -I${includedir} @PTHREAD_CPPFLAGS@ @ICECAST_CFLAGS@
