@@ -398,6 +398,18 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
         case httpp_req_head:
             httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "HEAD");
             break;
+        case httpp_req_options:
+            httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "OPTIONS");
+            break;
+        case httpp_req_delete:
+            httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "DELETE");
+            break;
+        case httpp_req_trace:
+            httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "TRACE");
+            break;
+        case httpp_req_connect:
+            httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "CONNECT");
+            break;
         case httpp_req_source:
             httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "SOURCE");
             break;
@@ -577,6 +589,14 @@ httpp_request_type_e httpp_str_to_method(const char * method) {
         return httpp_req_put;
     } else if (strcasecmp("HEAD", method) == 0) {
         return httpp_req_head;
+    } else if (strcasecmp("OPTIONS", method) == 0) {
+        return httpp_req_options;
+    } else if (strcasecmp("DELETE", method) == 0) {
+        return httpp_req_delete;
+    } else if (strcasecmp("TRACE", method) == 0) {
+        return httpp_req_trace;
+    } else if (strcasecmp("CONNECT", method) == 0) {
+        return httpp_req_connect;
     } else if (strcasecmp("SOURCE", method) == 0) {
         return httpp_req_source;
     } else if (strcasecmp("PLAY", method) == 0) {

@@ -47,6 +47,10 @@ typedef enum httpp_request_type_tag {
     httpp_req_post,
     httpp_req_put,
     httpp_req_head,
+    httpp_req_options,
+    httpp_req_delete,
+    httpp_req_trace,
+    httpp_req_connect,
     /* Icecast SOURCE, to be replaced with PUT some day */
     httpp_req_source,
     /* XXX: ??? */
