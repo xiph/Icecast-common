@@ -607,8 +607,6 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     /* ok, Now we move the offset forward to the body. */
     self->buf_read_raw_offset = offset_LF + 1;
 
-    printf("ok, buffer without header looks like this now: offset=%zu, len=%zu\n", self->buf_read_raw_offset, self->buf_read_raw_len);
-
     /* Do we still have some data in buffer?
      * If not free the buffer and set the counters
      * to point to the next header.
