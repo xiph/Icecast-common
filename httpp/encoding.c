@@ -66,7 +66,7 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
 static ssize_t __enc_chunked_write(httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata);
 
 /* function to move some data out of our buffers */
-static inline ssize_t __copy_buffer(void *dst, void **src, size_t *boffset, size_t *blen, size_t len)
+ssize_t __copy_buffer(void *dst, void **src, size_t *boffset, size_t *blen, size_t len)
 {
     void *p;
     size_t have_len;
@@ -82,6 +82,8 @@ static inline ssize_t __copy_buffer(void *dst, void **src, size_t *boffset, size
     p = *src + *boffset;
 
     todo = len < have_len ? len : have_len;
+
+    fprintf(stderr, "len=%zu, *blen=%zu, *boffset=%zu, todo=%zu\n", len, *blen, *boffset, todo);
 
     memcpy(dst, p, todo);
 
@@ -483,6 +485,7 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     if (self->read_bytes_till_header > 2) {
         size_t todo = len > (self->read_bytes_till_header - 2) ? (self->read_bytes_till_header - 2) : len;
         ret = cb(userdata, buf, todo);
+        fprintf(stderr, "%zu bytes to go, %zu bytes todo, %zi bytes got from backend\n", self->read_bytes_till_header, todo, ret);
         if (ret < 1)
             return ret;
         self->read_bytes_till_header -= ret;
@@ -516,12 +519,13 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     }
 
     self->buf_read_raw_len += ret;
+    fprintf(stderr, "got %zi bytes\n", ret);
 
     /* now we should have some bytes in our buffer.
      * Now skip the "\r\n" that may be left to do from self->read_bytes_till_header.
      */
 
-    if (self->buf_read_raw_len == self->read_bytes_till_header) {
+    if ((self->buf_read_raw_len - self->buf_read_raw_offset) == self->read_bytes_till_header) {
         /* ok, that wasn't super big step forward. At least we got rid of self->read_bytes_till_header.
          * now freeing buffers again...
          */
@@ -531,7 +535,7 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
         self->buf_read_raw_len = 0;
         self->read_bytes_till_header = 0;
         return 0;
-    } else if (self->buf_read_raw_len > self->read_bytes_till_header) {
+    } else if ((self->buf_read_raw_len - self->buf_read_raw_offset) > self->read_bytes_till_header) {
         /* ship the tailing "\r\n".
          * We should check we really got that and not some other stuff, eh? Yes, I'm sure we should...
          */
@@ -549,6 +553,8 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
      * that is part of the header as well!
      */
 
+    fprintf(stderr, "current buffer layout: raw{offset=%zu, len=%zu}, decoded{offset=%zu, len=%zu}, read_bytes_till_header=%zu\n", self->buf_read_raw_offset, self->buf_read_raw_len, self->buf_read_decoded_offset, self->buf_read_decoded_len, self->read_bytes_till_header);
+
     in_quote = 0;
     offset_extentions = -1;
     offset_CR = -1;
@@ -556,6 +562,8 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     for (i = self->buf_read_raw_offset, c = self->buf_read_raw + self->buf_read_raw_offset;
          i < self->buf_read_raw_len;
          i++, c++) {
+        if (i < (self->buf_read_raw_offset + 80))
+            fprintf(stderr, "*c=0x%.2x'%c' in_quote=%i\n", (unsigned int)(unsigned char)*c, *c, in_quote);
         if (in_quote) {
             if (*c == '\\') in_quote = 2;
             else if (*c == '"') in_quote--;
@@ -572,6 +580,7 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
             break;
         }
     }
+    fprintf(stderr, "current buffer layout: raw{offset=%zu, len=%zu}, decoded{offset=%zu, len=%zu}, read_bytes_till_header=%zu\n", self->buf_read_raw_offset, self->buf_read_raw_len, self->buf_read_decoded_offset, self->buf_read_decoded_len, self->read_bytes_till_header);
 
     /* ok, now we know a lot more!:
      * offset_extentions is the offset to the extentions if any.
@@ -582,6 +591,13 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
 
     if (offset_LF == -1)
         return 0;
+
+    fprintf(stderr, "We got a header, body is at +%zi bytes\n", offset_LF + 1);
+
+    fflush(stderr);
+
+    if (offset_LF > 1024)
+        abort();
 
     /* ok. Now we have a complet header.
      * First pass the extentions to extention parser if any.
@@ -604,8 +620,12 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     if (sscanf(self->buf_read_raw + self->buf_read_raw_offset, "%llx", &bodylen) != 1)
         return -1;
 
+    fprintf(stderr, "bodylen=%llu\n", bodylen);
+
     /* ok, Now we move the offset forward to the body. */
     self->buf_read_raw_offset = offset_LF + 1;
+
+    printf("ok, buffer without header looks like this now: offset=%zu, len=%zu\n", self->buf_read_raw_offset, self->buf_read_raw_len);
 
     /* Do we still have some data in buffer?
      * If not free the buffer and set the counters
@@ -623,13 +643,15 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     /* ok, now we check if what we have in the buffer is less or equal than our bodylen. */
     if ((self->buf_read_raw_len - self->buf_read_raw_offset) <= bodylen) {
         /* ok, this is fantastic. The framework can do the rest for us! */
+        fprintf(stderr, "nice case: we have a data only buffer!\n");
         self->buf_read_decoded = self->buf_read_raw;
         self->buf_read_decoded_offset = self->buf_read_raw_offset;
-        self->buf_read_decoded_len = self->buf_read_decoded_len;
+        self->buf_read_decoded_len = self->buf_read_raw_len;
         self->buf_read_raw = NULL;
         self->buf_read_raw_offset = 0;
         self->buf_read_raw_len = 0;
-        self->read_bytes_till_header = bodylen + 2 - (self->buf_read_raw_len - self->buf_read_raw_offset);
+        self->read_bytes_till_header = bodylen + 2 - (self->buf_read_decoded_len - self->buf_read_decoded_offset);
+        fprintf(stderr, "final buffer layout: raw{offset=%zu, len=%zu}, decoded{offset=%zu, len=%zu}, read_bytes_till_header=%zu\n", self->buf_read_raw_offset, self->buf_read_raw_len, self->buf_read_decoded_offset, self->buf_read_decoded_len, self->read_bytes_till_header);
         return 0;
     }
 
@@ -639,6 +661,8 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
      * and let our internal structures point to the next header.
      */
 
+    fprintf(stderr, "bad case: we need to allocate a new buffer!\n");
+
     self->buf_read_decoded = malloc(bodylen);
     if (!self->buf_read_decoded) /* just retry later if we can not allocate a buffer */
         return -1;
@@ -647,6 +671,8 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     memcpy(self->buf_read_decoded, self->buf_read_raw + self->buf_read_raw_offset, bodylen);
     self->buf_read_raw_offset += bodylen;
     self->read_bytes_till_header = 2; /* tailing "\r\n" */
+
+    fprintf(stderr, "final buffer layout: raw{offset=%zu, len=%zu}, decoded{offset=%zu, len=%zu}, read_bytes_till_header=%zu\n", self->buf_read_raw_offset, self->buf_read_raw_len, self->buf_read_decoded_offset, self->buf_read_decoded_len, self->read_bytes_till_header);
 
     return 0;
 }
