@@ -270,7 +270,6 @@ static void _catch_signals(void)
 thread_type *thread_create_c(char *name, void *(*start_routine)(void *), 
         void *arg, int detached, int line, char *file)
 {
-    int ok = 1;
     thread_type *thread = NULL;
     thread_start_t *start = NULL;
     pthread_attr_t attr;
