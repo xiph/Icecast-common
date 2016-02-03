@@ -221,9 +221,10 @@ void thread_shutdown(void)
 static void _block_signals(void)
 {
 #ifndef _WIN32
+#ifndef DISABLE_PTHREAD_BLA
         sigset_t ss;
 
-        sigfillset(&ss);
+        //sigfillset(&ss);
 
         /* These ones we want */
         sigdelset(&ss, SIGKILL);
@@ -237,6 +238,7 @@ static void _block_signals(void)
 #endif
         }
 #endif
+#endif
 }
 
 /*
@@ -247,6 +249,7 @@ static void _block_signals(void)
 static void _catch_signals(void)
 {
 #ifndef _WIN32
+#ifndef DISABLE_PTHREAD_BLA
         sigset_t ss;
 
         sigemptyset(&ss);
@@ -263,6 +266,7 @@ static void _catch_signals(void)
                 LOG_ERROR("pthread_sigmask() failed for catching signals!");
 #endif
         }
+#endif
 #endif
 }
 
@@ -299,7 +303,11 @@ thread_type *thread_create_c(char *name, void *(*start_routine)(void *),
         start->thread = thread;
 
         pthread_attr_setstacksize (&attr, 512*1024);
+
+#ifndef DISABLE_PTHREAD_BLA
         pthread_attr_setinheritsched (&attr, PTHREAD_INHERIT_SCHED);
+#endif
+
         if (detached)
         {
             pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
@@ -656,7 +664,10 @@ static void *_start_routine(void *arg)
     LOG_INFO4("Added thread %d [%s] started at [%s:%d]", thread->thread_id, thread->name, thread->file, thread->line);
 #endif
 
+#ifndef DISABLE_PTHREAD_BLA
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
+#endif
+
     free (start);
 
     (start_routine)(real_arg);
