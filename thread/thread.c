@@ -94,7 +94,7 @@ static int _initialized = 0;
 static avl_tree *_threadtree = NULL;
 
 #ifdef DEBUG_MUTEXES
-static mutex_t _threadtree_mutex = { -1, NULL, MUTEX_STATE_UNINIT, NULL, -1, 
+static mutex_t _threadtree_mutex = { -1, NULL, MUTEX_STATE_UNINIT, NULL, -1,
     PTHREAD_MUTEX_INITIALIZER};
 #else
 static mutex_t _threadtree_mutex = { PTHREAD_MUTEX_INITIALIZER };
@@ -159,7 +159,7 @@ void thread_initialize(void)
     _mutextree = avl_tree_new(_compare_mutexes, NULL);
 
     /* we have to create this one by hand, because there's no
-    ** mutextree_mutex to lock yet! 
+    ** mutextree_mutex to lock yet!
     */
     _mutex_create(&_mutextree_mutex);
 
@@ -168,7 +168,7 @@ void thread_initialize(void)
 #endif
 
     thread_mutex_create(&_threadtree_mutex);
-    thread_mutex_create(&_library_mutex);    
+    thread_mutex_create(&_library_mutex);
 
     /* initialize the thread tree and insert the main thread */
 
@@ -197,7 +197,7 @@ void thread_shutdown(void)
         thread_mutex_destroy(&_threadtree_mutex);
 #ifdef THREAD_DEBUG
         thread_mutex_destroy(&_mutextree_mutex);
-        
+
         avl_tree_free(_mutextree, _free_mutex);
 #endif
         avl_tree_free(_threadtree, _free_thread);
@@ -221,10 +221,10 @@ void thread_shutdown(void)
 static void _block_signals(void)
 {
 #ifndef _WIN32
-#ifndef DISABLE_PTHREAD_BLA
+#ifndef __ANDROID__
         sigset_t ss;
 
-        //sigfillset(&ss);
+        sigfillset(&ss);
 
         /* These ones we want */
         sigdelset(&ss, SIGKILL);
@@ -249,7 +249,7 @@ static void _block_signals(void)
 static void _catch_signals(void)
 {
 #ifndef _WIN32
-#ifndef DISABLE_PTHREAD_BLA
+#ifndef __ANDROID__
         sigset_t ss;
 
         sigemptyset(&ss);
@@ -271,14 +271,14 @@ static void _catch_signals(void)
 }
 
 
-thread_type *thread_create_c(char *name, void *(*start_routine)(void *), 
+thread_type *thread_create_c(char *name, void *(*start_routine)(void *),
         void *arg, int detached, int line, char *file)
 {
     thread_type *thread = NULL;
     thread_start_t *start = NULL;
     pthread_attr_t attr;
 
-    thread = (thread_type *)calloc(1, sizeof(thread_type));    
+    thread = (thread_type *)calloc(1, sizeof(thread_type));
     do {
         if (thread == NULL)
             break;
@@ -291,7 +291,7 @@ thread_type *thread_create_c(char *name, void *(*start_routine)(void *),
         thread->line = line;
         thread->file = strdup(file);
 
-        _mutex_lock (&_threadtree_mutex);    
+        _mutex_lock (&_threadtree_mutex);
         thread->thread_id = _next_thread_id++;
         _mutex_unlock (&_threadtree_mutex);
 
@@ -304,7 +304,7 @@ thread_type *thread_create_c(char *name, void *(*start_routine)(void *),
 
         pthread_attr_setstacksize (&attr, 512*1024);
 
-#ifndef DISABLE_PTHREAD_BLA
+#ifndef __ANDROID__
         pthread_attr_setinheritsched (&attr, PTHREAD_INHERIT_SCHED);
 #endif
 
@@ -333,7 +333,7 @@ thread_type *thread_create_c(char *name, void *(*start_routine)(void *),
 }
 
 /* _mutex_create
-** 
+**
 ** creates a mutex
 */
 static void _mutex_create(mutex_t *mutex)
@@ -391,20 +391,20 @@ void thread_mutex_lock_c(mutex_t *mutex, int line, char *file)
         _mutex_lock(&_mutextree_mutex);
 
         node = avl_get_first (_mutextree);
-        
+
         while (node) {
             tmutex = (mutex_t *)node->key;
 
             if (tmutex->mutex_id == mutex->mutex_id) {
-                if (tmutex->thread_id == th->thread_id) { 
+                if (tmutex->thread_id == th->thread_id) {
                     /* Deadlock, same thread can't lock the same mutex twice */
-                    LOG_ERROR7("DEADLOCK AVOIDED (%d == %d) on mutex [%s] in file %s line %d by thread %d [%s]", 
+                    LOG_ERROR7("DEADLOCK AVOIDED (%d == %d) on mutex [%s] in file %s line %d by thread %d [%s]",
                          tmutex->thread_id, th->thread_id, mutex->name ? mutex->name : "undefined", file, line, th->thread_id, th->name);
 
                     _mutex_unlock(&_mutextree_mutex);
                     return;
                 }
-            } else if (tmutex->thread_id == th->thread_id) { 
+            } else if (tmutex->thread_id == th->thread_id) {
                 /* Mutex locked by this thread (not this mutex) */
                 locks++;
             }
@@ -412,7 +412,7 @@ void thread_mutex_lock_c(mutex_t *mutex, int line, char *file)
             node = avl_get_next(node);
         }
 
-        if (locks > 0) { 
+        if (locks > 0) {
             /* Has already got a mutex locked */
             if (_multi_mutex.thread_id != th->thread_id) {
                 /* Tries to lock two mutexes, but has not got the double mutex, norty boy! */
@@ -420,13 +420,13 @@ void thread_mutex_lock_c(mutex_t *mutex, int line, char *file)
                      _multi_mutex.thread_id, th->thread_id, th->thread_id, th->name, mutex->name ? mutex->name : "undefined", file, line);
             }
         }
-        
+
         _mutex_unlock(&_mutextree_mutex);
     }
 # endif /* CHECK_MUTEXES */
-    
+
     _mutex_lock(mutex);
-    
+
     _mutex_lock(&_mutextree_mutex);
 
     LOG_DEBUG2("Locked %p by thread %d", mutex, th ? th->thread_id : -1);
@@ -467,7 +467,7 @@ void thread_mutex_unlock_c(mutex_t *mutex, int line, char *file)
 
             if (tmutex->mutex_id == mutex->mutex_id) {
                 if (tmutex->thread_id != th->thread_id) {
-                    LOG_ERROR7("ILLEGAL UNLOCK (%d != %d) on mutex [%s] in file %s line %d by thread %d [%s]", tmutex->thread_id, th->thread_id, 
+                    LOG_ERROR7("ILLEGAL UNLOCK (%d != %d) on mutex [%s] in file %s line %d by thread %d [%s]", tmutex->thread_id, th->thread_id,
                          mutex->name ? mutex->name : "undefined", file, line, th->thread_id, th->name);
                     _mutex_unlock(&_mutextree_mutex);
                     return;
@@ -481,7 +481,7 @@ void thread_mutex_unlock_c(mutex_t *mutex, int line, char *file)
 
         if ((locks > 0) && (_multi_mutex.thread_id != th->thread_id)) {
             /* Don't have double mutex, has more than this mutex left */
-        
+
             LOG_WARN("(%d != %d) Thread %d [%s] tries to unlock a mutex [%s] in file %s line %d, without owning double mutex!",
                  _multi_mutex.thread_id, th->thread_id, th->thread_id, th->name, mutex->name ? mutex->name : "undefined", file, line);
         }
@@ -588,7 +588,7 @@ void thread_exit_c(long val, int line, char *file)
             tmutex = (mutex_t *)node->key;
 
             if (tmutex->thread_id == th->thread_id) {
-                LOG_WARN("Thread %d [%s] exiting in file %s line %d, without unlocking mutex [%s]", 
+                LOG_WARN("Thread %d [%s] exiting in file %s line %d, without unlocking mutex [%s]",
                      th->thread_id, th->name, file, line, mutex_to_string(tmutex, name));
             }
 
@@ -598,7 +598,7 @@ void thread_exit_c(long val, int line, char *file)
         _mutex_unlock(&_mutextree_mutex);
     }
 #endif
-    
+
     if (th && th->detached)
     {
 #ifdef THREAD_DEBUG
@@ -631,7 +631,7 @@ void thread_sleep(unsigned long len)
     while (ret != 0 && errno == EINTR) {
         time_sleep.tv_sec = time_remaining.tv_sec;
         time_sleep.tv_nsec = time_remaining.tv_nsec;
-        
+
         ret = nanosleep(&time_sleep, &time_remaining);
     }
 # else
@@ -697,9 +697,9 @@ thread_type *thread_self(void)
         _mutex_unlock(&_threadtree_mutex);
         return NULL;
     }
-    
+
     node = avl_get_first(_threadtree);
-    
+
     while (node) {
         th = (thread_type *)node->key;
 
@@ -707,7 +707,7 @@ thread_type *thread_self(void)
             _mutex_unlock(&_threadtree_mutex);
             return th;
         }
-        
+
         node = avl_get_next(node);
     }
     _mutex_unlock(&_threadtree_mutex);
@@ -716,7 +716,7 @@ thread_type *thread_self(void)
 #ifdef THREAD_DEBUG
     LOG_ERROR("Nonexistant thread alive...");
 #endif
-    
+
     return NULL;
 }
 
@@ -730,7 +730,7 @@ void thread_rename(const char *name)
     th->name = strdup(name);
 }
 
-static void _mutex_lock(mutex_t *mutex) 
+static void _mutex_lock(mutex_t *mutex)
 {
     pthread_mutex_lock(&mutex->sys_mutex);
 }
