@@ -220,7 +220,7 @@ void thread_shutdown(void)
  */
 static void _block_signals(void)
 {
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__ANDROID__)
         sigset_t ss;
 
         sigfillset(&ss);
@@ -246,7 +246,7 @@ static void _block_signals(void)
  */
 static void _catch_signals(void)
 {
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__ANDROID__)
         sigset_t ss;
 
         sigemptyset(&ss);
@@ -299,7 +299,11 @@ thread_type *thread_create_c(char *name, void *(*start_routine)(void *),
         start->thread = thread;
 
         pthread_attr_setstacksize (&attr, 512*1024);
+
+#ifndef __ANDROID__
         pthread_attr_setinheritsched (&attr, PTHREAD_INHERIT_SCHED);
+#endif
+
         if (detached)
         {
             pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
@@ -656,7 +660,10 @@ static void *_start_routine(void *arg)
     LOG_INFO4("Added thread %d [%s] started at [%s:%d]", thread->thread_id, thread->name, thread->file, thread->line);
 #endif
 
+#ifndef __ANDROID__
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
+#endif
+
     free (start);
 
     (start_routine)(real_arg);
