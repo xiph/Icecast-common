@@ -541,7 +541,7 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     }
 
     /* ok. next we have at least a little bit if a header.
-     * Now we need to find out of the header is complet.
+     * Now we need to find out if the header is complet.
      * If it is we will process it. If it isn't we will
      * just return a short read and try again later!
      *
