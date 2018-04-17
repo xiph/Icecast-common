@@ -56,6 +56,7 @@ struct httpp_encoding_tag {
     size_t buf_write_encoded_offset, buf_write_encoded_len;
 
     /* backend specific stuff */
+    ssize_t bytes_till_eof;
     size_t read_bytes_till_header;
 };
 
@@ -182,6 +183,7 @@ httpp_encoding_t *httpp_encoding_new(const char *encoding) {
         return NULL;
 
     ret->refc = 1;
+    ret->bytes_till_eof = -1;
 
     if (strcasecmp(encoding, HTTPP_ENCODING_IDENTITY) == 0) {
         ret->process_read = __enc_identity_read;
@@ -277,6 +279,23 @@ ssize_t           httpp_encoding_read(httpp_encoding_t *self, void *buf, size_t 
     }
 
     return done;
+}
+
+int               httpp_encoding_eof(httpp_encoding_t *self, int (*cb)(void*), void *userdata)
+{
+    if (!self)
+        return -1;
+
+    if (self->buf_read_decoded_len - self->buf_read_decoded_offset)
+        return 0;
+
+    if (self->bytes_till_eof == 0)
+        return 1;
+
+    if (cb)
+        return cb(userdata);
+
+    return 0;
 }
 
 /* Read any meta data that is in buffer.
@@ -493,7 +512,11 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     /* ok. now we should have 2 or less bytes till next header.
      * We just read a few bytes into our decoding buffer and see what we got.
      */
-    buflen = 1024;
+    if (self->bytes_till_eof != -1) {
+        buflen = self->bytes_till_eof;
+    } else {
+        buflen = 1024;
+    }
 
     if (self->buf_read_raw) {
         bufptr = realloc(self->buf_read_raw, self->buf_read_raw_len + buflen);
@@ -538,6 +561,15 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
          */
         self->buf_read_raw_offset += self->read_bytes_till_header;
         self->read_bytes_till_header = 0;
+    }
+
+    /* Check if we reached EOF */
+    if (self->bytes_till_eof != -1) {
+        if (self->read_bytes_till_header == 0)
+            self->bytes_till_eof = 0;
+
+        if (self->bytes_till_eof == 0)
+            return 0;
     }
 
     /* ok. next we have at least a little bit if a header.
@@ -608,6 +640,10 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     /* ok, Now we move the offset forward to the body. */
     self->buf_read_raw_offset = offset_LF + 1;
 
+    if (!bodylen) {
+        self->bytes_till_eof = 2; /* 2 = tailing "\r\n" */
+    }
+
     /* Do we still have some data in buffer?
      * If not free the buffer and set the counters
      * to point to the next header.
@@ -648,6 +684,20 @@ static ssize_t __enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len,
     memcpy(self->buf_read_decoded, self->buf_read_raw + self->buf_read_raw_offset, bodylen);
     self->buf_read_raw_offset += bodylen;
     self->read_bytes_till_header = 2; /* tailing "\r\n" */
+
+    if ((self->buf_read_raw_len - self->buf_read_raw_offset) >= 2) {
+        self->buf_read_raw_offset += 2;
+        self->read_bytes_till_header = 0;
+        if (self->bytes_till_eof != -1)
+            self->bytes_till_eof = 0;
+
+        if ((self->buf_read_raw_len - self->buf_read_raw_offset) == 0) {
+            free(self->buf_read_raw);
+            self->buf_read_raw = NULL;
+            self->buf_read_raw_len = 0;
+            self->buf_read_raw_offset = 0;
+        }
+    }
 
     return 0;
 }

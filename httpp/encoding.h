@@ -60,6 +60,11 @@ int               httpp_encoding_release(httpp_encoding_t *self);
  */
 ssize_t           httpp_encoding_read(httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata);
 
+/* Check if EOF is reached.
+ * If cb is not NULL this also considers backend state.
+ */
+int               httpp_encoding_eof(httpp_encoding_t *self, int (*cb)(void*), void *userdata);
+
 /* Read any meta data that is in buffer.
  * After a call to this function the meta data is released from the
  * encoding object and the caller is responsible to free it.
