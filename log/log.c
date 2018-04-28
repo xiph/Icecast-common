@@ -473,6 +473,9 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
                 case 'l':
                     block_size++;
                     break;
+                case 'z':
+                    block_size = 'z';
+                    break;
                 case '.':
                     // just ignore '.'. If somebody cares: fix it.
                     break;
@@ -522,6 +525,13 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
                                     snprintf(buf, sizeof(buf), "%llu", (unsigned long long int)va_arg(ap, unsigned long long int));
                                 else
                                     snprintf(buf, sizeof(buf), "%lli", (long long int)va_arg(ap, long long int));
+                                break;
+                            case 'z':
+				/* We do not use 'z' type of snprintf() here as it is not safe to use on a few outdated platforms. */
+                                if (*format == 'u')
+                                    snprintf(buf, sizeof(buf), "%llu", (unsigned long long int)va_arg(ap, size_t));
+                                else
+                                    snprintf(buf, sizeof(buf), "%lli", (long long int)va_arg(ap, ssize_t));
                                 break;
                             default:
                                 snprintf(buf, sizeof(buf), "<<<invalid>>>");
