@@ -52,6 +52,12 @@ static char *_lowercase(char *str);
 static int _compare_vars(void *compare_arg, void *a, void *b);
 static int _free_vars(void *key);
 
+/* For avl tree manipulation */
+static void parse_query(avl_tree *tree, const char *query, size_t len);
+static const char *_httpp_get_param(avl_tree *tree, const char *name);
+static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value);
+static void _httpp_set_param(avl_tree *tree, const char *name, const char *value);
+
 http_parser_t *httpp_create_parser(void)
 {
     return (http_parser_t *)malloc(sizeof(http_parser_t));
@@ -65,6 +71,7 @@ void httpp_initialize(http_parser_t *parser, http_varlist_t *defaults)
     parser->uri = NULL;
     parser->vars = avl_tree_new(_compare_vars, NULL);
     parser->queryvars = avl_tree_new(_compare_vars, NULL);
+    parser->postvars = avl_tree_new(_compare_vars, NULL);
 
     /* now insert the default variables */
     list = defaults;
@@ -203,6 +210,19 @@ int httpp_parse_response(http_parser_t *parser, const char *http_data, unsigned 
     return 1;
 }
 
+int httpp_parse_postdata(http_parser_t *parser, const char *body_data, size_t len)
+{
+    const char *header = httpp_getvar(parser, "content-type");
+
+    if (strcasecmp(header, "application/x-www-form-urlencoded") != 0) {
+        return -1;
+    }
+
+    parse_query(parser->postvars, body_data, len);
+
+    return 0;
+}
+
 static int hex(char c)
 {
     if(c >= '0' && c <= '9')
@@ -215,11 +235,10 @@ static int hex(char c)
         return -1;
 }
 
-static char *url_escape(const char *src)
+static char *url_unescape(const char *src, size_t len)
 {
-    int len = strlen(src);
     unsigned char *decoded;
-    int i;
+    size_t i;
     char *dst;
     int done = 0;
 
@@ -265,38 +284,58 @@ static char *url_escape(const char *src)
     return (char *)decoded;
 }
 
-/** TODO: This is almost certainly buggy in some cases */
-static void parse_query(http_parser_t *parser, char *query)
+static void parse_query_element(avl_tree *tree, const char *start, const char *mid, const char *end)
 {
-    int len;
-    int i=0;
-    char *key = query;
-    char *val=NULL;
+    size_t keylen;
+    char *key;
+    size_t valuelen;
+    char *value;
 
-    if(!query || !*query)
+    if (start >= end)
         return;
 
-    len = strlen(query);
+    if (!mid)
+        return;
 
-    while(i<len) {
-        switch(query[i]) {
-        case '&':
-            query[i] = 0;
-            if(val && key)
-                httpp_set_query_param(parser, key, val);
-            key = query+i+1;
+    keylen = mid - start;
+    valuelen = end - mid - 1;
+
+    /* REVIEW: We ignore keys with empty values. */
+    if (!keylen || !valuelen)
+        return;
+
+    key = malloc(keylen + 1);
+    memcpy(key, start, keylen);
+    key[keylen] = 0;
+
+    value = url_unescape(mid + 1, valuelen);
+
+    _httpp_set_param_nocopy(tree, key, value);
+}
+
+static void parse_query(avl_tree *tree, const char *query, size_t len)
+{
+    const char *start = query;
+    const char *mid = NULL;
+    size_t i;
+
+    if (!query || !*query)
+        return;
+
+    for (i = 0; i < len; i++) {
+        switch (query[i]) {
+            case '&':
+                parse_query_element(tree, start, mid, &(query[i]));
+                start = &(query[i + 1]);
+                mid = NULL;
             break;
-        case '=':
-            query[i] = 0;
-            val = query+i+1;
+            case '=':
+                mid = &(query[i]);
             break;
         }
-        i++;
     }
 
-    if(val && key) {
-        httpp_set_query_param(parser, key, val);
-    }
+    parse_query_element(tree, start, mid, &(query[i]));
 }
 
 int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
@@ -361,7 +400,7 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
             httpp_setvar(parser, HTTPP_VAR_QUERYARGS, query);
             *query = 0;
             query++;
-            parse_query(parser, query);
+            parse_query(parser->queryvars, query, strlen(query));
         }
 
         parser->uri = strdup(uri);
@@ -492,7 +531,7 @@ const char *httpp_getvar(http_parser_t *parser, const char *name)
         return NULL;
 }
 
-void httpp_set_query_param(http_parser_t *parser, const char *name, const char *value)
+static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value)
 {
     http_var_t *var;
 
@@ -502,18 +541,26 @@ void httpp_set_query_param(http_parser_t *parser, const char *name, const char *
     var = (http_var_t *)malloc(sizeof(http_var_t));
     if (var == NULL) return;
 
-    var->name = strdup(name);
-    var->value = url_escape(value);
+    var->name = name;
+    var->value = value;
 
-    if (httpp_get_query_param(parser, name) == NULL) {
-        avl_insert(parser->queryvars, (void *)var);
+    if (_httpp_get_param(tree, name) == NULL) {
+        avl_insert(tree, (void *)var);
     } else {
-        avl_delete(parser->queryvars, (void *)var, _free_vars);
-        avl_insert(parser->queryvars, (void *)var);
+        avl_delete(tree, (void *)var, _free_vars);
+        avl_insert(tree, (void *)var);
     }
 }
 
-const char *httpp_get_query_param(http_parser_t *parser, const char *name)
+static void _httpp_set_param(avl_tree *tree, const char *name, const char *value)
+{
+    if (name == NULL || value == NULL)
+        return;
+
+    _httpp_set_param_nocopy(tree, strdup(name), url_unescape(value, strlen(value)));
+}
+
+static const char *_httpp_get_param(avl_tree *tree, const char *name)
 {
     http_var_t var;
     http_var_t *found;
@@ -523,10 +570,30 @@ const char *httpp_get_query_param(http_parser_t *parser, const char *name)
     var.name = (char *)name;
     var.value = NULL;
 
-    if (avl_get_by_key(parser->queryvars, (void *)&var, fp) == 0)
+    if (avl_get_by_key(tree, (void *)&var, fp) == 0)
         return found->value;
     else
         return NULL;
+}
+
+void httpp_set_query_param(http_parser_t *parser, const char *name, const char *value)
+{
+    return _httpp_set_param(parser->queryvars, name, value);
+}
+
+const char *httpp_get_query_param(http_parser_t *parser, const char *name)
+{
+    return _httpp_get_param(parser->queryvars, name);
+}
+
+void httpp_set_post_param(http_parser_t *parser, const char *name, const char *value)
+{
+    return _httpp_set_param(parser->postvars, name, value);
+}
+
+const char *httpp_get_post_param(http_parser_t *parser, const char *name)
+{
+    return _httpp_get_param(parser->postvars, name);
 }
 
 void httpp_clear(http_parser_t *parser)
@@ -537,6 +604,7 @@ void httpp_clear(http_parser_t *parser)
     parser->uri = NULL;
     avl_tree_free(parser->vars, _free_vars);
     avl_tree_free(parser->queryvars, _free_vars);
+    avl_tree_free(parser->postvars, _free_vars);
     parser->vars = NULL;
 }
 
