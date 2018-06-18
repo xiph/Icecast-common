@@ -596,6 +596,16 @@ const char *httpp_get_post_param(http_parser_t *parser, const char *name)
     return _httpp_get_param(parser->postvars, name);
 }
 
+const char *httpp_get_param(http_parser_t *parser, const char *name)
+{
+    const char *ret = _httpp_get_param(parser->postvars, name);
+
+    if (ret)
+        return ret;
+
+    return _httpp_get_param(parser->queryvars, name);
+}
+
 void httpp_clear(http_parser_t *parser)
 {
     parser->req_type = httpp_req_none;

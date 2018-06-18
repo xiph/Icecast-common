@@ -106,6 +106,7 @@ void httpp_set_query_param(http_parser_t *parser, const char *name, const char *
 const char *httpp_get_query_param(http_parser_t *parser, const char *name);
 void httpp_set_post_param(http_parser_t *parser, const char *name, const char *value);
 const char *httpp_get_post_param(http_parser_t *parser, const char *name);
+const char *httpp_get_param(http_parser_t *parser, const char *name);
 void httpp_destroy(http_parser_t *parser);
 void httpp_clear(http_parser_t *parser);
 
