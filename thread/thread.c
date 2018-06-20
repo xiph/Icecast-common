@@ -750,9 +750,8 @@ void thread_library_unlock(void)
 void thread_join(thread_type *thread)
 {
     void *ret;
-    int i;
 
-    i = pthread_join(thread->sys_thread, &ret);
+    pthread_join(thread->sys_thread, &ret);
     _mutex_lock(&_threadtree_mutex);
     avl_delete(_threadtree, thread, _free_thread);
     _mutex_unlock(&_threadtree_mutex);
