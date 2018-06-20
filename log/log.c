@@ -99,7 +99,6 @@ typedef struct log_tag
 static log_t loglist[LOG_MAXLOGS];
 
 static int _get_log_id(void);
-static void _release_log_id(int log_id);
 static void _lock_logger(void);
 static void _unlock_logger(void);
 
@@ -614,14 +613,11 @@ void log_write(int log_id, unsigned priority, const char *cat, const char *func,
 void log_write_direct(int log_id, const char *fmt, ...)
 {
     va_list ap;
-    time_t now;
     char line[LOG_MAXLINELEN];
 
     if (log_id < 0 || log_id >= LOG_MAXLOGS) return;
     
     va_start(ap, fmt);
-
-    now = time(NULL);
 
     _lock_logger();
     __vsnprintf(line, LOG_MAXLINELEN, fmt, ap);
@@ -657,17 +653,6 @@ static int _get_log_id(void)
     _unlock_logger();
 
     return id;
-}
-
-static void _release_log_id(int log_id)
-{
-    /* lock mutex */
-    _lock_logger();
-
-    loglist[log_id].in_use = 0;
-
-    /* unlock mutex */
-    _unlock_logger();
 }
 
 static void _lock_logger(void)
