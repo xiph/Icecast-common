@@ -442,7 +442,7 @@ void log_contents (int log_id, char **_contents, unsigned int *_len)
 static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) {
     int in_block = 0;
     int block_size = 0;
-    int block_len;
+    int block_len = 0;
     int block_space = 0;
     const char * arg;
     char buf[80];
