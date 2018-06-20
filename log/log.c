@@ -672,7 +672,3 @@ static void _unlock_logger(void)
     LeaveCriticalSection(&_logger_mutex);
 #endif    
 }
-
-
-
-
