@@ -491,8 +491,10 @@ void httpp_deletevar(http_parser_t *parser, const char *name)
 
     if (parser == NULL || name == NULL)
         return;
+    memset(&var, 0, sizeof(var));
+
     var.name = (char*)name;
-    var.value = NULL;
+
     avl_delete(parser->vars, (void *)&var, _free_vars);
 }
 
@@ -503,7 +505,7 @@ void httpp_setvar(http_parser_t *parser, const char *name, const char *value)
     if (name == NULL || value == NULL)
         return;
 
-    var = (http_var_t *)malloc(sizeof(http_var_t));
+    var = (http_var_t *)calloc(1, sizeof(http_var_t));
     if (var == NULL) return;
 
     var->name = strdup(name);
@@ -527,8 +529,8 @@ const char *httpp_getvar(http_parser_t *parser, const char *name)
         return NULL;
 
     fp = &found;
+    memset(&var, 0, sizeof(var));
     var.name = (char*)name;
-    var.value = NULL;
 
     if (avl_get_by_key(parser->vars, &var, fp) == 0)
         return found->value;
@@ -543,7 +545,7 @@ static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value)
     if (name == NULL || value == NULL)
         return;
 
-    var = (http_var_t *)malloc(sizeof(http_var_t));
+    var = (http_var_t *)calloc(1, sizeof(http_var_t));
     if (var == NULL) return;
 
     var->name = name;
@@ -572,8 +574,8 @@ static const char *_httpp_get_param(avl_tree *tree, const char *name)
     void *fp;
 
     fp = &found;
+    memset(&var, 0, sizeof(var));
     var.name = (char *)name;
-    var.value = NULL;
 
     if (avl_get_by_key(tree, (void *)&var, fp) == 0)
         return found->value;
@@ -650,15 +652,20 @@ static int _compare_vars(void *compare_arg, void *a, void *b)
 
 static int _free_vars(void *key)
 {
-    http_var_t *var;
+    http_var_t *var, *next;
 
-    var = (http_var_t *)key;
+    next = (http_var_t *)key;
 
-    if (var->name)
-        free(var->name);
-    if (var->value)
-        free(var->value);
-    free(var);
+    while (next) {
+        var = next;
+        next = var->next;
+
+        if (var->name)
+            free(var->name);
+        if (var->value)
+            free(var->value);
+        free(var);
+    }
 
     return 1;
 }
