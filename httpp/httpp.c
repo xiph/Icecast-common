@@ -653,6 +653,16 @@ const char *httpp_get_post_param(http_parser_t *parser, const char *name)
     return _httpp_get_param(parser->postvars, name);
 }
 
+const http_var_t *httpp_get_param_var(http_parser_t *parser, const char *name)
+{
+    http_var_t *ret = _httpp_get_param_var(parser->postvars, name);
+
+    if (ret)
+        return ret;
+
+    return _httpp_get_param_var(parser->queryvars, name);
+}
+
 const char *httpp_get_param(http_parser_t *parser, const char *name)
 {
     const char *ret = _httpp_get_param(parser->postvars, name);
