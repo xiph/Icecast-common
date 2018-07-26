@@ -64,8 +64,8 @@ typedef enum httpp_request_type_tag {
 typedef struct http_var_tag http_var_t;
 struct http_var_tag {
     char *name;
-    char *value;
-    http_var_t *next;
+    size_t values;
+    char **value;
 };
 
 typedef struct http_varlist_tag {

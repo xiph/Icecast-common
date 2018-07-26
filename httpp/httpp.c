@@ -55,8 +55,9 @@ static int _free_vars(void *key);
 /* For avl tree manipulation */
 static void parse_query(avl_tree *tree, const char *query, size_t len);
 static const char *_httpp_get_param(avl_tree *tree, const char *name);
-static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value);
+static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value, int replace);
 static void _httpp_set_param(avl_tree *tree, const char *name, const char *value);
+static http_var_t *_httpp_get_param_var(avl_tree *tree, const char *name);
 
 http_parser_t *httpp_create_parser(void)
 {
@@ -76,7 +77,12 @@ void httpp_initialize(http_parser_t *parser, http_varlist_t *defaults)
     /* now insert the default variables */
     list = defaults;
     while (list != NULL) {
-        httpp_setvar(parser, list->var.name, list->var.value);
+        size_t i;
+
+        for (i = 0; i < list->var.values; i++) {
+            httpp_setvar(parser, list->var.name, list->var.value[i]);
+        }
+
         list = list->next;
     }
 }
@@ -310,7 +316,7 @@ static void parse_query_element(avl_tree *tree, const char *start, const char *m
 
     value = url_unescape(mid + 1, valuelen);
 
-    _httpp_set_param_nocopy(tree, key, value);
+    _httpp_set_param_nocopy(tree, key, value, 0);
 }
 
 static void parse_query(avl_tree *tree, const char *query, size_t len)
@@ -508,8 +514,15 @@ void httpp_setvar(http_parser_t *parser, const char *name, const char *value)
     var = (http_var_t *)calloc(1, sizeof(http_var_t));
     if (var == NULL) return;
 
+    var->value = calloc(1, sizeof(*var->value));
+    if (!var->value) {
+        free(var);
+        return;
+    }
+
     var->name = strdup(name);
-    var->value = strdup(value);
+    var->values = 1;
+    var->value[0] = strdup(value);
 
     if (httpp_getvar(parser, name) == NULL) {
         avl_insert(parser->vars, (void *)var);
@@ -532,29 +545,54 @@ const char *httpp_getvar(http_parser_t *parser, const char *name)
     memset(&var, 0, sizeof(var));
     var.name = (char*)name;
 
-    if (avl_get_by_key(parser->vars, &var, fp) == 0)
-        return found->value;
-    else
+    if (avl_get_by_key(parser->vars, &var, fp) == 0) {
+        if (!found->values)
+            return NULL;
+        return found->value[0];
+    } else {
         return NULL;
+    }
 }
 
-static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value)
+static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value, int replace)
 {
-    http_var_t *var;
+    http_var_t *var, *found;
+    char **n;
 
     if (name == NULL || value == NULL)
         return;
 
-    var = (http_var_t *)calloc(1, sizeof(http_var_t));
-    if (var == NULL) return;
+    found = _httpp_get_param_var(tree, name);
 
-    var->name = name;
-    var->value = value;
+    if (replace || !found) {
+        var = (http_var_t *)calloc(1, sizeof(http_var_t));
+        if (var == NULL) {
+            free(name);
+            free(value);
+            return;
+        }
 
-    if (_httpp_get_param(tree, name) == NULL) {
-        avl_insert(tree, (void *)var);
+        var->name = name;
     } else {
-        avl_delete(tree, (void *)var, _free_vars);
+        free(name);
+        var = found;
+    }
+
+    n = realloc(var->value, sizeof(*n)*(var->values + 1));
+    if (!n) {
+        if (replace || !found) {
+            free(name);
+            free(var);
+        }
+        free(value);
+        return;
+    }
+
+    var->value = n;
+    var->value[var->values++] = value;
+
+    if (replace && found) {
+        avl_delete(tree, (void *)found, _free_vars);
         avl_insert(tree, (void *)var);
     }
 }
@@ -564,10 +602,10 @@ static void _httpp_set_param(avl_tree *tree, const char *name, const char *value
     if (name == NULL || value == NULL)
         return;
 
-    _httpp_set_param_nocopy(tree, strdup(name), url_unescape(value, strlen(value)));
+    _httpp_set_param_nocopy(tree, strdup(name), url_unescape(value, strlen(value)), 1);
 }
 
-static const char *_httpp_get_param(avl_tree *tree, const char *name)
+static http_var_t *_httpp_get_param_var(avl_tree *tree, const char *name)
 {
     http_var_t var;
     http_var_t *found;
@@ -578,9 +616,21 @@ static const char *_httpp_get_param(avl_tree *tree, const char *name)
     var.name = (char *)name;
 
     if (avl_get_by_key(tree, (void *)&var, fp) == 0)
-        return found->value;
+        return found;
     else
         return NULL;
+}
+static const char *_httpp_get_param(avl_tree *tree, const char *name)
+{
+    http_var_t *res = _httpp_get_param_var(tree, name);
+
+    if (!res)
+        return NULL;
+
+    if (!res->values)
+        return NULL;
+
+    return res->value[0];
 }
 
 void httpp_set_query_param(http_parser_t *parser, const char *name, const char *value)
@@ -652,20 +702,16 @@ static int _compare_vars(void *compare_arg, void *a, void *b)
 
 static int _free_vars(void *key)
 {
-    http_var_t *var, *next;
+    http_var_t *var = (http_var_t *)key;
+    size_t i;
 
-    next = (http_var_t *)key;
+    free(var->name);
 
-    while (next) {
-        var = next;
-        next = var->next;
-
-        if (var->name)
-            free(var->name);
-        if (var->value)
-            free(var->value);
-        free(var);
+    for (i = 0; i < var->values; i++) {
+        free(var->value[i]);
     }
+    free(var->value);
+    free(var);
 
     return 1;
 }
