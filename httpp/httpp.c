@@ -594,6 +594,8 @@ static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value, int
     if (replace && found) {
         avl_delete(tree, (void *)found, _free_vars);
         avl_insert(tree, (void *)var);
+    } else if (!found) {
+        avl_insert(tree, (void *)var);
     }
 }
 
