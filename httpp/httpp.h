@@ -61,6 +61,14 @@ typedef enum httpp_request_type_tag {
     httpp_req_unknown
 } httpp_request_type_e;
 
+typedef unsigned int httpp_request_info_t;
+#define HTTPP_REQUEST_IS_SAFE                       ((httpp_request_info_t)0x0001U)
+#define HTTPP_REQUEST_IS_IDEMPOTENT                 ((httpp_request_info_t)0x0002U)
+#define HTTPP_REQUEST_IS_CACHEABLE                  ((httpp_request_info_t)0x0004U)
+#define HTTPP_REQUEST_HAS_RESPONSE_BODY             ((httpp_request_info_t)0x0010U)
+#define HTTPP_REQUEST_HAS_REQUEST_BODY              ((httpp_request_info_t)0x0100U)
+#define HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY     ((httpp_request_info_t)0x0200U)
+
 typedef struct http_var_tag http_var_t;
 struct http_var_tag {
     char *name;
@@ -82,6 +90,7 @@ typedef struct http_parser_tag {
 } http_parser_t;
 
 #ifdef _mangle
+# define httpp_request_info _mangle(httpp_request_info)
 # define httpp_create_parser _mangle(httpp_create_parser)
 # define httpp_initialize _mangle(httpp_initialize)
 # define httpp_parse _mangle(httpp_parse)
@@ -98,6 +107,8 @@ typedef struct http_parser_tag {
 # define httpp_destroy _mangle(httpp_destroy)
 # define httpp_clear _mangle(httpp_clear)
 #endif
+
+httpp_request_info_t httpp_request_info(httpp_request_type_e req);
 
 http_parser_t *httpp_create_parser(void);
 void httpp_initialize(http_parser_t *parser, http_varlist_t *defaults);

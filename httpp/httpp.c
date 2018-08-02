@@ -59,6 +59,63 @@ static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value, int
 static void _httpp_set_param(avl_tree *tree, const char *name, const char *value);
 static http_var_t *_httpp_get_param_var(avl_tree *tree, const char *name);
 
+httpp_request_info_t httpp_request_info(httpp_request_type_e req)
+{
+#if 0
+#define HTTPP_REQUEST_IS_SAFE                       ((httpp_request_info_t)0x0001U)
+#define HTTPP_REQUEST_IS_IDEMPOTENT                 ((httpp_request_info_t)0x0002U)
+#define HTTPP_REQUEST_IS_CACHEABLE                  ((httpp_request_info_t)0x0004U)
+#define HTTPP_REQUEST_HAS_RESPONSE_BODY             ((httpp_request_info_t)0x0010U)
+#define HTTPP_REQUEST_HAS_REQUEST_BODY              ((httpp_request_info_t)0x0100U)
+#define HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY     ((httpp_request_info_t)0x0200U)
+#endif
+    switch (req) {
+        /* offical methods */
+        case httpp_req_get:
+            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_IS_CACHEABLE|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
+        break;
+        case httpp_req_post:
+            return HTTPP_REQUEST_IS_CACHEABLE|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_REQUEST_BODY;
+        break;
+        case httpp_req_put:
+            return HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_REQUEST_BODY;
+        break;
+        case httpp_req_head:
+            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_IS_CACHEABLE;
+        break;
+        case httpp_req_options:
+            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
+        break;
+        case httpp_req_delete:
+            return HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_HAS_RESPONSE_BODY;
+        break;
+        case httpp_req_trace:
+            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_HAS_RESPONSE_BODY;
+        break;
+        case httpp_req_connect:
+            return HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_REQUEST_BODY;
+        break;
+
+        /* Icecast specific methods */
+        case httpp_req_source:
+            return HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_REQUEST_BODY;
+        break;
+        case httpp_req_play:
+            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
+        break;
+        case httpp_req_stats:
+            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
+        break;
+
+        /* Virtual and other methods */
+        case httpp_req_none:
+        case httpp_req_unknown:
+        default:
+            return HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
+        break;
+    }
+}
+
 http_parser_t *httpp_create_parser(void)
 {
     return (http_parser_t *)malloc(sizeof(http_parser_t));
