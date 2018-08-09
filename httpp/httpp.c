@@ -118,18 +118,21 @@ httpp_request_info_t httpp_request_info(httpp_request_type_e req)
 
 http_parser_t *httpp_create_parser(void)
 {
-    return (http_parser_t *)malloc(sizeof(http_parser_t));
-}
+    http_parser_t *parser = calloc(1, sizeof(http_parser_t));
 
-void httpp_initialize(http_parser_t *parser, http_varlist_t *defaults)
-{
-    http_varlist_t *list;
-
+    parser->refc = 1;
     parser->req_type = httpp_req_none;
     parser->uri = NULL;
     parser->vars = avl_tree_new(_compare_vars, NULL);
     parser->queryvars = avl_tree_new(_compare_vars, NULL);
     parser->postvars = avl_tree_new(_compare_vars, NULL);
+
+    return parser;
+}
+
+void httpp_initialize(http_parser_t *parser, http_varlist_t *defaults)
+{
+    http_varlist_t *list;
 
     /* now insert the default variables */
     list = defaults;
@@ -732,7 +735,7 @@ const char *httpp_get_param(http_parser_t *parser, const char *name)
     return _httpp_get_param(parser->queryvars, name);
 }
 
-void httpp_clear(http_parser_t *parser)
+static void httpp_clear(http_parser_t *parser)
 {
     parser->req_type = httpp_req_none;
     if (parser->uri)
@@ -744,10 +747,29 @@ void httpp_clear(http_parser_t *parser)
     parser->vars = NULL;
 }
 
-void httpp_destroy(http_parser_t *parser)
+int httpp_addref(http_parser_t *parser)
 {
+    if (!parser)
+        return -1;
+
+    parser->refc++;
+
+    return 0;
+}
+
+int httpp_release(http_parser_t *parser)
+{
+    if (!parser)
+        return -1;
+
+    parser->refc--;
+    if (parser->refc)
+        return 0;
+
     httpp_clear(parser);
     free(parser);
+
+    return 0;
 }
 
 static char *_lowercase(char *str)
