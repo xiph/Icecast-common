@@ -33,7 +33,7 @@
 #define HTTPP_VAR_VERSION "__version"
 #define HTTPP_VAR_URI "__uri"
 #define HTTPP_VAR_RAWURI "__rawuri"
-#define HTTPP_VAR_QUERYARGS " __queryargs"
+#define HTTPP_VAR_QUERYARGS "__queryargs"
 #define HTTPP_VAR_REQ_TYPE "__req_type"
 #define HTTPP_VAR_ERROR_MESSAGE "__errormessage"
 #define HTTPP_VAR_ERROR_CODE "__errorcode"
