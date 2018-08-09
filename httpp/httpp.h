@@ -39,6 +39,13 @@
 #define HTTPP_VAR_ERROR_CODE "__errorcode"
 #define HTTPP_VAR_ICYPASSWORD "__icy_password"
 
+typedef enum {
+    HTTPP_NS_VAR,
+    HTTPP_NS_HEADER,
+    HTTPP_NS_QUERY_STRING,
+    HTTPP_NS_POST_BODY
+} httpp_ns_t;
+
 typedef enum httpp_request_type_tag {
     /* Initial and internally used state of the engine */
     httpp_req_none = 0,
@@ -126,6 +133,9 @@ void httpp_set_post_param(http_parser_t *parser, const char *name, const char *v
 const char *httpp_get_post_param(http_parser_t *parser, const char *name);
 const char *httpp_get_param(http_parser_t *parser, const char *name);
 const http_var_t *httpp_get_param_var(http_parser_t *parser, const char *name);
+const http_var_t *httpp_get_any_var(http_parser_t *parser, httpp_ns_t ns, const char *name);
+char ** httpp_get_any_key(http_parser_t *parser, httpp_ns_t ns);
+void httpp_free_any_key(char **keys);
 int httpp_addref(http_parser_t *parser);
 int httpp_release(http_parser_t *parser);
 #define httpp_destroy(x) httpp_release((x))

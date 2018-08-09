@@ -725,6 +725,120 @@ const http_var_t *httpp_get_param_var(http_parser_t *parser, const char *name)
     return _httpp_get_param_var(parser->queryvars, name);
 }
 
+const http_var_t *httpp_get_any_var(http_parser_t *parser, httpp_ns_t ns, const char *name)
+{
+    avl_tree *tree = NULL;
+
+    if (!parser || !name)
+        return NULL;
+
+    switch (ns) {
+        case HTTPP_NS_VAR:
+            if (name[0] != '_' || name[1] != '_')
+                return NULL;
+            tree = parser->vars;
+        break;
+        case HTTPP_NS_HEADER:
+            if (name[0] == '_' && name[1] == '_')
+                return NULL;
+            tree = parser->vars;
+        break;
+        case HTTPP_NS_QUERY_STRING:
+            tree = parser->queryvars;
+        break;
+        case HTTPP_NS_POST_BODY:
+            tree = parser->postvars;
+        break;
+    }
+
+    if (!tree)
+        return NULL;
+
+    return _httpp_get_param_var(tree, name);
+}
+
+char ** httpp_get_any_key(http_parser_t *parser, httpp_ns_t ns)
+{
+    avl_tree *tree = NULL;
+    avl_node *avlnode;
+    char **ret;
+    size_t len;
+    size_t pos = 0;
+
+    if (!parser)
+        return NULL;
+
+    switch (ns) {
+        case HTTPP_NS_VAR:
+        case HTTPP_NS_HEADER:
+            tree = parser->vars;
+        break;
+        case HTTPP_NS_QUERY_STRING:
+            tree = parser->queryvars;
+        break;
+        case HTTPP_NS_POST_BODY:
+            tree = parser->postvars;
+        break;
+    }
+
+    if (!tree)
+        return NULL;
+
+    ret = calloc(8, sizeof(*ret));
+    if (!ret)
+        return NULL;
+
+    len = 8;
+
+    for (avlnode = avl_get_first(tree); avlnode; avlnode = avl_get_next(avlnode)) {
+        http_var_t *var = avlnode->key;
+
+        if (ns == HTTPP_NS_VAR) {
+            if (var->name[0] != '_' || var->name[1] != '_') {
+                continue;
+            }
+        } else if (ns == HTTPP_NS_HEADER) {
+            if (var->name[0] == '_' && var->name[1] == '_') {
+                continue;
+            }
+        }
+
+        if (pos == (len-1)) {
+            char **n = realloc(ret, sizeof(*ret)*(len + 8));
+            if (!n) {
+                httpp_free_any_key(ret);
+                return NULL;
+            }
+            memset(n + len, 0, sizeof(*n)*8);
+            ret = n;
+            len += 8;
+        }
+
+        ret[pos] = strdup(var->name);
+        if (!ret[pos]) {
+            httpp_free_any_key(ret);
+            return NULL;
+        }
+
+        pos++;
+    }
+
+    return ret;
+}
+
+void httpp_free_any_key(char **keys)
+{
+    char **p;
+
+    if (!keys)
+        return;
+
+    for (p = keys; *p; p++) {
+        free(*p);
+    }
+    free(keys);
+}
+
 const char *httpp_get_param(http_parser_t *parser, const char *name)
 {
     const char *ret = _httpp_get_param(parser->postvars, name);
