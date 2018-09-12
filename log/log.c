@@ -440,6 +440,7 @@ void log_contents (int log_id, char **_contents, unsigned int *_len)
 }
 
 static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) {
+    static const char hextable[] = "0123456789abcdef";
     int in_block = 0;
     int block_size = 0;
     int block_len = 0;
@@ -554,10 +555,22 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
                     {
                         for (; *arg && block_len && size; arg++, size--, block_len--)
                         {
-                            if ((*arg <= '"' || *arg == '`'  || *arg == '\\') && !(block_space && *arg == ' '))
-                                *(str++) = '.';
-                            else
+                            if ((*arg <= '"' || *arg == '`' || *arg == '\\') && !(block_space && *arg == ' ')) {
+                                if (size < 4) {
+                                    /* Use old system if we do not have space for new one */
+                                    *(str++) = '.';
+                                } else {
+                                    *(str++) = '\\';
+                                    *(str++) = 'x';
+                                    *(str++) = hextable[(*arg >> 0) & 0x0F];
+                                    *(str++) = hextable[(*arg >> 4) & 0x0F];
+                                    /* Also count the additional chars for string size and block length */
+                                    size -= 3;
+                                    block_len -= 3;
+                                }
+                            } else {
                                 *(str++) = *arg;
+                            }
                         }
                     }
                     else
