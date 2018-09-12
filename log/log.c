@@ -551,7 +551,7 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
 
                     // the if() is the outer structure so the inner for()
                     // is branch optimized.
-                    if (*format == 'H' )
+                    if (*format == 'H')
                     {
                         for (; *arg && block_len && size; arg++, size--, block_len--)
                         {
