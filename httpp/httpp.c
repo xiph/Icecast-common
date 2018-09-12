@@ -380,11 +380,11 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
                 whitespace = 0;
                 where++;
                 switch (where) {
-                case 1:
-                    uri = &line[0][i];
+                    case 1:
+                        uri = &line[0][i];
                     break;
-                case 2:
-                    version = &line[0][i];
+                    case 2:
+                        version = &line[0][i];
                     break;
                 }
             }
