@@ -445,6 +445,7 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
     int block_size = 0;
     int block_len = 0;
     int block_space = 0;
+    int block_alt = 0;
     const char * arg;
     char buf[80];
 
@@ -457,6 +458,7 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
                 block_size = 0;
                 block_len  = 0;
                 block_space = 0;
+                block_alt = 0;
             }
             else
             {
@@ -484,6 +486,9 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
                     break;
                 case ' ':
                     block_space = 1;
+                    break;
+                case '#':
+                    block_alt = 1;
                     break;
                 case '1':
                 case '2':
@@ -544,15 +549,36 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
                     // TODO.
                     if (!arg)
                         arg = va_arg(ap, const char *);
-                    if (!arg)
+                    if (*format != 'H') {
+                        block_alt = 0;
+                    }
+                    if (!arg && !block_alt)
                         arg = "(null)";
-                    if (!block_len)
-                        block_len = strlen(arg);
+                    if (!block_len) {
+                        if (arg) {
+                            block_len = strlen(arg) + ((block_alt) ? 2 : 0);
+                        } else {
+                            block_len = 1;
+                        }
+                    }
 
                     // the if() is the outer structure so the inner for()
                     // is branch optimized.
-                    if (*format == 'H')
+                    if (*format == 'H' && !arg)
                     {
+                        if (size && block_len) {
+                            *(str++) = '-';
+                            size--;
+                            block_len--;
+                        }
+                    }
+                    else if (*format == 'H')
+                    {
+                        if (block_alt && size && block_len) {
+                            *(str++) = '"';
+                            size--;
+                            block_len--;
+                        }
                         for (; *arg && block_len && size; arg++, size--, block_len--)
                         {
                             if ((*arg <= '"' || *arg == '`' || *arg == '\\') && !(block_space && *arg == ' ')) {
@@ -571,6 +597,11 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
                             } else {
                                 *(str++) = *arg;
                             }
+                        }
+                        if (block_alt && size && block_len) {
+                            *(str++) = '"';
+                            size--;
+                            block_len--;
                         }
                     }
                     else
