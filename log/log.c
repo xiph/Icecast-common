@@ -439,6 +439,42 @@ void log_contents (int log_id, char **_contents, unsigned int *_len)
     _unlock_logger ();
 }
 
+static inline int __vsnprintf__is_print(int c, int allow_space)
+{
+    if ((c <= '"' || c == '`' || c == '\\') && !(allow_space && c == ' ')) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+static inline size_t __vsnprintf__strlen(const char *str, int is_alt, int allow_space)
+{
+    size_t ret = 0;
+
+    if (!str) {
+        if (is_alt) {
+            return strlen("-");
+        } else {
+            return strlen("(null)");
+        }
+    }
+
+    for (; *str; str++) {
+        if (__vsnprintf__is_print(*str, allow_space)) {
+            ret += 1;
+        } else {
+            ret += 4;
+        }
+    }
+
+    if (is_alt) {
+        ret += 2;
+    }
+
+    return ret;
+}
+
 static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) {
     static const char hextable[] = "0123456789abcdef";
     int in_block = 0;
@@ -555,11 +591,7 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
                     if (!arg && !block_alt)
                         arg = "(null)";
                     if (!block_len) {
-                        if (arg) {
-                            block_len = strlen(arg) + ((block_alt) ? 2 : 0);
-                        } else {
-                            block_len = 1;
-                        }
+                        block_len = __vsnprintf__strlen(arg, block_alt, block_space);
                     }
 
                     // the if() is the outer structure so the inner for()
@@ -581,8 +613,8 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
                         }
                         for (; *arg && block_len && size; arg++, size--, block_len--)
                         {
-                            if ((*arg <= '"' || *arg == '`' || *arg == '\\') && !(block_space && *arg == ' ')) {
-                                if (size < 4) {
+                            if (!__vsnprintf__is_print(*arg, block_space)) {
+                                if (size < 4 || block_len < 4) {
                                     /* Use old system if we do not have space for new one */
                                     *(str++) = '.';
                                 } else {
