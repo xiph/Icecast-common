@@ -386,6 +386,11 @@ int httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
                     case 2:
                         version = &line[0][i];
                     break;
+                    case 3:
+                        /* There is an extra element in the request line. This is not HTTP. */
+                        free(data);
+                        return 0;
+                    break;
                 }
             }
         }
