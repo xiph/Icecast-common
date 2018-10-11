@@ -1,7 +1,34 @@
-*.in
-*.la
-*.lo
-*.o
-.deps
+# Ignore generated config.h
+config.h
+
+# Ignore binaries/temporary stuff
 .libs
+.deps
+*.o
+*.lo
+*.la
+
+# Autofoo stuff
+stamp-h1
+libtool
+config.h.in
+config.h.in~
+config.log
+config.status
+configure
+build-aux/
+autom4te.cache/
+aclocal.m4
+
+# Ignore generated Makefiles
 Makefile
+Makefile.in
+
+# Ignore auxiliary files
+/tap-driver.sh
+
+# Ignore vim swap files
+.*.swp
+
+# Other
+.DS_Store
