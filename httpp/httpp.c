@@ -53,72 +53,72 @@ static int igloo__compare_vars(void *compare_arg, void *a, void *b);
 static int igloo__free_vars(void *key);
 
 /* For avl tree manipulation */
-static void parse_query(avl_tree *tree, const char *query, size_t len);
-static const char *_httpp_get_param(avl_tree *tree, const char *name);
-static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value, int replace);
-static void _httpp_set_param(avl_tree *tree, const char *name, const char *value);
-static http_var_t *igloo__httpp_get_param_var(avl_tree *tree, const char *name);
+static void parse_query(igloo_avl_tree *tree, const char *query, size_t len);
+static const char *_httpp_get_param(igloo_avl_tree *tree, const char *name);
+static void _httpp_set_param_nocopy(igloo_avl_tree *tree, char *name, char *value, int replace);
+static void _httpp_set_param(igloo_avl_tree *tree, const char *name, const char *value);
+static igloo_http_var_t *igloo__httpp_get_param_var(igloo_avl_tree *tree, const char *name);
 
-httpp_request_info_t igloo_httpp_request_info(httpp_request_type_e req)
+igloo_httpp_request_info_t igloo_httpp_request_info(igloo_httpp_request_type_e req)
 {
 #if 0
-#define HTTPP_REQUEST_IS_SAFE                       ((httpp_request_info_t)0x0001U)
-#define HTTPP_REQUEST_IS_IDEMPOTENT                 ((httpp_request_info_t)0x0002U)
-#define HTTPP_REQUEST_IS_CACHEABLE                  ((httpp_request_info_t)0x0004U)
-#define HTTPP_REQUEST_HAS_RESPONSE_BODY             ((httpp_request_info_t)0x0010U)
-#define HTTPP_REQUEST_HAS_REQUEST_BODY              ((httpp_request_info_t)0x0100U)
-#define HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY     ((httpp_request_info_t)0x0200U)
+#define igloo_HTTPP_REQUEST_IS_SAFE                       ((igloo_httpp_request_info_t)0x0001U)
+#define igloo_HTTPP_REQUEST_IS_IDEMPOTENT                 ((igloo_httpp_request_info_t)0x0002U)
+#define igloo_HTTPP_REQUEST_IS_CACHEABLE                  ((igloo_httpp_request_info_t)0x0004U)
+#define igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY             ((igloo_httpp_request_info_t)0x0010U)
+#define igloo_HTTPP_REQUEST_HAS_REQUEST_BODY              ((igloo_httpp_request_info_t)0x0100U)
+#define igloo_HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY     ((igloo_httpp_request_info_t)0x0200U)
 #endif
     switch (req) {
         /* offical methods */
         case httpp_req_get:
-            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_IS_CACHEABLE|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
+            return igloo_HTTPP_REQUEST_IS_SAFE|igloo_HTTPP_REQUEST_IS_IDEMPOTENT|igloo_HTTPP_REQUEST_IS_CACHEABLE|igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY|igloo_HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
         break;
         case httpp_req_post:
-            return HTTPP_REQUEST_IS_CACHEABLE|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_REQUEST_BODY;
+            return igloo_HTTPP_REQUEST_IS_CACHEABLE|igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY|igloo_HTTPP_REQUEST_HAS_REQUEST_BODY;
         break;
         case httpp_req_put:
-            return HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_REQUEST_BODY;
+            return igloo_HTTPP_REQUEST_IS_IDEMPOTENT|igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY|igloo_HTTPP_REQUEST_HAS_REQUEST_BODY;
         break;
         case httpp_req_head:
-            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_IS_CACHEABLE;
+            return igloo_HTTPP_REQUEST_IS_SAFE|igloo_HTTPP_REQUEST_IS_IDEMPOTENT|igloo_HTTPP_REQUEST_IS_CACHEABLE;
         break;
         case httpp_req_options:
-            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
+            return igloo_HTTPP_REQUEST_IS_SAFE|igloo_HTTPP_REQUEST_IS_IDEMPOTENT|igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY|igloo_HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
         break;
         case httpp_req_delete:
-            return HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_HAS_RESPONSE_BODY;
+            return igloo_HTTPP_REQUEST_IS_IDEMPOTENT|igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY;
         break;
         case httpp_req_trace:
-            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_IS_IDEMPOTENT|HTTPP_REQUEST_HAS_RESPONSE_BODY;
+            return igloo_HTTPP_REQUEST_IS_SAFE|igloo_HTTPP_REQUEST_IS_IDEMPOTENT|igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY;
         break;
         case httpp_req_connect:
-            return HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_REQUEST_BODY;
+            return igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY|igloo_HTTPP_REQUEST_HAS_REQUEST_BODY;
         break;
 
         /* Icecast specific methods */
         case httpp_req_source:
-            return HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_REQUEST_BODY;
+            return igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY|igloo_HTTPP_REQUEST_HAS_REQUEST_BODY;
         break;
         case httpp_req_play:
-            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
+            return igloo_HTTPP_REQUEST_IS_SAFE|igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY|igloo_HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
         break;
         case httpp_req_stats:
-            return HTTPP_REQUEST_IS_SAFE|HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
+            return igloo_HTTPP_REQUEST_IS_SAFE|igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY|igloo_HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
         break;
 
         /* Virtual and other methods */
         case httpp_req_none:
         case httpp_req_unknown:
         default:
-            return HTTPP_REQUEST_HAS_RESPONSE_BODY|HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
+            return igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY|igloo_HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY;
         break;
     }
 }
 
-http_parser_t *igloo_httpp_create_parser(void)
+igloo_http_parser_t *igloo_httpp_create_parser(void)
 {
-    http_parser_t *parser = calloc(1, sizeof(http_parser_t));
+    igloo_http_parser_t *parser = calloc(1, sizeof(igloo_http_parser_t));
 
     parser->refc = 1;
     parser->req_type = httpp_req_none;
@@ -130,9 +130,9 @@ http_parser_t *igloo_httpp_create_parser(void)
     return parser;
 }
 
-void igloo_httpp_initialize(http_parser_t *parser, http_varlist_t *defaults)
+void igloo_httpp_initialize(igloo_http_parser_t *parser, igloo_http_varlist_t *defaults)
 {
-    http_varlist_t *list;
+    igloo_http_varlist_t *list;
 
     /* now insert the default variables */
     list = defaults;
@@ -177,7 +177,7 @@ static int igloo_split_headers(char *data, unsigned long len, char **line)
     return lines;
 }
 
-static void igloo_parse_headers(http_parser_t *parser, char **line, int lines)
+static void igloo_parse_headers(igloo_http_parser_t *parser, char **line, int lines)
 {
     int i, l;
     int whitespace, slen;
@@ -216,7 +216,7 @@ static void igloo_parse_headers(http_parser_t *parser, char **line, int lines)
     }
 }
 
-int igloo_httpp_parse_response(http_parser_t *parser, const char *http_data, unsigned long len, const char *uri)
+int igloo_httpp_parse_response(igloo_http_parser_t *parser, const char *http_data, unsigned long len, const char *uri)
 {
     char *data;
     char *line[MAX_HEADERS];
@@ -260,14 +260,14 @@ int igloo_httpp_parse_response(http_parser_t *parser, const char *http_data, uns
         return 0;
     }
 
-    igloo_httpp_setvar(parser, HTTPP_VAR_ERROR_CODE, resp_code);
+    igloo_httpp_setvar(parser, igloo_HTTPP_VAR_ERROR_CODE, resp_code);
     code = atoi(resp_code);
     if(code < 200 || code >= 300) {
-        igloo_httpp_setvar(parser, HTTPP_VAR_ERROR_MESSAGE, message);
+        igloo_httpp_setvar(parser, igloo_HTTPP_VAR_ERROR_MESSAGE, message);
     }
 
-    igloo_httpp_setvar(parser, HTTPP_VAR_URI, uri);
-    igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "NONE");
+    igloo_httpp_setvar(parser, igloo_HTTPP_VAR_URI, uri);
+    igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "NONE");
 
     igloo_parse_headers(parser, line, lines);
 
@@ -276,7 +276,7 @@ int igloo_httpp_parse_response(http_parser_t *parser, const char *http_data, uns
     return 1;
 }
 
-int igloo_httpp_parse_postdata(http_parser_t *parser, const char *body_data, size_t len)
+int igloo_httpp_parse_postdata(igloo_http_parser_t *parser, const char *body_data, size_t len)
 {
     const char *header = igloo_httpp_getvar(parser, "content-type");
 
@@ -350,7 +350,7 @@ static char *igloo_url_unescape(const char *src, size_t len)
     return (char *)decoded;
 }
 
-static void parse_query_element(avl_tree *tree, const char *start, const char *mid, const char *end)
+static void parse_query_element(igloo_avl_tree *tree, const char *start, const char *mid, const char *end)
 {
     size_t keylen;
     char *key;
@@ -379,7 +379,7 @@ static void parse_query_element(avl_tree *tree, const char *start, const char *m
     _httpp_set_param_nocopy(tree, key, value, 0);
 }
 
-static void parse_query(avl_tree *tree, const char *query, size_t len)
+static void parse_query(igloo_avl_tree *tree, const char *query, size_t len)
 {
     const char *start = query;
     const char *mid = NULL;
@@ -404,7 +404,7 @@ static void parse_query(avl_tree *tree, const char *query, size_t len)
     parse_query_element(tree, start, mid, &(query[i]));
 }
 
-int igloo_httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len)
+int igloo_httpp_parse(igloo_http_parser_t *parser, const char *http_data, unsigned long len)
 {
     char *data, *tmp;
     char *line[MAX_HEADERS]; /* limited to 32 lines, should be more than enough */
@@ -467,8 +467,8 @@ int igloo_httpp_parse(http_parser_t *parser, const char *http_data, unsigned lon
     if (uri != NULL && strlen(uri) > 0) {
         char *query;
         if((query = strchr(uri, '?')) != NULL) {
-            igloo_httpp_setvar(parser, HTTPP_VAR_RAWURI, uri);
-            igloo_httpp_setvar(parser, HTTPP_VAR_QUERYARGS, query);
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_RAWURI, uri);
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_QUERYARGS, query);
             *query = 0;
             query++;
             parse_query(parser->queryvars, query, strlen(query));
@@ -483,8 +483,8 @@ int igloo_httpp_parse(http_parser_t *parser, const char *http_data, unsigned lon
     if ((version != NULL) && ((tmp = strchr(version, '/')) != NULL)) {
         tmp[0] = '\0';
         if ((strlen(version) > 0) && (strlen(&tmp[1]) > 0)) {
-            igloo_httpp_setvar(parser, HTTPP_VAR_PROTOCOL, version);
-            igloo_httpp_setvar(parser, HTTPP_VAR_VERSION, &tmp[1]);
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_PROTOCOL, version);
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_VERSION, &tmp[1]);
         } else {
             free(data);
             return 0;
@@ -497,37 +497,37 @@ int igloo_httpp_parse(http_parser_t *parser, const char *http_data, unsigned lon
     if (parser->req_type != httpp_req_none && parser->req_type != httpp_req_unknown) {
         switch (parser->req_type) {
         case httpp_req_get:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "GET");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "GET");
             break;
         case httpp_req_post:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "POST");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "POST");
             break;
         case httpp_req_put:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "PUT");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "PUT");
             break;
         case httpp_req_head:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "HEAD");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "HEAD");
             break;
         case httpp_req_options:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "OPTIONS");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "OPTIONS");
             break;
         case httpp_req_delete:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "DELETE");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "DELETE");
             break;
         case httpp_req_trace:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "TRACE");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "TRACE");
             break;
         case httpp_req_connect:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "CONNECT");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "CONNECT");
             break;
         case httpp_req_source:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "SOURCE");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "SOURCE");
             break;
         case httpp_req_play:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "PLAY");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "PLAY");
             break;
         case httpp_req_stats:
-            igloo_httpp_setvar(parser, HTTPP_VAR_REQ_TYPE, "STATS");
+            igloo_httpp_setvar(parser, igloo_HTTPP_VAR_REQ_TYPE, "STATS");
             break;
         default:
             break;
@@ -538,7 +538,7 @@ int igloo_httpp_parse(http_parser_t *parser, const char *http_data, unsigned lon
     }
 
     if (parser->uri != NULL) {
-        igloo_httpp_setvar(parser, HTTPP_VAR_URI, parser->uri);
+        igloo_httpp_setvar(parser, igloo_HTTPP_VAR_URI, parser->uri);
     } else {
         free(data);
         return 0;
@@ -551,9 +551,9 @@ int igloo_httpp_parse(http_parser_t *parser, const char *http_data, unsigned lon
     return 1;
 }
 
-void igloo_httpp_deletevar(http_parser_t *parser, const char *name)
+void igloo_httpp_deletevar(igloo_http_parser_t *parser, const char *name)
 {
-    http_var_t var;
+    igloo_http_var_t var;
 
     if (parser == NULL || name == NULL)
         return;
@@ -564,14 +564,14 @@ void igloo_httpp_deletevar(http_parser_t *parser, const char *name)
     igloo_avl_delete(parser->vars, (void *)&var, igloo__free_vars);
 }
 
-void igloo_httpp_setvar(http_parser_t *parser, const char *name, const char *value)
+void igloo_httpp_setvar(igloo_http_parser_t *parser, const char *name, const char *value)
 {
-    http_var_t *var;
+    igloo_http_var_t *var;
 
     if (name == NULL || value == NULL)
         return;
 
-    var = (http_var_t *)calloc(1, sizeof(http_var_t));
+    var = (igloo_http_var_t *)calloc(1, sizeof(igloo_http_var_t));
     if (var == NULL) return;
 
     var->value = calloc(1, sizeof(*var->value));
@@ -592,10 +592,10 @@ void igloo_httpp_setvar(http_parser_t *parser, const char *name, const char *val
     }
 }
 
-const char *igloo_httpp_getvar(http_parser_t *parser, const char *name)
+const char *igloo_httpp_getvar(igloo_http_parser_t *parser, const char *name)
 {
-    http_var_t var;
-    http_var_t *found;
+    igloo_http_var_t var;
+    igloo_http_var_t *found;
     void *fp;
 
     if (parser == NULL || name == NULL)
@@ -614,9 +614,9 @@ const char *igloo_httpp_getvar(http_parser_t *parser, const char *name)
     }
 }
 
-static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value, int replace)
+static void _httpp_set_param_nocopy(igloo_avl_tree *tree, char *name, char *value, int replace)
 {
-    http_var_t *var, *found;
+    igloo_http_var_t *var, *found;
     char **n;
 
     if (name == NULL || value == NULL)
@@ -625,7 +625,7 @@ static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value, int
     found = igloo__httpp_get_param_var(tree, name);
 
     if (replace || !found) {
-        var = (http_var_t *)calloc(1, sizeof(http_var_t));
+        var = (igloo_http_var_t *)calloc(1, sizeof(igloo_http_var_t));
         if (var == NULL) {
             free(name);
             free(value);
@@ -659,7 +659,7 @@ static void _httpp_set_param_nocopy(avl_tree *tree, char *name, char *value, int
     }
 }
 
-static void _httpp_set_param(avl_tree *tree, const char *name, const char *value)
+static void _httpp_set_param(igloo_avl_tree *tree, const char *name, const char *value)
 {
     if (name == NULL || value == NULL)
         return;
@@ -667,10 +667,10 @@ static void _httpp_set_param(avl_tree *tree, const char *name, const char *value
     _httpp_set_param_nocopy(tree, strdup(name), igloo_url_unescape(value, strlen(value)), 1);
 }
 
-static http_var_t *igloo__httpp_get_param_var(avl_tree *tree, const char *name)
+static igloo_http_var_t *igloo__httpp_get_param_var(igloo_avl_tree *tree, const char *name)
 {
-    http_var_t var;
-    http_var_t *found;
+    igloo_http_var_t var;
+    igloo_http_var_t *found;
     void *fp;
 
     fp = &found;
@@ -682,9 +682,9 @@ static http_var_t *igloo__httpp_get_param_var(avl_tree *tree, const char *name)
     else
         return NULL;
 }
-static const char *_httpp_get_param(avl_tree *tree, const char *name)
+static const char *_httpp_get_param(igloo_avl_tree *tree, const char *name)
 {
-    http_var_t *res = igloo__httpp_get_param_var(tree, name);
+    igloo_http_var_t *res = igloo__httpp_get_param_var(tree, name);
 
     if (!res)
         return NULL;
@@ -695,29 +695,29 @@ static const char *_httpp_get_param(avl_tree *tree, const char *name)
     return res->value[0];
 }
 
-void igloo_httpp_set_query_param(http_parser_t *parser, const char *name, const char *value)
+void igloo_httpp_set_query_param(igloo_http_parser_t *parser, const char *name, const char *value)
 {
     return _httpp_set_param(parser->queryvars, name, value);
 }
 
-const char *igloo_httpp_get_query_param(http_parser_t *parser, const char *name)
+const char *igloo_httpp_get_query_param(igloo_http_parser_t *parser, const char *name)
 {
     return _httpp_get_param(parser->queryvars, name);
 }
 
-void igloo_httpp_set_post_param(http_parser_t *parser, const char *name, const char *value)
+void igloo_httpp_set_post_param(igloo_http_parser_t *parser, const char *name, const char *value)
 {
     return _httpp_set_param(parser->postvars, name, value);
 }
 
-const char *igloo_httpp_get_post_param(http_parser_t *parser, const char *name)
+const char *igloo_httpp_get_post_param(igloo_http_parser_t *parser, const char *name)
 {
     return _httpp_get_param(parser->postvars, name);
 }
 
-const http_var_t *igloo_httpp_get_param_var(http_parser_t *parser, const char *name)
+const igloo_http_var_t *igloo_httpp_get_param_var(igloo_http_parser_t *parser, const char *name)
 {
-    http_var_t *ret = igloo__httpp_get_param_var(parser->postvars, name);
+    igloo_http_var_t *ret = igloo__httpp_get_param_var(parser->postvars, name);
 
     if (ret)
         return ret;
@@ -725,9 +725,9 @@ const http_var_t *igloo_httpp_get_param_var(http_parser_t *parser, const char *n
     return igloo__httpp_get_param_var(parser->queryvars, name);
 }
 
-const http_var_t *igloo_httpp_get_any_var(http_parser_t *parser, httpp_ns_t ns, const char *name)
+const igloo_http_var_t *igloo_httpp_get_any_var(igloo_http_parser_t *parser, igloo_httpp_ns_t ns, const char *name)
 {
-    avl_tree *tree = NULL;
+    igloo_avl_tree *tree = NULL;
 
     if (!parser || !name)
         return NULL;
@@ -757,10 +757,10 @@ const http_var_t *igloo_httpp_get_any_var(http_parser_t *parser, httpp_ns_t ns, 
     return igloo__httpp_get_param_var(tree, name);
 }
 
-char ** igloo_httpp_get_any_key(http_parser_t *parser, httpp_ns_t ns)
+char ** igloo_httpp_get_any_key(igloo_http_parser_t *parser, igloo_httpp_ns_t ns)
 {
-    avl_tree *tree = NULL;
-    avl_node *avlnode;
+    igloo_avl_tree *tree = NULL;
+    igloo_avl_node *avlnode;
     char **ret;
     size_t len;
     size_t pos = 0;
@@ -791,7 +791,7 @@ char ** igloo_httpp_get_any_key(http_parser_t *parser, httpp_ns_t ns)
     len = 8;
 
     for (avlnode = igloo_avl_get_first(tree); avlnode; avlnode = igloo_avl_get_next(avlnode)) {
-        http_var_t *var = avlnode->key;
+        igloo_http_var_t *var = avlnode->key;
 
         if (ns == HTTPP_NS_VAR) {
             if (var->name[0] != '_' || var->name[1] != '_') {
@@ -839,7 +839,7 @@ void igloo_httpp_free_any_key(char **keys)
     free(keys);
 }
 
-const char *igloo_httpp_get_param(http_parser_t *parser, const char *name)
+const char *igloo_httpp_get_param(igloo_http_parser_t *parser, const char *name)
 {
     const char *ret = _httpp_get_param(parser->postvars, name);
 
@@ -849,7 +849,7 @@ const char *igloo_httpp_get_param(http_parser_t *parser, const char *name)
     return _httpp_get_param(parser->queryvars, name);
 }
 
-static void httpp_clear(http_parser_t *parser)
+static void httpp_clear(igloo_http_parser_t *parser)
 {
     parser->req_type = httpp_req_none;
     if (parser->uri)
@@ -861,7 +861,7 @@ static void httpp_clear(http_parser_t *parser)
     parser->vars = NULL;
 }
 
-int igloo_httpp_addref(http_parser_t *parser)
+int igloo_httpp_addref(igloo_http_parser_t *parser)
 {
     if (!parser)
         return -1;
@@ -871,7 +871,7 @@ int igloo_httpp_addref(http_parser_t *parser)
     return 0;
 }
 
-int igloo_httpp_release(http_parser_t *parser)
+int igloo_httpp_release(igloo_http_parser_t *parser)
 {
     if (!parser)
         return -1;
@@ -897,17 +897,17 @@ static char *_lowercase(char *str)
 
 static int igloo__compare_vars(void *compare_arg, void *a, void *b)
 {
-    http_var_t *vara, *varb;
+    igloo_http_var_t *vara, *varb;
 
-    vara = (http_var_t *)a;
-    varb = (http_var_t *)b;
+    vara = (igloo_http_var_t *)a;
+    varb = (igloo_http_var_t *)b;
 
     return strcmp(vara->name, varb->name);
 }
 
 static int igloo__free_vars(void *key)
 {
-    http_var_t *var = (http_var_t *)key;
+    igloo_http_var_t *var = (igloo_http_var_t *)key;
     size_t i;
 
     free(var->name);
@@ -921,7 +921,7 @@ static int igloo__free_vars(void *key)
     return 1;
 }
 
-httpp_request_type_e igloo_httpp_str_to_method(const char * method) {
+igloo_httpp_request_type_e igloo_httpp_str_to_method(const char * method) {
     if (strcasecmp("GET", method) == 0) {
         return httpp_req_get;
     } else if (strcasecmp("POST", method) == 0) {

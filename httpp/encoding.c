@@ -34,11 +34,11 @@
 
 #include "encoding.h"
 
-struct httpp_encoding_tag {
+struct igloo_httpp_encoding_tag {
     size_t refc;
 
-    ssize_t (*process_read)(httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata);
-    ssize_t (*process_write)(httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata);
+    ssize_t (*process_read)(igloo_httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata);
+    ssize_t (*process_write)(igloo_httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata);
 
     httpp_meta_t *meta_read;
     httpp_meta_t *meta_write;
@@ -62,10 +62,10 @@ struct httpp_encoding_tag {
 
 
 /* Handlers, at end of file */
-static ssize_t igloo___enc_identity_read(httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata);
-static ssize_t igloo___enc_identity_write(httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata);
-static ssize_t igloo___enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata);
-static ssize_t igloo___enc_chunked_write(httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata);
+static ssize_t igloo___enc_identity_read(igloo_httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata);
+static ssize_t igloo___enc_identity_write(igloo_httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata);
+static ssize_t igloo___enc_chunked_read(igloo_httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata);
+static ssize_t igloo___enc_chunked_write(igloo_httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata);
 
 /* function to move some data out of our buffers */
 ssize_t igloo___copy_buffer(void *dst, void **src, size_t *boffset, size_t *blen, size_t len)
@@ -100,7 +100,7 @@ ssize_t igloo___copy_buffer(void *dst, void **src, size_t *boffset, size_t *blen
 }
 
 /* try to flush output buffers */
-static inline void __flush_output(httpp_encoding_t *self, ssize_t (*cb)(void*, const void*, size_t), void *userdata)
+static inline void __flush_output(igloo_httpp_encoding_t *self, ssize_t (*cb)(void*, const void*, size_t), void *userdata)
 {
     if (cb && self->buf_write_encoded) {
         ssize_t ret = cb(userdata,
@@ -177,18 +177,18 @@ int               igloo_httpp_encoding_meta_append(httpp_meta_t **dst, httpp_met
 }
 
 /* General setup */
-httpp_encoding_t *igloo_httpp_encoding_new(const char *encoding) {
-    httpp_encoding_t *ret = calloc(1, sizeof(httpp_encoding_t));
+igloo_httpp_encoding_t *igloo_httpp_encoding_new(const char *encoding) {
+    igloo_httpp_encoding_t *ret = calloc(1, sizeof(igloo_httpp_encoding_t));
     if (!ret)
         return NULL;
 
     ret->refc = 1;
     ret->bytes_till_eof = -1;
 
-    if (strcasecmp(encoding, HTTPP_ENCODING_IDENTITY) == 0) {
+    if (strcasecmp(encoding, igloo_HTTPP_ENCODING_IDENTITY) == 0) {
         ret->process_read = igloo___enc_identity_read;
         ret->process_write = igloo___enc_identity_write;
-    } else if (strcasecmp(encoding, HTTPP_ENCODING_CHUNKED) == 0) {
+    } else if (strcasecmp(encoding, igloo_HTTPP_ENCODING_CHUNKED) == 0) {
         ret->process_read = igloo___enc_chunked_read;
         ret->process_write = igloo___enc_chunked_write;
     } else {
@@ -202,7 +202,7 @@ fail:
     return NULL;
 }
 
-int               igloo_httpp_encoding_addref(httpp_encoding_t *self)
+int               igloo_httpp_encoding_addref(igloo_httpp_encoding_t *self)
 {
     if (!self)
         return -1;
@@ -210,7 +210,7 @@ int               igloo_httpp_encoding_addref(httpp_encoding_t *self)
     return 0;
 }
 
-int               igloo_httpp_encoding_release(httpp_encoding_t *self)
+int               igloo_httpp_encoding_release(igloo_httpp_encoding_t *self)
 {
     if (!self)
         return -1;
@@ -237,7 +237,7 @@ int               igloo_httpp_encoding_release(httpp_encoding_t *self)
 /* Read data from backend.
  * if cb is NULL this will read from the internal buffer.
  */
-ssize_t           igloo_httpp_encoding_read(httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata)
+ssize_t           igloo_httpp_encoding_read(igloo_httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata)
 {
     ssize_t done = 0;
     ssize_t ret;
@@ -281,7 +281,7 @@ ssize_t           igloo_httpp_encoding_read(httpp_encoding_t *self, void *buf, s
     return done;
 }
 
-int               igloo_httpp_encoding_eof(httpp_encoding_t *self, int (*cb)(void*), void *userdata)
+int               igloo_httpp_encoding_eof(igloo_httpp_encoding_t *self, int (*cb)(void*), void *userdata)
 {
     if (!self)
         return -1;
@@ -302,7 +302,7 @@ int               igloo_httpp_encoding_eof(httpp_encoding_t *self, int (*cb)(voi
  * After a call to this function the meta data is released from the
  * encoding object and the caller is responsible to free it.
  */
-httpp_meta_t     *igloo_httpp_encoding_get_meta(httpp_encoding_t *self)
+httpp_meta_t     *igloo_httpp_encoding_get_meta(igloo_httpp_encoding_t *self)
 {
     httpp_meta_t *ret;
 
@@ -319,7 +319,7 @@ httpp_meta_t     *igloo_httpp_encoding_get_meta(httpp_encoding_t *self)
  * Depending on encoding flushing buffers may not be safe if not
  * at end of stream.
  */
-ssize_t           igloo_httpp_encoding_write(httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata)
+ssize_t           igloo_httpp_encoding_write(igloo_httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata)
 {
     ssize_t ret;
 
@@ -339,7 +339,7 @@ ssize_t           igloo_httpp_encoding_write(httpp_encoding_t *self, const void 
 }
 
 /* Check if we have something to flush. */
-ssize_t           igloo_httpp_encoding_pending(httpp_encoding_t *self)
+ssize_t           igloo_httpp_encoding_pending(igloo_httpp_encoding_t *self)
 {
     if (!self)
         return -1;
@@ -351,7 +351,7 @@ ssize_t           igloo_httpp_encoding_pending(httpp_encoding_t *self)
 /* Attach meta data to the stream.
  * this is to be written out as soon as the encoding supports.
  */
-int               igloo_httpp_encoding_append_meta(httpp_encoding_t *self, httpp_meta_t *meta)
+int               igloo_httpp_encoding_append_meta(igloo_httpp_encoding_t *self, httpp_meta_t *meta)
 {
     if (!self)
         return -1;
@@ -359,7 +359,7 @@ int               igloo_httpp_encoding_append_meta(httpp_encoding_t *self, httpp
 }
 
 /* handlers for encodings */
-static ssize_t igloo___enc_identity_read(httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata)
+static ssize_t igloo___enc_identity_read(igloo_httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata)
 {
     (void)self;
     if (!cb)
@@ -367,7 +367,7 @@ static ssize_t igloo___enc_identity_read(httpp_encoding_t *self, void *buf, size
     return cb(userdata, buf, len);
 }
 
-static ssize_t igloo___enc_identity_write(httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata)
+static ssize_t igloo___enc_identity_write(igloo_httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata)
 {
     (void)self;
     if (!cb)
@@ -388,7 +388,7 @@ static ssize_t igloo___enc_identity_write(httpp_encoding_t *self, const void *bu
  *
  */
 
-static void __enc_chunked_read_extentions(httpp_encoding_t *self, char *p, size_t len)
+static void __enc_chunked_read_extentions(igloo_httpp_encoding_t *self, char *p, size_t len)
 {
     /* ok. If you want to ruin your day... go ahead and try to understand this. */
     httpp_meta_t **parent;
@@ -482,7 +482,7 @@ static void __enc_chunked_read_extentions(httpp_encoding_t *self, char *p, size_
     }
 }
 
-static ssize_t igloo___enc_chunked_read(httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata)
+static ssize_t igloo___enc_chunked_read(igloo_httpp_encoding_t *self, void *buf, size_t len, ssize_t (*cb)(void*, void*, size_t), void *userdata)
 {
     ssize_t ret;
     size_t buflen;
@@ -718,7 +718,7 @@ static size_t __enc_chunked_write_extensions_valuelen(httpp_meta_t *cur)
     return ret;
 }
 
-static char *__enc_chunked_write_extensions(httpp_encoding_t *self)
+static char *__enc_chunked_write_extensions(igloo_httpp_encoding_t *self)
 {
     size_t buflen;
     void *buf;
@@ -785,7 +785,7 @@ static char *__enc_chunked_write_extensions(httpp_encoding_t *self)
 
     return buf;
 }
-static ssize_t igloo___enc_chunked_write(httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata)
+static ssize_t igloo___enc_chunked_write(igloo_httpp_encoding_t *self, const void *buf, size_t len, ssize_t (*cb)(void*, const void*, size_t), void *userdata)
 {
     char encoded_length[32];
     char *extensions = NULL;

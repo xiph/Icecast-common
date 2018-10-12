@@ -60,7 +60,7 @@ static int _isip(const char *what);
 /* internal data */
 
 #ifndef NO_THREAD
-static mutex_t igloo__resolver_mutex;
+static igloo_mutex_t igloo__resolver_mutex;
 #endif
 static int igloo__initialized = 0;
 

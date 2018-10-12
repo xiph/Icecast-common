@@ -48,7 +48,7 @@ typedef struct {
 
     /* the system specific thread */
     pthread_t sys_thread;
-} thread_type;
+} igloo_thread_type;
 
 typedef struct {
 #ifdef DEBUG_MUTEXES
@@ -67,7 +67,7 @@ typedef struct {
 
     /* the system specific mutex */
     pthread_mutex_t sys_mutex;
-} mutex_t;
+} igloo_mutex_t;
 
 typedef struct {
 #ifdef THREAD_DEBUG
@@ -77,7 +77,7 @@ typedef struct {
 
     pthread_mutex_t cond_mutex;
     pthread_cond_t sys_cond;
-} cond_t;
+} igloo_cond_t;
 
 typedef struct {
 #ifdef THREAD_DEBUG
@@ -93,20 +93,20 @@ typedef struct {
 #endif
 
     pthread_rwlock_t sys_rwlock;
-} rwlock_t;
+} igloo_rwlock_t;
 
 #ifdef HAVE_PTHREAD_SPIN_LOCK
 typedef struct
 {
     pthread_spinlock_t lock;
-} spin_t;
+} igloo_spin_t;
 
-void igloo_thread_spin_create (spin_t *spin);
-void igloo_thread_spin_destroy (spin_t *spin);
-void igloo_thread_spin_lock (spin_t *spin);
-void igloo_thread_spin_unlock (spin_t *spin);
+void igloo_thread_spin_create (igloo_spin_t *spin);
+void igloo_thread_spin_destroy (igloo_spin_t *spin);
+void igloo_thread_spin_lock (igloo_spin_t *spin);
+void igloo_thread_spin_unlock (igloo_spin_t *spin);
 #else
-typedef mutex_t spin_t;
+typedef igloo_mutex_t igloo_spin_t;
 #define igloo_thread_spin_create(x)  thread_mutex_create(x)
 #define igloo_thread_spin_destroy(x)   igloo_thread_mutex_destroy(x)
 #define igloo_thread_spin_lock(x)      thread_mutex_lock(x)
@@ -128,11 +128,11 @@ typedef mutex_t spin_t;
 #define thread_rwlock_unlock(x) igloo_thread_rwlock_unlock_c(x,__LINE__,__FILE__)
 #define thread_exit(x) igloo_thread_exit_c(x,__LINE__,__FILE__)
 
-#define MUTEX_STATE_NOTLOCKED -1
-#define MUTEX_STATE_NEVERLOCKED -2
-#define MUTEX_STATE_UNINIT -3
-#define THREAD_DETACHED 1
-#define THREAD_ATTACHED 0
+#define igloo_MUTEX_STATE_NOTLOCKED -1
+#define igloo_MUTEX_STATE_NEVERLOCKED -2
+#define igloo_MUTEX_STATE_UNINIT -3
+#define igloo_THREAD_DETACHED 1
+#define igloo_THREAD_ATTACHED 0
 
 /* init/shutdown of the library */
 void igloo_thread_initialize(void);
@@ -140,23 +140,23 @@ void thread_initialize_with_log_id(int log_id);
 void igloo_thread_shutdown(void);
 
 /* creation, destruction, locking, unlocking, signalling and waiting */
-thread_type *igloo_thread_create_c(char *name, void *(*start_routine)(void *), 
+igloo_thread_type *igloo_thread_create_c(char *name, void *(*start_routine)(void *), 
         void *arg, int detached, int line, char *file);
-void igloo_thread_mutex_create_c(mutex_t *mutex, int line, char *file);
-void igloo_thread_mutex_lock_c(mutex_t *mutex, int line, char *file);
-void igloo_thread_mutex_unlock_c(mutex_t *mutex, int line, char *file);
-void igloo_thread_mutex_destroy(mutex_t *mutex);
-void igloo_thread_cond_create_c(cond_t *cond, int line, char *file);
-void igloo_thread_cond_signal_c(cond_t *cond, int line, char *file);
-void igloo_thread_cond_broadcast_c(cond_t *cond, int line, char *file);
-void igloo_thread_cond_wait_c(cond_t *cond, int line, char *file);
-void igloo_thread_cond_timedwait_c(cond_t *cond, int millis, int line, char *file);
-void igloo_thread_cond_destroy(cond_t *cond);
-void igloo_thread_rwlock_create_c(rwlock_t *rwlock, int line, char *file);
-void igloo_thread_rwlock_rlock_c(rwlock_t *rwlock, int line, char *file);
-void igloo_thread_rwlock_wlock_c(rwlock_t *rwlock, int line, char *file);
-void igloo_thread_rwlock_unlock_c(rwlock_t *rwlock, int line, char *file);
-void igloo_thread_rwlock_destroy(rwlock_t *rwlock);
+void igloo_thread_mutex_create_c(igloo_mutex_t *mutex, int line, char *file);
+void igloo_thread_mutex_lock_c(igloo_mutex_t *mutex, int line, char *file);
+void igloo_thread_mutex_unlock_c(igloo_mutex_t *mutex, int line, char *file);
+void igloo_thread_mutex_destroy(igloo_mutex_t *mutex);
+void igloo_thread_cond_create_c(igloo_cond_t *cond, int line, char *file);
+void igloo_thread_cond_signal_c(igloo_cond_t *cond, int line, char *file);
+void igloo_thread_cond_broadcast_c(igloo_cond_t *cond, int line, char *file);
+void igloo_thread_cond_wait_c(igloo_cond_t *cond, int line, char *file);
+void igloo_thread_cond_timedwait_c(igloo_cond_t *cond, int millis, int line, char *file);
+void igloo_thread_cond_destroy(igloo_cond_t *cond);
+void igloo_thread_rwlock_create_c(igloo_rwlock_t *rwlock, int line, char *file);
+void igloo_thread_rwlock_rlock_c(igloo_rwlock_t *rwlock, int line, char *file);
+void igloo_thread_rwlock_wlock_c(igloo_rwlock_t *rwlock, int line, char *file);
+void igloo_thread_rwlock_unlock_c(igloo_rwlock_t *rwlock, int line, char *file);
+void igloo_thread_rwlock_destroy(igloo_rwlock_t *rwlock);
 void igloo_thread_exit_c(long val, int line, char *file);
 
 /* sleeping */
@@ -168,12 +168,12 @@ void igloo_thread_library_unlock(void);
 #define PROTECT_CODE(code) { igloo_thread_library_lock(); code; igloo_thread_library_unlock(); }
 
 /* thread information functions */
-thread_type *igloo_thread_self(void);
+igloo_thread_type *igloo_thread_self(void);
 
 /* renames current thread */
 void igloo_thread_rename(const char *name);
 
 /* waits until thread_exit is called for another thread */
-void igloo_thread_join(thread_type *thread);
+void igloo_thread_join(igloo_thread_type *thread);
 
 #endif  /* __THREAD_H__ */

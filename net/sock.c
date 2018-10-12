@@ -202,9 +202,9 @@ static int sock_connect_pending (int error)
 
 /* igloo_sock_valid_socket
 **
-** determines if a sock_t represents a valid socket
+** determines if a igloo_sock_t represents a valid socket
 */
-int igloo_sock_valid_socket(sock_t sock)
+int igloo_sock_valid_socket(igloo_sock_t sock)
 {
     int ret;
     int optval;
@@ -219,7 +219,7 @@ int igloo_sock_valid_socket(sock_t sock)
 
 
 /* determines if the passed socket is still connected */
-int igloo_sock_active (sock_t sock)
+int igloo_sock_active (igloo_sock_t sock)
 {
     char c;
     int l;
@@ -227,7 +227,7 @@ int igloo_sock_active (sock_t sock)
     l = recv (sock, &c, 1, MSG_PEEK);
     if (l == 0)
         return 0;
-    if (l == SOCK_ERROR && igloo_sock_recoverable (igloo_sock_error()))
+    if (l == igloo_SOCK_ERROR && igloo_sock_recoverable (igloo_sock_error()))
         return 1;
     return 0;
 }
@@ -257,7 +257,7 @@ int inet_aton(const char *s, struct in_addr *a)
  * 1 for blocking
  * 0 for nonblocking
  */
-int igloo_sock_set_blocking(sock_t sock, int block)
+int igloo_sock_set_blocking(igloo_sock_t sock, int block)
 {
 #ifdef _WIN32
 #ifdef __MINGW32__
@@ -268,7 +268,7 @@ int igloo_sock_set_blocking(sock_t sock, int block)
 #endif
 
     if ((!igloo_sock_valid_socket(sock)) || (block < 0) || (block > 1))
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
 
 #ifdef _WIN32
     if (block) varblock = 0;
@@ -278,14 +278,14 @@ int igloo_sock_set_blocking(sock_t sock, int block)
 #endif
 }
 
-int igloo_sock_set_nolinger(sock_t sock)
+int igloo_sock_set_nolinger(igloo_sock_t sock)
 {
     struct linger lin = { 0, 0 };
     return setsockopt(sock, SOL_SOCKET, SO_LINGER, (void *)&lin, 
             sizeof(struct linger));
 }
 
-int igloo_sock_set_nodelay(sock_t sock)
+int igloo_sock_set_nodelay(igloo_sock_t sock)
 {
     int nodelay = 1;
 
@@ -293,7 +293,7 @@ int igloo_sock_set_nodelay(sock_t sock)
             sizeof(int));
 }
 
-int igloo_sock_set_keepalive(sock_t sock)
+int igloo_sock_set_keepalive(igloo_sock_t sock)
 {
     int keepalive = 1;
     return setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepalive, 
@@ -304,7 +304,7 @@ int igloo_sock_set_keepalive(sock_t sock)
 **
 ** close the socket
 */
-int igloo_sock_close(sock_t sock)
+int igloo_sock_close(igloo_sock_t sock)
 {
 #ifdef _WIN32
     return closesocket(sock);
@@ -319,14 +319,14 @@ int igloo_sock_close(sock_t sock)
  */
 #ifdef HAVE_WRITEV
 
-ssize_t igloo_sock_writev (sock_t sock, const struct iovec *iov, size_t count)
+ssize_t igloo_sock_writev (igloo_sock_t sock, const struct iovec *iov, size_t count)
 {
     return writev (sock, iov, count);
 }
 
 #else
 
-ssize_t igloo_sock_writev (sock_t sock, const struct iovec *iov, size_t count)
+ssize_t igloo_sock_writev (igloo_sock_t sock, const struct iovec *iov, size_t count)
 {
     int i = count, accum = 0, ret;
     const struct iovec *v = iov;
@@ -357,15 +357,15 @@ ssize_t igloo_sock_writev (sock_t sock, const struct iovec *iov, size_t count)
 ** write bytes to the socket
 ** this function will _NOT_ block
 */
-int igloo_sock_write_bytes(sock_t sock, const void *buff, size_t len)
+int igloo_sock_write_bytes(igloo_sock_t sock, const void *buff, size_t len)
 {
     /* sanity check */
     if (!buff) {
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
     } else if (len <= 0) {
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
     } /*else if (!igloo_sock_valid_socket(sock)) {
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
     } */
 
     return send(sock, buff, len, 0);
@@ -376,7 +376,7 @@ int igloo_sock_write_bytes(sock_t sock, const void *buff, size_t len)
 ** writes a string to a socket
 ** This function must only be called with a blocking socket.
 */
-int igloo_sock_write_string(sock_t sock, const char *buff)
+int igloo_sock_write_string(igloo_sock_t sock, const char *buff)
 {
     return (igloo_sock_write_bytes(sock, buff, strlen(buff)) > 0);
 }
@@ -387,7 +387,7 @@ int igloo_sock_write_string(sock_t sock, const char *buff)
 ** this function must only be called with a blocking socket.
 ** will truncate the string if it's greater than 1024 chars.
 */
-int igloo_sock_write(sock_t sock, const char *fmt, ...)
+int igloo_sock_write(igloo_sock_t sock, const char *fmt, ...)
 {
     int rc;
     va_list ap;
@@ -400,7 +400,7 @@ int igloo_sock_write(sock_t sock, const char *fmt, ...)
 }
 
 #ifdef HAVE_OLD_VSNPRINTF
-int igloo_sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
+int igloo_sock_write_fmt(igloo_sock_t sock, const char *fmt, va_list ap)
 {
     va_list ap_local;
     unsigned int len = 1024;
@@ -428,11 +428,11 @@ int igloo_sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
     return ret;
 }
 #else
-int igloo_sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
+int igloo_sock_write_fmt(igloo_sock_t sock, const char *fmt, va_list ap)
 {
     char buffer [1024], *buff = buffer;
     int len;
-    int rc = SOCK_ERROR;
+    int rc = igloo_SOCK_ERROR;
     va_list ap_retry;
 
     va_copy (ap_retry, ap);
@@ -463,7 +463,7 @@ int igloo_sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
 #endif
 
 
-int igloo_sock_read_bytes(sock_t sock, char *buff, size_t len)
+int igloo_sock_read_bytes(igloo_sock_t sock, char *buff, size_t len)
 {
 
     /*if (!igloo_sock_valid_socket(sock)) return 0; */
@@ -481,7 +481,7 @@ int igloo_sock_read_bytes(sock_t sock, char *buff, size_t len)
 **
 ** this function will probably not work on sockets in nonblocking mode
 */
-int igloo_sock_read_line(sock_t sock, char *buff, const int len)
+int igloo_sock_read_line(igloo_sock_t sock, char *buff, const int len)
 {
     char c = '\0';
     int read_bytes, pos;
@@ -517,23 +517,23 @@ int igloo_sock_read_line(sock_t sock, char *buff, const int len)
 
 /* see if a connection has been established. If timeout is < 0 then wait
  * indefinitely, else wait for the stated number of seconds.
- * return SOCK_TIMEOUT for timeout
- * return SOCK_ERROR for failure
+ * return igloo_SOCK_TIMEOUT for timeout
+ * return igloo_SOCK_ERROR for failure
  * return 0 for try again, interrupted
  * return 1 for ok 
  */
 #ifdef HAVE_POLL
-int igloo_sock_connected (sock_t sock, int timeout)
+int igloo_sock_connected (igloo_sock_t sock, int timeout)
 {
     struct pollfd check;
-    int val = SOCK_ERROR;
+    int val = igloo_SOCK_ERROR;
     socklen_t size = sizeof val;
 
     check.fd = sock;
     check.events = POLLOUT;
     switch (poll (&check, 1, timeout*1000))
     {
-        case 0: return SOCK_TIMEOUT;
+        case 0: return igloo_SOCK_TIMEOUT;
         default:
             /* on windows getsockopt.val is defined as char* */
             if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (void*) &val, &size) == 0)
@@ -546,16 +546,16 @@ int igloo_sock_connected (sock_t sock, int timeout)
         case -1:
             if (igloo_sock_recoverable (igloo_sock_error()))
                 return 0;
-            return SOCK_ERROR;
+            return igloo_SOCK_ERROR;
     }                                           
 }
 
 #else
 
-int igloo_sock_connected (sock_t sock, int timeout)
+int igloo_sock_connected (igloo_sock_t sock, int timeout)
 {
     fd_set wfds;
-    int val = SOCK_ERROR;
+    int val = igloo_SOCK_ERROR;
     socklen_t size = sizeof val;
     struct timeval tv, *timeval = NULL;
 
@@ -573,7 +573,7 @@ int igloo_sock_connected (sock_t sock, int timeout)
     switch (select(sock + 1, NULL, &wfds, NULL, timeval))
     {
         case 0:
-            return SOCK_TIMEOUT;
+            return igloo_SOCK_TIMEOUT;
         default:
             /* on windows getsockopt.val is defined as char* */
             if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (void*) &val, &size) == 0)
@@ -586,21 +586,21 @@ int igloo_sock_connected (sock_t sock, int timeout)
         case -1:
             if (igloo_sock_recoverable (igloo_sock_error()))
                 return 0;
-            return SOCK_ERROR;
+            return igloo_SOCK_ERROR;
     }
 }
 #endif
 
-sock_t igloo_sock_connect_wto (const char *hostname, int port, int timeout)
+igloo_sock_t igloo_sock_connect_wto (const char *hostname, int port, int timeout)
 {
     return igloo_sock_connect_wto_bind(hostname, port, NULL, timeout);
 }
 
 #ifdef HAVE_GETADDRINFO
 
-sock_t igloo_sock_connect_non_blocking (const char *hostname, unsigned port)
+igloo_sock_t igloo_sock_connect_non_blocking (const char *hostname, unsigned port)
 {
-    int sock = SOCK_ERROR;
+    int sock = igloo_SOCK_ERROR;
     struct addrinfo *ai, *head, hints;
     char service[8];
 
@@ -611,7 +611,7 @@ sock_t igloo_sock_connect_non_blocking (const char *hostname, unsigned port)
     snprintf (service, sizeof (service), "%u", port);
 
     if (getaddrinfo (hostname, service, &hints, &head))
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
 
     ai = head;
     while (ai)
@@ -624,7 +624,7 @@ sock_t igloo_sock_connect_non_blocking (const char *hostname, unsigned port)
                     !sock_connect_pending(igloo_sock_error()))
             {
                 igloo_sock_close (sock);
-                sock = SOCK_ERROR;
+                sock = igloo_SOCK_ERROR;
             }
             else
                 break;
@@ -640,9 +640,9 @@ sock_t igloo_sock_connect_non_blocking (const char *hostname, unsigned port)
  * timeout is 0 or less then we will wait until the OS gives up on the connect
  * The socket is returned
  */
-sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *bnd, int timeout)
+igloo_sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *bnd, int timeout)
 {
-    sock_t sock = SOCK_ERROR;
+    igloo_sock_t sock = igloo_SOCK_ERROR;
     struct addrinfo *ai, *head, *b_head=NULL, hints;
     char service[8];
 
@@ -652,7 +652,7 @@ sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *
     snprintf (service, sizeof (service), "%u", port);
 
     if (getaddrinfo (hostname, service, &hints, &head))
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
 
     ai = head;
     while (ai)
@@ -673,7 +673,7 @@ sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *
                         bind (sock, b_head->ai_addr, b_head->ai_addrlen) < 0)
                 {
                     igloo_sock_close (sock);
-                    sock = SOCK_ERROR;
+                    sock = igloo_SOCK_ERROR;
                     break;
                 }
             }
@@ -682,7 +682,7 @@ sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *
                 break;
 
             /* loop as the connect maybe async */
-            while (sock != SOCK_ERROR)
+            while (sock != igloo_SOCK_ERROR)
             {
                 if (igloo_sock_recoverable (igloo_sock_error()))
                 {
@@ -697,9 +697,9 @@ sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *
                     }
                 }
                 igloo_sock_close (sock);
-                sock = SOCK_ERROR;
+                sock = igloo_SOCK_ERROR;
             }
-            if (sock != SOCK_ERROR)
+            if (sock != igloo_SOCK_ERROR)
                 break;
         }
         ai = ai->ai_next;
@@ -712,7 +712,7 @@ sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *
 }
 
 
-sock_t igloo_sock_get_server_socket (int port, const char *sinterface)
+igloo_sock_t igloo_sock_get_server_socket (int port, const char *sinterface)
 {
     struct sockaddr_storage sa;
     struct addrinfo hints, *res, *ai;
@@ -720,7 +720,7 @@ sock_t igloo_sock_get_server_socket (int port, const char *sinterface)
     int sock;
 
     if (port < 0)
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
 
     memset (&sa, 0, sizeof(sa));
     memset (&hints, 0, sizeof(hints));
@@ -731,7 +731,7 @@ sock_t igloo_sock_get_server_socket (int port, const char *sinterface)
     snprintf (service, sizeof (service), "%d", port);
 
     if (getaddrinfo (sinterface, service, &hints, &res))
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
     ai = res;
     do
     {
@@ -757,14 +757,14 @@ sock_t igloo_sock_get_server_socket (int port, const char *sinterface)
     } while ((ai = ai->ai_next));
 
     freeaddrinfo (res);
-    return SOCK_ERROR;
+    return igloo_SOCK_ERROR;
 }
 
 
 #else
 
 
-int sock_try_connection (sock_t sock, const char *hostname, unsigned int port)
+int sock_try_connection (igloo_sock_t sock, const char *hostname, unsigned int port)
 {
     struct sockaddr_in sin, server;
     char ip[MAX_ADDR_LEN];
@@ -795,13 +795,13 @@ int sock_try_connection (sock_t sock, const char *hostname, unsigned int port)
     return connect(sock, (struct sockaddr *)&server, sizeof(server));
 }
 
-sock_t igloo_sock_connect_non_blocking (const char *hostname, unsigned port)
+igloo_sock_t igloo_sock_connect_non_blocking (const char *hostname, unsigned port)
 {
-    sock_t sock;
+    igloo_sock_t sock;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == SOCK_ERROR)
-        return SOCK_ERROR;
+    if (sock == igloo_SOCK_ERROR)
+        return igloo_SOCK_ERROR;
 
     igloo_sock_set_blocking (sock, 0);
     sock_try_connection (sock, hostname, port);
@@ -809,13 +809,13 @@ sock_t igloo_sock_connect_non_blocking (const char *hostname, unsigned port)
     return sock;
 }
 
-sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *bnd, int timeout)
+igloo_sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *bnd, int timeout)
 {
-    sock_t sock;
+    igloo_sock_t sock;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == SOCK_ERROR)
-        return SOCK_ERROR;
+    if (sock == igloo_SOCK_ERROR)
+        return igloo_SOCK_ERROR;
 
     if (bnd)
     {
@@ -828,7 +828,7 @@ sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *
             bind (sock, (struct sockaddr *)&sa, sizeof(sa)) < 0)
         {
             igloo_sock_close (sock);
-            return SOCK_ERROR;
+            return igloo_SOCK_ERROR;
         }
     }
 
@@ -841,7 +841,7 @@ sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *
             if (ret <= 0)
             {
                 igloo_sock_close (sock);
-                return SOCK_ERROR;
+                return igloo_SOCK_ERROR;
             }
         }
         igloo_sock_set_blocking(sock, 1);
@@ -851,7 +851,7 @@ sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *
         if (sock_try_connection (sock, hostname, port) < 0)
         {
             igloo_sock_close (sock);
-            sock = SOCK_ERROR;
+            sock = igloo_SOCK_ERROR;
         }
     }
     return sock;
@@ -862,17 +862,17 @@ sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *
 **
 ** create a socket for incoming requests on a specified port and
 ** interface.  if interface is null, listen on all interfaces.
-** returns the socket, or SOCK_ERROR on failure
+** returns the socket, or igloo_SOCK_ERROR on failure
 */
-sock_t igloo_sock_get_server_socket(int port, const char *sinterface)
+igloo_sock_t igloo_sock_get_server_socket(int port, const char *sinterface)
 {
     struct sockaddr_in sa;
     int error, opt;
-    sock_t sock;
+    igloo_sock_t sock;
     char ip[MAX_ADDR_LEN];
 
     if (port < 0)
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
 
     /* defaults */
     memset(&sa, 0, sizeof(sa));
@@ -880,10 +880,10 @@ sock_t igloo_sock_get_server_socket(int port, const char *sinterface)
     /* set the interface to bind to if specified */
     if (sinterface != NULL) {
         if (!igloo_resolver_getip(sinterface, ip, sizeof (ip)))
-            return SOCK_ERROR;
+            return igloo_SOCK_ERROR;
 
         if (!inet_aton(ip, &sa.sin_addr)) {
-            return SOCK_ERROR;
+            return igloo_SOCK_ERROR;
         } else {
             sa.sin_family = AF_INET;
             sa.sin_port = htons((short)port);
@@ -897,7 +897,7 @@ sock_t igloo_sock_get_server_socket(int port, const char *sinterface)
     /* get a socket */
     sock = socket (AF_INET, SOCK_STREAM, 0);
     if (sock == -1)
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
 
     /* reuse it if we can */
     opt = 1;
@@ -906,19 +906,19 @@ sock_t igloo_sock_get_server_socket(int port, const char *sinterface)
     /* bind socket to port */
     error = bind(sock, (struct sockaddr *)&sa, sizeof (struct sockaddr_in));
     if (error == -1)
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
 
     return sock;
 }
 
 #endif
 
-void igloo_sock_set_send_buffer (sock_t sock, int win_size)
+void igloo_sock_set_send_buffer (igloo_sock_t sock, int win_size)
 {
     setsockopt (sock, SOL_SOCKET, SO_SNDBUF, (char *) &win_size, sizeof(win_size));
 }
 
-int igloo_sock_listen(sock_t serversock, int backlog)
+int igloo_sock_listen(igloo_sock_t serversock, int backlog)
 {
     if (!igloo_sock_valid_socket(serversock))
         return 0;
@@ -929,23 +929,23 @@ int igloo_sock_listen(sock_t serversock, int backlog)
     return (listen(serversock, backlog) == 0);
 }
 
-sock_t igloo_sock_accept(sock_t serversock, char *ip, size_t len)
+igloo_sock_t igloo_sock_accept(igloo_sock_t serversock, char *ip, size_t len)
 {
 #ifdef HAVE_GETNAMEINFO
     struct sockaddr_storage sa;
 #else    
     struct sockaddr_in sa;
 #endif
-    sock_t ret;
+    igloo_sock_t ret;
     socklen_t slen;
 
     if (ip == NULL || len == 0 || !igloo_sock_valid_socket(serversock))
-        return SOCK_ERROR;
+        return igloo_SOCK_ERROR;
 
     slen = sizeof(sa);
     ret = accept(serversock, (struct sockaddr *)&sa, &slen);
 
-    if (ret != SOCK_ERROR)
+    if (ret != igloo_SOCK_ERROR)
     {
 #ifdef HAVE_GETNAMEINFO
         if (getnameinfo ((struct sockaddr *)&sa, slen, ip, len, NULL, 0, NI_NUMERICHOST))

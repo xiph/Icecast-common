@@ -57,14 +57,14 @@
 #define LOG_MAXLINELEN 1024
 
 #ifdef _WIN32
-#define mutex_t CRITICAL_SECTION
+#define igloo_mutex_t CRITICAL_SECTION
 #define snprintf _snprintf
 #define vsnprintf _vsnprintf
 #else
-#define mutex_t pthread_mutex_t
+#define igloo_mutex_t pthread_mutex_t
 #endif
 
-static mutex_t igloo__logger_mutex;
+static igloo_mutex_t igloo__logger_mutex;
 static int igloo__initialized = 0;
 
 typedef struct _log_entry_t
@@ -189,10 +189,10 @@ int igloo_log_open_file(FILE *file)
 {
     int log_id;
 
-    if(file == NULL) return LOG_EINSANE;
+    if(file == NULL) return igloo_LOG_EINSANE;
 
     log_id = _get_log_id();
-    if (log_id < 0) return LOG_ENOMORELOGS;
+    if (log_id < 0) return igloo_LOG_ENOMORELOGS;
 
     igloo_loglist[log_id].logfile = file;
     igloo_loglist[log_id].filename = NULL;
@@ -207,8 +207,8 @@ int igloo_log_open(const char *filename)
     int id;
     FILE *file;
 
-    if (filename == NULL) return LOG_EINSANE;
-    if (strcmp(filename, "") == 0) return LOG_EINSANE;
+    if (filename == NULL) return igloo_LOG_EINSANE;
+    if (strcmp(filename, "") == 0) return igloo_LOG_EINSANE;
     
     file = fopen(filename, "a");
 
@@ -244,10 +244,10 @@ void igloo_log_set_trigger(int id, unsigned trigger)
 int igloo_log_set_filename(int id, const char *filename)
 {
     if (id < 0 || id >= LOG_MAXLOGS)
-        return LOG_EINSANE;
+        return igloo_LOG_EINSANE;
     /* NULL filename is ok, empty filename is not. */
     if ((filename && !strcmp(filename, "")) || igloo_loglist [id] . in_use == 0)
-        return LOG_EINSANE;
+        return igloo_LOG_EINSANE;
      _lock_logger();
     if (igloo_loglist [id] . filename)
         free (igloo_loglist [id] . filename);
@@ -262,7 +262,7 @@ int igloo_log_set_filename(int id, const char *filename)
 int igloo_log_set_archive_timestamp(int id, int value)
 {
     if (id < 0 || id >= LOG_MAXLOGS)
-        return LOG_EINSANE;
+        return igloo_LOG_EINSANE;
      _lock_logger();
      igloo_loglist[id].archive_timestamp = value;
      _unlock_logger();
@@ -273,7 +273,7 @@ int igloo_log_set_archive_timestamp(int id, int value)
 int igloo_log_open_with_buffer(const char *filename, int size)
 {
     /* not implemented */
-    return LOG_ENOTIMPL;
+    return igloo_LOG_ENOTIMPL;
 }
 
 

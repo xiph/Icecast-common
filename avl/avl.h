@@ -24,11 +24,11 @@ extern "C" {
 #define thread_rwlock_unlock(x) do{}while(0)
 #endif
 
-typedef struct avl_node_tag {
+typedef struct igloo_avl_node_tag {
   void *        key;
-  struct avl_node_tag *    left;
-  struct avl_node_tag *    right;  
-  struct avl_node_tag *    parent;
+  struct igloo_avl_node_tag *    left;
+  struct igloo_avl_node_tag *    right;  
+  struct igloo_avl_node_tag *    parent;
   /*
    * The lower 2 bits of <rank_and_balance> specify the balance
    * factor: 00==-1, 01==0, 10==+1.
@@ -36,9 +36,9 @@ typedef struct avl_node_tag {
    */
   unsigned int        rank_and_balance;
 #if !defined(NO_THREAD) && defined(HAVE_AVL_NODE_LOCK)
-  rwlock_t rwlock;
+  igloo_rwlock_t rwlock;
 #endif
-} avl_node;
+} igloo_avl_node;
 
 #define AVL_GET_BALANCE(n)    ((int)(((n)->rank_and_balance & 3) - 1))
 
@@ -52,124 +52,124 @@ typedef struct avl_node_tag {
   ((n)->rank_and_balance) = \
     (((n)->rank_and_balance & 3) | (r << 2))
 
-struct _avl_tree;
+struct igloo__avl_tree;
 
-typedef int (*avl_key_compare_fun_type)    (void * compare_arg, void * a, void * b);
-typedef int (*avl_iter_fun_type)    (void * key, void * iter_arg);
-typedef int (*avl_iter_index_fun_type)    (unsigned long index, void * key, void * iter_arg);
-typedef int (*avl_free_key_fun_type)    (void * key);
-typedef int (*avl_key_printer_fun_type)    (char *, void *);
+typedef int (*igloo_avl_key_compare_fun_type)    (void * compare_arg, void * a, void * b);
+typedef int (*igloo_avl_iter_fun_type)    (void * key, void * iter_arg);
+typedef int (*igloo_avl_iter_index_fun_type)    (unsigned long index, void * key, void * iter_arg);
+typedef int (*igloo_avl_free_key_fun_type)    (void * key);
+typedef int (*igloo_avl_key_printer_fun_type)    (char *, void *);
 
 /*
  * <compare_fun> and <compare_arg> let us associate a particular compare
  * function with each tree, separately.
  */
 
-typedef struct _avl_tree {
-  avl_node *            root;
+typedef struct igloo__avl_tree {
+  igloo_avl_node *            root;
   unsigned int          height;
   unsigned int          length;
-  avl_key_compare_fun_type    compare_fun;
+  igloo_avl_key_compare_fun_type    compare_fun;
   void *             compare_arg;
 #ifndef NO_THREAD
-  rwlock_t rwlock;
+  igloo_rwlock_t rwlock;
 #endif
-} avl_tree;
+} igloo_avl_tree;
 
-avl_tree * igloo_avl_tree_new (avl_key_compare_fun_type compare_fun, void * compare_arg);
-avl_node * igloo_avl_node_new (void * key, avl_node * parent);
+igloo_avl_tree * igloo_avl_tree_new (igloo_avl_key_compare_fun_type compare_fun, void * compare_arg);
+igloo_avl_node * igloo_avl_node_new (void * key, igloo_avl_node * parent);
 
 void igloo_avl_tree_free (
-  avl_tree *        tree,
-  avl_free_key_fun_type    free_key_fun
+  igloo_avl_tree *        tree,
+  igloo_avl_free_key_fun_type    free_key_fun
   );
 
 int igloo_avl_insert (
-  avl_tree *        ob,
+  igloo_avl_tree *        ob,
   void *        key
   );
 
 int igloo_avl_delete (
-  avl_tree *        tree,
+  igloo_avl_tree *        tree,
   void *        key,
-  avl_free_key_fun_type    free_key_fun
+  igloo_avl_free_key_fun_type    free_key_fun
   );
 
 int igloo_avl_get_by_index (
-  avl_tree *        tree,
+  igloo_avl_tree *        tree,
   unsigned long        index,
   void **        value_address
   );
 
 int igloo_avl_get_by_key (
-  avl_tree *        tree,
+  igloo_avl_tree *        tree,
   void *        key,
   void **        value_address
   );
 
 int igloo_avl_iterate_inorder (
-  avl_tree *        tree,
-  avl_iter_fun_type    iter_fun,
+  igloo_avl_tree *        tree,
+  igloo_avl_iter_fun_type    iter_fun,
   void *        iter_arg
   );
 
 int igloo_avl_iterate_index_range (
-  avl_tree *        tree,
-  avl_iter_index_fun_type iter_fun,
+  igloo_avl_tree *        tree,
+  igloo_avl_iter_index_fun_type iter_fun,
   unsigned long        low,
   unsigned long        high,
   void *        iter_arg
   );
 
 int igloo_avl_get_span_by_key (
-  avl_tree *        tree,
+  igloo_avl_tree *        tree,
   void *        key,
   unsigned long *    low,
   unsigned long *    high
   );
 
 int igloo_avl_get_span_by_two_keys (
-  avl_tree *        tree,
+  igloo_avl_tree *        tree,
   void *        key_a,
   void *        key_b,
   unsigned long *    low,
   unsigned long *    high
   );
 
-int igloo_avl_verify (avl_tree * tree);
+int igloo_avl_verify (igloo_avl_tree * tree);
 
 void igloo_avl_print_tree (
-  avl_tree *        tree,
-  avl_key_printer_fun_type key_printer
+  igloo_avl_tree *        tree,
+  igloo_avl_key_printer_fun_type key_printer
   );
 
-avl_node *igloo_avl_get_first(avl_tree *tree);
+igloo_avl_node *igloo_avl_get_first(igloo_avl_tree *tree);
 
-avl_node *igloo_avl_get_prev(avl_node * node);
+igloo_avl_node *igloo_avl_get_prev(igloo_avl_node * node);
 
-avl_node *igloo_avl_get_next(avl_node * node);
+igloo_avl_node *igloo_avl_get_next(igloo_avl_node * node);
 
 /* These two are from David Ascher <david_ascher@brown.edu> */
 
 int igloo_avl_get_item_by_key_most (
-  avl_tree *        tree,
+  igloo_avl_tree *        tree,
   void *        key,
   void **        value_address
   );
 
 int igloo_avl_get_item_by_key_least (
-  avl_tree *        tree,
+  igloo_avl_tree *        tree,
   void *        key,
   void **        value_address
   );
 
 /* optional locking stuff */
-void igloo_avl_tree_rlock(avl_tree *tree);
-void igloo_avl_tree_wlock(avl_tree *tree);
-void igloo_avl_tree_unlock(avl_tree *tree);
-void avl_node_rlock(avl_node *node);
-void avl_node_wlock(avl_node *node);
-void avl_node_unlock(avl_node *node);
+void igloo_avl_tree_rlock(igloo_avl_tree *tree);
+void igloo_avl_tree_wlock(igloo_avl_tree *tree);
+void igloo_avl_tree_unlock(igloo_avl_tree *tree);
+void avl_node_rlock(igloo_avl_node *node);
+void avl_node_wlock(igloo_avl_node *node);
+void avl_node_unlock(igloo_avl_node *node);
 
 #ifdef __cplusplus
 }

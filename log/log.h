@@ -31,11 +31,11 @@
 
 #include <stdio.h>
 
-#define LOG_EINSANE -1
-#define LOG_ENOMORELOGS -2
-#define LOG_ECANTOPEN -3
-#define LOG_ENOTOPEN -4
-#define LOG_ENOTIMPL -5
+#define igloo_LOG_EINSANE -1
+#define igloo_LOG_ENOMORELOGS -2
+#define igloo_LOG_ECANTOPEN -3
+#define igloo_LOG_ENOTOPEN -4
+#define igloo_LOG_ENOTIMPL -5
 
 #ifdef _WIN32
 #define IO_BUFFER_TYPE _IONBF

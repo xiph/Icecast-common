@@ -8,9 +8,9 @@ int main(int argc, char **argv)
 {
     char buff[8192];
     int readed;
-    http_parser_t parser;
-    avl_node *node;
-    http_var_t *var;
+    igloo_http_parser_t parser;
+    igloo_avl_node *node;
+    igloo_http_var_t *var;
 
     igloo_httpp_initialize(&parser, NULL);
 
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
         
         node = igloo_avl_get_first(parser.vars);
         while (node) {
-            var = (http_var_t *)node->key;
+            var = (igloo_http_var_t *)node->key;
             
             if (var)
                 printf("Iterating variable(s): %s = %s\n", var->name, var->value);

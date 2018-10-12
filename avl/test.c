@@ -12,8 +12,8 @@ int _printer(char *buff, void *key);
 int main(int argc, char **argv)
 {
     int i, max_nodes;
-    avl_tree *tree;
-    avl_node *node;
+    igloo_avl_tree *tree;
+    igloo_avl_node *node;
 
     max_nodes = 25;
 

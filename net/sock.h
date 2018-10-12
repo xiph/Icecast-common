@@ -62,17 +62,17 @@ struct iovec
 #define MAX_ADDR_LEN 46
 #endif
 
-#ifndef sock_t
-#define sock_t int
+#ifndef igloo_sock_t
+#define igloo_sock_t int
 #endif
 
 /* The following values are based on unix avoiding errno value clashes */
-#define SOCK_SUCCESS 0
-#define SOCK_ERROR (sock_t)-1
-#define SOCK_TIMEOUT -2
+#define igloo_SOCK_SUCCESS 0
+#define igloo_SOCK_ERROR (igloo_sock_t)-1
+#define igloo_SOCK_TIMEOUT -2
 
 /* sock connect macro */
-#define sock_connect(h, p) igloo_sock_connect_wto(h, p, 0)
+#define igloo_sock_connect(h, p) igloo_sock_connect_wto(h, p, 0)
 
 /* Misc socket functions */
 void igloo_sock_initialize(void);
@@ -81,38 +81,38 @@ char *igloo_sock_get_localip(char *buff, int len);
 int igloo_sock_error(void);
 int igloo_sock_recoverable(int error);
 int igloo_sock_stalled(int error);
-int igloo_sock_valid_socket(sock_t sock);
-int igloo_sock_active (sock_t sock);
-int igloo_sock_set_blocking(sock_t sock, int block);
-int igloo_sock_set_nolinger(sock_t sock);
-int igloo_sock_set_keepalive(sock_t sock);
-int igloo_sock_set_nodelay(sock_t sock);
-void igloo_sock_set_send_buffer (sock_t sock, int win_size);
+int igloo_sock_valid_socket(igloo_sock_t sock);
+int igloo_sock_active (igloo_sock_t sock);
+int igloo_sock_set_blocking(igloo_sock_t sock, int block);
+int igloo_sock_set_nolinger(igloo_sock_t sock);
+int igloo_sock_set_keepalive(igloo_sock_t sock);
+int igloo_sock_set_nodelay(igloo_sock_t sock);
+void igloo_sock_set_send_buffer (igloo_sock_t sock, int win_size);
 void igloo_sock_set_error(int val);
-int igloo_sock_close(sock_t  sock);
+int igloo_sock_close(igloo_sock_t  sock);
 
 /* Connection related socket functions */
-sock_t igloo_sock_connect_wto(const char *hostname, int port, int timeout);
-sock_t igloo_sock_connect_wto_bind(const char *hostname, int port, const char *bnd, int timeout);
-sock_t igloo_sock_connect_non_blocking(const char *host, unsigned port);
-int igloo_sock_connected(sock_t sock, int timeout);
+igloo_sock_t igloo_sock_connect_wto(const char *hostname, int port, int timeout);
+igloo_sock_t igloo_sock_connect_wto_bind(const char *hostname, int port, const char *bnd, int timeout);
+igloo_sock_t igloo_sock_connect_non_blocking(const char *host, unsigned port);
+int igloo_sock_connected(igloo_sock_t sock, int timeout);
 
 /* Socket write functions */
-int igloo_sock_write_bytes(sock_t sock, const void *buff, size_t len);
-int igloo_sock_write(sock_t sock, const char *fmt, ...);
-int igloo_sock_write_fmt(sock_t sock, const char *fmt, va_list ap);
-int igloo_sock_write_string(sock_t sock, const char *buff);
-ssize_t igloo_sock_writev (sock_t sock, const struct iovec *iov, size_t count);
+int igloo_sock_write_bytes(igloo_sock_t sock, const void *buff, size_t len);
+int igloo_sock_write(igloo_sock_t sock, const char *fmt, ...);
+int igloo_sock_write_fmt(igloo_sock_t sock, const char *fmt, va_list ap);
+int igloo_sock_write_string(igloo_sock_t sock, const char *buff);
+ssize_t igloo_sock_writev (igloo_sock_t sock, const struct iovec *iov, size_t count);
 
 
 /* Socket read functions */
-int igloo_sock_read_bytes(sock_t sock, char *buff, size_t len);
-int igloo_sock_read_line(sock_t sock, char *string, const int len);
+int igloo_sock_read_bytes(igloo_sock_t sock, char *buff, size_t len);
+int igloo_sock_read_line(igloo_sock_t sock, char *string, const int len);
 
 /* server socket functions */
-sock_t igloo_sock_get_server_socket(int port, const char *sinterface);
-int igloo_sock_listen(sock_t serversock, int backlog);
-sock_t igloo_sock_accept(sock_t serversock, char *ip, size_t len);
+igloo_sock_t igloo_sock_get_server_socket(int port, const char *sinterface);
+int igloo_sock_listen(igloo_sock_t serversock, int backlog);
+igloo_sock_t igloo_sock_accept(igloo_sock_t serversock, char *ip, size_t len);
 
 #ifdef _WIN32
 int inet_aton(const char *s, struct in_addr *a);

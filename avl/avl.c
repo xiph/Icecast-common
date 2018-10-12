@@ -27,7 +27,7 @@
 
 /*
  * This is a fairly straightfoward translation of a prototype
- * written in python, 'avl_tree.py'. Read that file first.
+ * written in python, 'igloo_avl_tree.py'. Read that file first.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -39,11 +39,11 @@
 
 #include "avl.h"
 
-avl_node *
+igloo_avl_node *
 igloo_avl_node_new (void *        key,
-          avl_node *    parent)
+          igloo_avl_node *    parent)
 {
-  avl_node * node = (avl_node *) malloc (sizeof (avl_node));
+  igloo_avl_node * node = (igloo_avl_node *) malloc (sizeof (igloo_avl_node));
 
   if (!node) {
     return NULL;
@@ -62,16 +62,16 @@ igloo_avl_node_new (void *        key,
   }
 }         
 
-avl_tree *
-igloo_avl_tree_new (avl_key_compare_fun_type compare_fun,
+igloo_avl_tree *
+igloo_avl_tree_new (igloo_avl_key_compare_fun_type compare_fun,
           void * compare_arg)
 {
-  avl_tree * t = (avl_tree *) malloc (sizeof (avl_tree));
+  igloo_avl_tree * t = (igloo_avl_tree *) malloc (sizeof (igloo_avl_tree));
 
   if (!t) {
     return NULL;
   } else {
-    avl_node * root = igloo_avl_node_new((void *)NULL, (avl_node *) NULL);
+    igloo_avl_node * root = igloo_avl_node_new((void *)NULL, (igloo_avl_node *) NULL);
     if (!root) {
       free (t);
       return NULL;
@@ -88,7 +88,7 @@ igloo_avl_tree_new (avl_key_compare_fun_type compare_fun,
 }
   
 static void
-igloo_avl_tree_free_helper (avl_node * node, avl_free_key_fun_type free_key_fun)
+igloo_avl_tree_free_helper (igloo_avl_node * node, igloo_avl_free_key_fun_type free_key_fun)
 {
   if (node->left) {
     igloo_avl_tree_free_helper (node->left, free_key_fun);
@@ -105,7 +105,7 @@ igloo_avl_tree_free_helper (avl_node * node, avl_free_key_fun_type free_key_fun)
 }
   
 void
-igloo_avl_tree_free (avl_tree * tree, avl_free_key_fun_type free_key_fun)
+igloo_avl_tree_free (igloo_avl_tree * tree, igloo_avl_free_key_fun_type free_key_fun)
 {
   if (tree->length) {
     igloo_avl_tree_free_helper (tree->root->right, free_key_fun);
@@ -121,11 +121,11 @@ igloo_avl_tree_free (avl_tree * tree, avl_free_key_fun_type free_key_fun)
 }
 
 int
-igloo_avl_insert (avl_tree * ob,
+igloo_avl_insert (igloo_avl_tree * ob,
            void * key)
 {
   if (!(ob->root->right)) {
-    avl_node * node = igloo_avl_node_new (key, ob->root);
+    igloo_avl_node * node = igloo_avl_node_new (key, ob->root);
     if (!node) {
       return -1;
     } else {
@@ -134,7 +134,7 @@ igloo_avl_insert (avl_tree * ob,
       return 0;
     }
   } else { /* not self.right == None */
-    avl_node *t, *p, *s, *q, *r;
+    igloo_avl_node *t, *p, *s, *q, *r;
     int a;
 
     t = ob->root;
@@ -147,7 +147,7 @@ igloo_avl_insert (avl_tree * ob,
     q = p->left;
     if (!q) {
       /* insert */
-      avl_node * q_node = igloo_avl_node_new (key, p);
+      igloo_avl_node * q_node = igloo_avl_node_new (key, p);
       if (!q_node) {
         return (-1);
       } else {
@@ -165,7 +165,7 @@ igloo_avl_insert (avl_tree * ob,
     q = p->right;
     if (!q) {
       /* insert */
-      avl_node * q_node = igloo_avl_node_new (key, p);
+      igloo_avl_node * q_node = igloo_avl_node_new (key, p);
       if (!q_node) {
         return -1;
       } else {
@@ -297,11 +297,11 @@ igloo_avl_insert (avl_tree * ob,
 }
 
 int
-igloo_avl_get_by_index (avl_tree * tree,
+igloo_avl_get_by_index (igloo_avl_tree * tree,
            unsigned long index,
            void ** value_address)
 {
-  avl_node * p = tree->root->right;
+  igloo_avl_node * p = tree->root->right;
   unsigned long m = index + 1;
   while (1) {
     if (!p) {
@@ -320,11 +320,11 @@ igloo_avl_get_by_index (avl_tree * tree,
 }
            
 int
-igloo_avl_get_by_key (avl_tree * tree,
+igloo_avl_get_by_key (igloo_avl_tree * tree,
          void * key,
          void **value_address)
 {
-  avl_node * x = tree->root->right;
+  igloo_avl_node * x = tree->root->right;
   if (!x) {
     return -1;
   }
@@ -349,9 +349,9 @@ igloo_avl_get_by_key (avl_tree * tree,
   }
 }
 
-int igloo_avl_delete(avl_tree *tree, void *key, avl_free_key_fun_type free_key_fun)
+int igloo_avl_delete(igloo_avl_tree *tree, void *key, igloo_avl_free_key_fun_type free_key_fun)
 {
-  avl_node *x, *y, *p, *q, *r, *top, *x_child;
+  igloo_avl_node *x, *y, *p, *q, *r, *top, *x_child;
   int shortened_side, shorter;
   
   x = tree->root->right;
@@ -625,8 +625,8 @@ int igloo_avl_delete(avl_tree *tree, void *key, avl_free_key_fun_type free_key_f
 }
 
 static int
-igloo_avl_iterate_inorder_helper (avl_node * node,
-            avl_iter_fun_type iter_fun,
+igloo_avl_iterate_inorder_helper (igloo_avl_node * node,
+            igloo_avl_iter_fun_type iter_fun,
             void * iter_arg)
 {
   int result;
@@ -650,8 +650,8 @@ igloo_avl_iterate_inorder_helper (avl_node * node,
 }
 
 int
-igloo_avl_iterate_inorder (avl_tree * tree,
-         avl_iter_fun_type iter_fun,
+igloo_avl_iterate_inorder (igloo_avl_tree * tree,
+         igloo_avl_iter_fun_type iter_fun,
          void * iter_arg)
 {
   int result;
@@ -664,9 +664,9 @@ igloo_avl_iterate_inorder (avl_tree * tree,
   }
 }
 
-avl_node *igloo_avl_get_first(avl_tree *tree)
+igloo_avl_node *igloo_avl_get_first(igloo_avl_tree *tree)
 {
-    avl_node *node;
+    igloo_avl_node *node;
     
     node = tree->root->right;
     if (node == NULL || node->key == NULL) return NULL;
@@ -677,7 +677,7 @@ avl_node *igloo_avl_get_first(avl_tree *tree)
     return node;
 }
 
-avl_node *igloo_avl_get_prev(avl_node *node)
+igloo_avl_node *igloo_avl_get_prev(igloo_avl_node *node)
 {
     if (node->left) {
         node = node->left;
@@ -687,7 +687,7 @@ avl_node *igloo_avl_get_prev(avl_node *node)
 
         return node;
     } else {
-        avl_node *child = node;
+        igloo_avl_node *child = node;
         while (node->parent && node->parent->key) {
             node = node->parent;
             if (child == node->right) {
@@ -700,7 +700,7 @@ avl_node *igloo_avl_get_prev(avl_node *node)
     }
 }
 
-avl_node *igloo_avl_get_next(avl_node *node)
+igloo_avl_node *igloo_avl_get_next(igloo_avl_node *node)
 {
     if (node->right) {
         node = node->right;
@@ -710,7 +710,7 @@ avl_node *igloo_avl_get_next(avl_node *node)
         
         return node;
     } else {
-        avl_node *child = node;
+        igloo_avl_node *child = node;
         while (node->parent && node->parent->key) {
             node = node->parent;
             if (child == node->left) {
@@ -726,15 +726,15 @@ avl_node *igloo_avl_get_next(avl_node *node)
 /* iterate a function over a range of indices, using get_predecessor */
 
 int
-igloo_avl_iterate_index_range (avl_tree * tree,
-             avl_iter_index_fun_type iter_fun,
+igloo_avl_iterate_index_range (igloo_avl_tree * tree,
+             igloo_avl_iter_index_fun_type iter_fun,
              unsigned long low,
              unsigned long high,
              void * iter_arg)
 {
   unsigned long m;
   unsigned long num_left;
-  avl_node * node;
+  igloo_avl_node * node;
 
   if (high > tree->length) {
     return -1;
@@ -769,12 +769,12 @@ igloo_avl_iterate_index_range (avl_tree * tree,
  * representing the closest preceding value.
  */
 
-static avl_node *
-igloo_avl_get_index_by_key (avl_tree * tree,
+static igloo_avl_node *
+igloo_avl_get_index_by_key (igloo_avl_tree * tree,
           void * key,
           unsigned long * index)
 {
-  avl_node * x = tree->root->right;
+  igloo_avl_node * x = tree->root->right;
   unsigned long m;
   
   if (!x) {
@@ -811,13 +811,13 @@ igloo_avl_get_index_by_key (avl_tree * tree,
 /* return the (low index, high index) pair that spans the given key */
 
 int
-igloo_avl_get_span_by_key (avl_tree * tree,
+igloo_avl_get_span_by_key (igloo_avl_tree * tree,
          void * key,
          unsigned long * low,
          unsigned long * high)
 {
   unsigned long m, i, j;
-  avl_node * node;
+  igloo_avl_node * node;
 
   node = igloo_avl_get_index_by_key (tree, key, &m);
 
@@ -827,7 +827,7 @@ igloo_avl_get_span_by_key (avl_tree * tree,
    * the arrangement of like keys.
    */
   if (node) {
-    avl_node * left, * right;
+    igloo_avl_node * left, * right;
     /* search left */
     left = igloo_avl_get_prev (node);
     i = m;
@@ -854,14 +854,14 @@ igloo_avl_get_span_by_key (avl_tree * tree,
 /* return the (low index, high index) pair that spans the given key */
 
 int
-igloo_avl_get_span_by_two_keys (avl_tree * tree,
+igloo_avl_get_span_by_two_keys (igloo_avl_tree * tree,
               void * low_key,
               void * high_key,
               unsigned long * low,
               unsigned long * high)
 {
   unsigned long i, j;
-  avl_node * low_node, * high_node;
+  igloo_avl_node * low_node, * high_node;
   int order;
 
   /* we may need to swap them */
@@ -876,7 +876,7 @@ igloo_avl_get_span_by_two_keys (avl_tree * tree,
   high_node = igloo_avl_get_index_by_key (tree, high_key, &j);
 
   if (low_node) {
-    avl_node * left;
+    igloo_avl_node * left;
     /* search left */
     left = igloo_avl_get_prev (low_node);
     while (left && (i > 0) && (tree->compare_fun (tree->compare_arg, low_key, left->key) == 0)) {
@@ -887,7 +887,7 @@ igloo_avl_get_span_by_two_keys (avl_tree * tree,
     i = i + 1;
   }
   if (high_node) {
-    avl_node * right;
+    igloo_avl_node * right;
     /* search right */
     right = igloo_avl_get_next (high_node);
     while (right && (j <= tree->length) && (tree->compare_fun (tree->compare_arg, high_key, right->key) == 0)) {
@@ -905,11 +905,11 @@ igloo_avl_get_span_by_two_keys (avl_tree * tree,
 
            
 int
-igloo_avl_get_item_by_key_most (avl_tree * tree,
+igloo_avl_get_item_by_key_most (igloo_avl_tree * tree,
               void * key,
               void **value_address)
 {
-  avl_node * x = tree->root->right;
+  igloo_avl_node * x = tree->root->right;
   *value_address = NULL;
 
   if (!x) {
@@ -949,11 +949,11 @@ igloo_avl_get_item_by_key_most (avl_tree * tree,
 }
 
 int
-igloo_avl_get_item_by_key_least (avl_tree * tree,
+igloo_avl_get_item_by_key_least (igloo_avl_tree * tree,
                void * key,
                void **value_address)
 {
-  avl_node * x = tree->root->right;
+  igloo_avl_node * x = tree->root->right;
   *value_address = NULL;
 
   if (!x) {
@@ -993,7 +993,7 @@ igloo_avl_get_item_by_key_least (avl_tree * tree,
 #define AVL_MAX(X, Y)  ((X) > (Y) ? (X) : (Y))
 
 static long
-igloo_avl_verify_balance (avl_node * node)
+igloo_avl_verify_balance (igloo_avl_node * node)
 {
   if (!node) {
     return 0;
@@ -1011,7 +1011,7 @@ igloo_avl_verify_balance (avl_node * node)
 }
     
 static void
-igloo_avl_verify_parent (avl_node * node, avl_node * parent)
+igloo_avl_verify_parent (igloo_avl_node * node, igloo_avl_node * parent)
 {
   if (node->parent != parent) {
     return;
@@ -1025,7 +1025,7 @@ igloo_avl_verify_parent (avl_node * node, avl_node * parent)
 }
 
 static long
-igloo_avl_verify_rank (avl_node * node)
+igloo_avl_verify_rank (igloo_avl_node * node)
 {
   if (!node) {
     return 0;
@@ -1048,7 +1048,7 @@ igloo_avl_verify_rank (avl_node * node)
 /* sanity-check the tree */
 
 int
-igloo_avl_verify (avl_tree * tree)
+igloo_avl_verify (igloo_avl_tree * tree)
 {
   if (tree->length) {
     igloo_avl_verify_balance (tree->root->right);
@@ -1113,8 +1113,8 @@ igloo_print_connectors (link_node * link)
  */
 
 static void
-igloo_print_node (avl_key_printer_fun_type key_printer,
-        avl_node * node,
+igloo_print_node (igloo_avl_key_printer_fun_type key_printer,
+        igloo_avl_node * node,
         link_node * link)
 {
   char buffer[AVL_KEY_PRINTER_BUFLEN];
@@ -1148,7 +1148,7 @@ igloo_print_node (avl_key_printer_fun_type key_printer,
 }  
 
 void
-igloo_avl_print_tree (avl_tree * tree, avl_key_printer_fun_type key_printer)
+igloo_avl_print_tree (igloo_avl_tree * tree, igloo_avl_key_printer_fun_type key_printer)
 {
   link_node top = {NULL, 0, 0};
   if (!key_printer) {
@@ -1162,33 +1162,33 @@ igloo_avl_print_tree (avl_tree * tree, avl_key_printer_fun_type key_printer)
 }
 
 
-void igloo_avl_tree_rlock(avl_tree *tree)
+void igloo_avl_tree_rlock(igloo_avl_tree *tree)
 {
     thread_rwlock_rlock(&tree->rwlock);
 }
 
-void igloo_avl_tree_wlock(avl_tree *tree)
+void igloo_avl_tree_wlock(igloo_avl_tree *tree)
 {
     thread_rwlock_wlock(&tree->rwlock);
 }
 
-void igloo_avl_tree_unlock(avl_tree *tree)
+void igloo_avl_tree_unlock(igloo_avl_tree *tree)
 {
     thread_rwlock_unlock(&tree->rwlock);
 }
 
 #ifdef HAVE_AVL_NODE_LOCK
-void avl_node_rlock(avl_node *node)
+void avl_node_rlock(igloo_avl_node *node)
 {
     thread_rwlock_rlock(&node->rwlock);
 }
 
-void avl_node_wlock(avl_node *node)
+void avl_node_wlock(igloo_avl_node *node)
 {
     thread_rwlock_wlock(&node->rwlock);
 }
 
-void avl_node_unlock(avl_node *node)
+void avl_node_unlock(igloo_avl_node *node)
 {
     thread_rwlock_unlock(&node->rwlock);
 }

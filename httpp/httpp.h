@@ -29,22 +29,22 @@
 
 #include <avl/avl.h>
 
-#define HTTPP_VAR_PROTOCOL "__protocol"
-#define HTTPP_VAR_VERSION "__version"
-#define HTTPP_VAR_URI "__uri"
-#define HTTPP_VAR_RAWURI "__rawuri"
-#define HTTPP_VAR_QUERYARGS "__queryargs"
-#define HTTPP_VAR_REQ_TYPE "__req_type"
-#define HTTPP_VAR_ERROR_MESSAGE "__errormessage"
-#define HTTPP_VAR_ERROR_CODE "__errorcode"
-#define HTTPP_VAR_ICYPASSWORD "__icy_password"
+#define igloo_HTTPP_VAR_PROTOCOL "__protocol"
+#define igloo_HTTPP_VAR_VERSION "__version"
+#define igloo_HTTPP_VAR_URI "__uri"
+#define igloo_HTTPP_VAR_RAWURI "__rawuri"
+#define igloo_HTTPP_VAR_QUERYARGS "__queryargs"
+#define igloo_HTTPP_VAR_REQ_TYPE "__req_type"
+#define igloo_HTTPP_VAR_ERROR_MESSAGE "__errormessage"
+#define igloo_HTTPP_VAR_ERROR_CODE "__errorcode"
+#define igloo_HTTPP_VAR_ICYPASSWORD "__icy_password"
 
 typedef enum {
     HTTPP_NS_VAR,
     HTTPP_NS_HEADER,
     HTTPP_NS_QUERY_STRING,
     HTTPP_NS_POST_BODY
-} httpp_ns_t;
+} igloo_httpp_ns_t;
 
 typedef enum httpp_request_type_tag {
     /* Initial and internally used state of the engine */
@@ -66,62 +66,62 @@ typedef enum httpp_request_type_tag {
     httpp_req_stats,
     /* Used if request method is unknown. MUST BE LAST ONE IN LIST. */
     httpp_req_unknown
-} httpp_request_type_e;
+} igloo_httpp_request_type_e;
 
-typedef unsigned int httpp_request_info_t;
-#define HTTPP_REQUEST_IS_SAFE                       ((httpp_request_info_t)0x0001U)
-#define HTTPP_REQUEST_IS_IDEMPOTENT                 ((httpp_request_info_t)0x0002U)
-#define HTTPP_REQUEST_IS_CACHEABLE                  ((httpp_request_info_t)0x0004U)
-#define HTTPP_REQUEST_HAS_RESPONSE_BODY             ((httpp_request_info_t)0x0010U)
-#define HTTPP_REQUEST_HAS_REQUEST_BODY              ((httpp_request_info_t)0x0100U)
-#define HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY     ((httpp_request_info_t)0x0200U)
+typedef unsigned int igloo_httpp_request_info_t;
+#define igloo_HTTPP_REQUEST_IS_SAFE                       ((igloo_httpp_request_info_t)0x0001U)
+#define igloo_HTTPP_REQUEST_IS_IDEMPOTENT                 ((igloo_httpp_request_info_t)0x0002U)
+#define igloo_HTTPP_REQUEST_IS_CACHEABLE                  ((igloo_httpp_request_info_t)0x0004U)
+#define igloo_HTTPP_REQUEST_HAS_RESPONSE_BODY             ((igloo_httpp_request_info_t)0x0010U)
+#define igloo_HTTPP_REQUEST_HAS_REQUEST_BODY              ((igloo_httpp_request_info_t)0x0100U)
+#define igloo_HTTPP_REQUEST_HAS_OPTIONAL_REQUEST_BODY     ((igloo_httpp_request_info_t)0x0200U)
 
-typedef struct http_var_tag http_var_t;
-struct http_var_tag {
+typedef struct igloo_http_var_tag igloo_http_var_t;
+struct igloo_http_var_tag {
     char *name;
     size_t values;
     char **value;
 };
 
-typedef struct http_varlist_tag {
-    http_var_t var;
-    struct http_varlist_tag *next;
-} http_varlist_t;
+typedef struct igloo_http_varlist_tag {
+    igloo_http_var_t var;
+    struct igloo_http_varlist_tag *next;
+} igloo_http_varlist_t;
 
-typedef struct http_parser_tag {
+typedef struct igloo_http_parser_tag {
     size_t refc;
-    httpp_request_type_e req_type;
+    igloo_httpp_request_type_e req_type;
     char *uri;
-    avl_tree *vars;
-    avl_tree *queryvars;
-    avl_tree *postvars;
-} http_parser_t;
+    igloo_avl_tree *vars;
+    igloo_avl_tree *queryvars;
+    igloo_avl_tree *postvars;
+} igloo_http_parser_t;
 
-httpp_request_info_t igloo_httpp_request_info(httpp_request_type_e req);
+igloo_httpp_request_info_t igloo_httpp_request_info(igloo_httpp_request_type_e req);
 
-http_parser_t *igloo_httpp_create_parser(void);
-void igloo_httpp_initialize(http_parser_t *parser, http_varlist_t *defaults);
-int igloo_httpp_parse(http_parser_t *parser, const char *http_data, unsigned long len);
-int httpp_parse_icy(http_parser_t *parser, const char *http_data, unsigned long len);
-int igloo_httpp_parse_response(http_parser_t *parser, const char *http_data, unsigned long len, const char *uri);
-int igloo_httpp_parse_postdata(http_parser_t *parser, const char *body_data, size_t len);
-void igloo_httpp_setvar(http_parser_t *parser, const char *name, const char *value);
-void igloo_httpp_deletevar(http_parser_t *parser, const char *name);
-const char *igloo_httpp_getvar(http_parser_t *parser, const char *name);
-void igloo_httpp_set_query_param(http_parser_t *parser, const char *name, const char *value);
-const char *igloo_httpp_get_query_param(http_parser_t *parser, const char *name);
-void igloo_httpp_set_post_param(http_parser_t *parser, const char *name, const char *value);
-const char *igloo_httpp_get_post_param(http_parser_t *parser, const char *name);
-const char *igloo_httpp_get_param(http_parser_t *parser, const char *name);
-const http_var_t *igloo_httpp_get_param_var(http_parser_t *parser, const char *name);
-const http_var_t *igloo_httpp_get_any_var(http_parser_t *parser, httpp_ns_t ns, const char *name);
-char ** igloo_httpp_get_any_key(http_parser_t *parser, httpp_ns_t ns);
+igloo_http_parser_t *igloo_httpp_create_parser(void);
+void igloo_httpp_initialize(igloo_http_parser_t *parser, igloo_http_varlist_t *defaults);
+int igloo_httpp_parse(igloo_http_parser_t *parser, const char *http_data, unsigned long len);
+int httpp_parse_icy(igloo_http_parser_t *parser, const char *http_data, unsigned long len);
+int igloo_httpp_parse_response(igloo_http_parser_t *parser, const char *http_data, unsigned long len, const char *uri);
+int igloo_httpp_parse_postdata(igloo_http_parser_t *parser, const char *body_data, size_t len);
+void igloo_httpp_setvar(igloo_http_parser_t *parser, const char *name, const char *value);
+void igloo_httpp_deletevar(igloo_http_parser_t *parser, const char *name);
+const char *igloo_httpp_getvar(igloo_http_parser_t *parser, const char *name);
+void igloo_httpp_set_query_param(igloo_http_parser_t *parser, const char *name, const char *value);
+const char *igloo_httpp_get_query_param(igloo_http_parser_t *parser, const char *name);
+void igloo_httpp_set_post_param(igloo_http_parser_t *parser, const char *name, const char *value);
+const char *igloo_httpp_get_post_param(igloo_http_parser_t *parser, const char *name);
+const char *igloo_httpp_get_param(igloo_http_parser_t *parser, const char *name);
+const igloo_http_var_t *igloo_httpp_get_param_var(igloo_http_parser_t *parser, const char *name);
+const igloo_http_var_t *igloo_httpp_get_any_var(igloo_http_parser_t *parser, igloo_httpp_ns_t ns, const char *name);
+char ** igloo_httpp_get_any_key(igloo_http_parser_t *parser, igloo_httpp_ns_t ns);
 void igloo_httpp_free_any_key(char **keys);
-int igloo_httpp_addref(http_parser_t *parser);
-int igloo_httpp_release(http_parser_t *parser);
+int igloo_httpp_addref(igloo_http_parser_t *parser);
+int igloo_httpp_release(igloo_http_parser_t *parser);
 #define httpp_destroy(x) igloo_httpp_release((x))
 
 /* util functions */
-httpp_request_type_e igloo_httpp_str_to_method(const char * method);
+igloo_httpp_request_type_e igloo_httpp_str_to_method(const char * method);
  
 #endif
