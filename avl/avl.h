@@ -4,8 +4,8 @@
 
 /* $Id: avl.h,v 1.7 2003/07/07 01:10:14 brendan Exp $ */
 
-#ifndef __AVL_H
-#define __AVL_H
+#ifndef _LIBIGLOO__AVL_H_
+#define _LIBIGLOO__AVL_H_
 
 #ifdef __cplusplus
 extern "C" {

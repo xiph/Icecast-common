@@ -24,8 +24,8 @@
 **
 */
 
-#ifndef __HTTPP_H
-#define __HTTPP_H
+#ifndef _LIBIGLOO__HTTPP_H_
+#define _LIBIGLOO__HTTPP_H_
 
 #include <avl/avl.h>
 

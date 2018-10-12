@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef __SOCK_H
-#define __SOCK_H
+#ifndef _LIBIGLOO__SOCK_H_
+#define _LIBIGLOO__SOCK_H_
 
 #include <stdarg.h>
 

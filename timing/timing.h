@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef __TIMING_H__
-#define __TIMING_H__
+#ifndef _LIBIGLOO__TIMING_H_
+#define _LIBIGLOO__TIMING_H_
 
 #include <sys/types.h>
 #ifdef HAVE_INTTYPES_H

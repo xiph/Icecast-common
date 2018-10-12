@@ -22,8 +22,8 @@
 **
 */
 
-#ifndef __ENCODING_H
-#define __ENCODING_H
+#ifndef _LIBIGLOO__ENCODING_H_
+#define _LIBIGLOO__ENCODING_H_
 
 #include <sys/types.h>
 

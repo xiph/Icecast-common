@@ -26,8 +26,8 @@
 **
 */
 
-#ifndef __LOG_H__
-#define __LOG_H__
+#ifndef _LIBIGLOO__LOG_H_
+#define _LIBIGLOO__LOG_H_
 
 #include <stdio.h>
 

@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef __THREAD_H__
-#define __THREAD_H__
+#ifndef _LIBIGLOO__THREAD_H_
+#define _LIBIGLOO__THREAD_H_
 
 #include <pthread.h>
 

@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef __RESOLVER_H
-#define __RESOLVER_H
+#ifndef _LIBIGLOO__RESOLVER_H_
+#define _LIBIGLOO__RESOLVER_H_
 
 
 /*
