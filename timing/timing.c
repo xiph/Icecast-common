@@ -60,8 +60,6 @@
 
 #include "timing.h"
 
-/* see timing.h for an explanation of _mangle() */
-
 /* 
  * Returns milliseconds no matter what. 
  */

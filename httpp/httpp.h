@@ -97,25 +97,6 @@ typedef struct http_parser_tag {
     avl_tree *postvars;
 } http_parser_t;
 
-#ifdef _mangle
-# define httpp_request_info _mangle(httpp_request_info)
-# define httpp_create_parser _mangle(httpp_create_parser)
-# define httpp_initialize _mangle(httpp_initialize)
-# define httpp_parse _mangle(httpp_parse)
-# define httpp_parse_icy _mangle(httpp_parse_icy)
-# define httpp_parse_response _mangle(httpp_parse_response)
-# define httpp_parse_postdata _mangle(httpp_parse_postdata)
-# define httpp_setvar _mangle(httpp_setvar)
-# define httpp_getvar _mangle(httpp_getvar)
-# define httpp_set_query_param _mangle(httpp_set_query_param)
-# define httpp_get_query_param _mangle(httpp_get_query_param)
-# define httpp_set_post_param _mangle(httpp_set_post_param)
-# define httpp_get_post_param _mangle(httpp_get_post_param)
-# define httpp_get_param _mangle(httpp_get_param)
-# define httpp_destroy _mangle(httpp_destroy)
-# define httpp_clear _mangle(httpp_clear)
-#endif
-
 httpp_request_info_t httpp_request_info(httpp_request_type_e req);
 
 http_parser_t *httpp_create_parser(void);
