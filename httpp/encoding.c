@@ -3,7 +3,7 @@
 ** http transfer encoding library
 ** See RFC2616 section 3.6 for more details.
 **
-** Copyright (C) 2015 Philipp "ph3-der-loewe" Schafft <lion@lion.leolix.org>
+** Copyright (C) 2015-2018 Philipp "ph3-der-loewe" Schafft <lion@lion.leolix.org>
 **
 ** This library is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU Library General Public
