@@ -3,8 +3,8 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: permafrost
+Name: igloo
 Description: Common used helpers for Icecast and related projects
 Version: @VERSION@
 Cflags: -I${includedir} -pthread
-Libs: -L${libdir} -lpermafrost -pthread
+Libs: -L${libdir} -ligloo -pthread

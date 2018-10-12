@@ -5,6 +5,6 @@ set -e
 srcdir=$(dirname "$0")
 test -n "$srcdir" && cd "$srcdir"
 
-echo "Updating build configuration files for permafrost, please wait..."
+echo "Updating build configuration files for igloo, please wait..."
 
 autoreconf -isf

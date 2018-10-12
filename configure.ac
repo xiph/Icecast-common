@@ -1,4 +1,4 @@
-AC_INIT([permafrost], [0.0.1], [icecast@xiph.org])
+AC_INIT([igloo], [0.0.1], [icecast@xiph.org])
 
 AC_PREREQ([2.54])
 
@@ -157,7 +157,7 @@ AC_CONFIG_FILES([
   log/Makefile
   net/Makefile
   timing/Makefile
-  permafrost.pc
+  igloo.pc
 ])
 
 AC_OUTPUT
