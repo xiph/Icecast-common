@@ -165,7 +165,7 @@ void igloo_thread_sleep(unsigned long len);
 /* for using library functions which aren't threadsafe */
 void igloo_thread_library_lock(void);
 void igloo_thread_library_unlock(void);
-#define PROTECT_CODE(code) { igloo_thread_library_lock(); code; igloo_thread_library_unlock(); }
+#define IGLOO_PROTECT_CODE(code) { igloo_thread_library_lock(); code; igloo_thread_library_unlock(); }
 
 /* thread information functions */
 igloo_thread_type *igloo_thread_self(void);
