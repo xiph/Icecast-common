@@ -64,7 +64,7 @@
 /* 
  * Returns milliseconds no matter what. 
  */
-uint64_t timing_get_time(void)
+uint64_t igloo_timing_get_time(void)
 {
 #ifdef HAVE_GETTIMEOFDAY
     struct timeval mtv;
@@ -83,7 +83,7 @@ uint64_t timing_get_time(void)
 }
 
 
-void timing_sleep(uint64_t sleeptime)
+void igloo_timing_sleep(uint64_t sleeptime)
 {
     struct timeval sleeper;
 

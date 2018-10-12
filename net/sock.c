@@ -67,60 +67,60 @@
 # define AI_ADDRCONFIG 0
 #endif
 
-/* sock_initialize
+/* igloo_sock_initialize
 **
 ** initializes the socket library.  you must call this
 ** before using the library!
 */
-void sock_initialize(void)
+void igloo_sock_initialize(void)
 {
 #ifdef _WIN32
     WSADATA wsad;
     WSAStartup(0x0101, &wsad);
 #endif
 
-    resolver_initialize();
+    igloo_resolver_initialize();
 }
 
-/* sock_shutdown
+/* igloo_sock_shutdown
 **
 ** shutdown the socket library.  remember to call this when you're
 ** through using the lib
 */
-void sock_shutdown(void)
+void igloo_sock_shutdown(void)
 {
 #ifdef _WIN32
     WSACleanup();
 #endif
 
-    resolver_shutdown();
+    igloo_resolver_shutdown();
 }
 
-/* sock_get_localip
+/* igloo_sock_get_localip
 **
 ** gets the local ip address for the machine
 ** the ip it returns *should* be on the internet.
 ** in any case, it's as close as we can hope to get
 ** unless someone has better ideas on how to do this
 */
-char *sock_get_localip(char *buff, int len)
+char *igloo_sock_get_localip(char *buff, int len)
 {
     char temp[1024];
 
     if (gethostname(temp, sizeof(temp)) != 0)
         return NULL;
 
-    if (resolver_getip(temp, buff, len))
+    if (igloo_resolver_getip(temp, buff, len))
         return buff;
 
     return NULL;
 }
 
-/* sock_error
+/* igloo_sock_error
 ** 
 ** returns the last socket error
 */
-int sock_error(void)
+int igloo_sock_error(void)
 {
 #ifdef _WIN32
     return WSAGetLastError();
@@ -129,7 +129,7 @@ int sock_error(void)
 #endif
 }
 
-void sock_set_error(int val)
+void igloo_sock_set_error(int val)
 {
 #ifdef _WIN32
      WSASetLastError (val);
@@ -138,12 +138,12 @@ void sock_set_error(int val)
 #endif
 }
 
-/* sock_recoverable
+/* igloo_sock_recoverable
 **
 ** determines if the socket error is recoverable
 ** in terms of non blocking sockets
 */
-int sock_recoverable(int error)
+int igloo_sock_recoverable(int error)
 {
     switch (error)
     {
@@ -169,7 +169,7 @@ int sock_recoverable(int error)
     }
 }
 
-int sock_stalled (int error)
+int igloo_sock_stalled (int error)
 {
     switch (error)
     {
@@ -200,11 +200,11 @@ static int sock_connect_pending (int error)
     return error == EINPROGRESS || error == EALREADY;
 }
 
-/* sock_valid_socket
+/* igloo_sock_valid_socket
 **
 ** determines if a sock_t represents a valid socket
 */
-int sock_valid_socket(sock_t sock)
+int igloo_sock_valid_socket(sock_t sock)
 {
     int ret;
     int optval;
@@ -219,7 +219,7 @@ int sock_valid_socket(sock_t sock)
 
 
 /* determines if the passed socket is still connected */
-int sock_active (sock_t sock)
+int igloo_sock_active (sock_t sock)
 {
     char c;
     int l;
@@ -227,7 +227,7 @@ int sock_active (sock_t sock)
     l = recv (sock, &c, 1, MSG_PEEK);
     if (l == 0)
         return 0;
-    if (l == SOCK_ERROR && sock_recoverable (sock_error()))
+    if (l == SOCK_ERROR && igloo_sock_recoverable (igloo_sock_error()))
         return 1;
     return 0;
 }
@@ -251,13 +251,13 @@ int inet_aton(const char *s, struct in_addr *a)
 }
 #endif /* _WIN32 */
 
-/* sock_set_blocking
+/* igloo_sock_set_blocking
  *
  * set the sock blocking or nonblocking
  * 1 for blocking
  * 0 for nonblocking
  */
-int sock_set_blocking(sock_t sock, int block)
+int igloo_sock_set_blocking(sock_t sock, int block)
 {
 #ifdef _WIN32
 #ifdef __MINGW32__
@@ -267,7 +267,7 @@ int sock_set_blocking(sock_t sock, int block)
 #endif
 #endif
 
-    if ((!sock_valid_socket(sock)) || (block < 0) || (block > 1))
+    if ((!igloo_sock_valid_socket(sock)) || (block < 0) || (block > 1))
         return SOCK_ERROR;
 
 #ifdef _WIN32
@@ -278,14 +278,14 @@ int sock_set_blocking(sock_t sock, int block)
 #endif
 }
 
-int sock_set_nolinger(sock_t sock)
+int igloo_sock_set_nolinger(sock_t sock)
 {
     struct linger lin = { 0, 0 };
     return setsockopt(sock, SOL_SOCKET, SO_LINGER, (void *)&lin, 
             sizeof(struct linger));
 }
 
-int sock_set_nodelay(sock_t sock)
+int igloo_sock_set_nodelay(sock_t sock)
 {
     int nodelay = 1;
 
@@ -293,18 +293,18 @@ int sock_set_nodelay(sock_t sock)
             sizeof(int));
 }
 
-int sock_set_keepalive(sock_t sock)
+int igloo_sock_set_keepalive(sock_t sock)
 {
     int keepalive = 1;
     return setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepalive, 
             sizeof(int));
 }
 
-/* sock_close
+/* igloo_sock_close
 **
 ** close the socket
 */
-int sock_close(sock_t sock)
+int igloo_sock_close(sock_t sock)
 {
 #ifdef _WIN32
     return closesocket(sock);
@@ -313,20 +313,20 @@ int sock_close(sock_t sock)
 #endif
 }
 
-/* sock_writev
+/* igloo_sock_writev
  *
  * write multiple buffers at once, return bytes actually written
  */
 #ifdef HAVE_WRITEV
 
-ssize_t sock_writev (sock_t sock, const struct iovec *iov, size_t count)
+ssize_t igloo_sock_writev (sock_t sock, const struct iovec *iov, size_t count)
 {
     return writev (sock, iov, count);
 }
 
 #else
 
-ssize_t sock_writev (sock_t sock, const struct iovec *iov, size_t count)
+ssize_t igloo_sock_writev (sock_t sock, const struct iovec *iov, size_t count)
 {
     int i = count, accum = 0, ret;
     const struct iovec *v = iov;
@@ -335,7 +335,7 @@ ssize_t sock_writev (sock_t sock, const struct iovec *iov, size_t count)
     {
         if (v->iov_base && v->iov_len)
         {
-            ret = sock_write_bytes (sock, v->iov_base, v->iov_len);
+            ret = igloo_sock_write_bytes (sock, v->iov_base, v->iov_len);
             if (ret == -1 && accum==0)
                 return -1;
             if (ret == -1)
@@ -352,55 +352,55 @@ ssize_t sock_writev (sock_t sock, const struct iovec *iov, size_t count)
 
 #endif
 
-/* sock_write_bytes
+/* igloo_sock_write_bytes
 **
 ** write bytes to the socket
 ** this function will _NOT_ block
 */
-int sock_write_bytes(sock_t sock, const void *buff, size_t len)
+int igloo_sock_write_bytes(sock_t sock, const void *buff, size_t len)
 {
     /* sanity check */
     if (!buff) {
         return SOCK_ERROR;
     } else if (len <= 0) {
         return SOCK_ERROR;
-    } /*else if (!sock_valid_socket(sock)) {
+    } /*else if (!igloo_sock_valid_socket(sock)) {
         return SOCK_ERROR;
     } */
 
     return send(sock, buff, len, 0);
 }
 
-/* sock_write_string
+/* igloo_sock_write_string
 **
 ** writes a string to a socket
 ** This function must only be called with a blocking socket.
 */
-int sock_write_string(sock_t sock, const char *buff)
+int igloo_sock_write_string(sock_t sock, const char *buff)
 {
-    return (sock_write_bytes(sock, buff, strlen(buff)) > 0);
+    return (igloo_sock_write_bytes(sock, buff, strlen(buff)) > 0);
 }
 
-/* sock_write
+/* igloo_sock_write
 **
 ** write a formatted string to the socket
 ** this function must only be called with a blocking socket.
 ** will truncate the string if it's greater than 1024 chars.
 */
-int sock_write(sock_t sock, const char *fmt, ...)
+int igloo_sock_write(sock_t sock, const char *fmt, ...)
 {
     int rc;
     va_list ap;
 
     va_start (ap, fmt);
-    rc = sock_write_fmt (sock, fmt, ap);
+    rc = igloo_sock_write_fmt (sock, fmt, ap);
     va_end (ap);
 
     return rc;
 }
 
 #ifdef HAVE_OLD_VSNPRINTF
-int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
+int igloo_sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
 {
     va_list ap_local;
     unsigned int len = 1024;
@@ -419,7 +419,7 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
         ret = vsnprintf (buff, len, fmt, ap_local);
         if (ret > 0)
         {
-            ret = sock_write_bytes (sock, buff, ret);
+            ret = igloo_sock_write_bytes (sock, buff, ret);
             break;
         }
         len += 8192;
@@ -428,7 +428,7 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
     return ret;
 }
 #else
-int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
+int igloo_sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
 {
     char buffer [1024], *buff = buffer;
     int len;
@@ -442,7 +442,7 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
     if (len > 0)
     {
         if ((size_t)len < sizeof (buffer))   /* common case */
-            rc = sock_write_bytes(sock, buff, (size_t)len);
+            rc = igloo_sock_write_bytes(sock, buff, (size_t)len);
         else
         {
             /* truncated */
@@ -451,7 +451,7 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
             {
                 len = vsnprintf (buff, len, fmt, ap_retry);
                 if (len > 0)
-                    rc = sock_write_bytes (sock, buff, len);
+                    rc = igloo_sock_write_bytes (sock, buff, len);
                 free (buff);
             }
         }
@@ -463,17 +463,17 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
 #endif
 
 
-int sock_read_bytes(sock_t sock, char *buff, size_t len)
+int igloo_sock_read_bytes(sock_t sock, char *buff, size_t len)
 {
 
-    /*if (!sock_valid_socket(sock)) return 0; */
+    /*if (!igloo_sock_valid_socket(sock)) return 0; */
     if (!buff) return 0;
     if (len <= 0) return 0;
 
     return recv(sock, buff, len, 0);
 }
 
-/* sock_read_line
+/* igloo_sock_read_line
 **
 ** Read one line of at max len bytes from sock into buff.
 ** If ok, return 1 and nullterminate buff. Otherwize return 0.
@@ -481,12 +481,12 @@ int sock_read_bytes(sock_t sock, char *buff, size_t len)
 **
 ** this function will probably not work on sockets in nonblocking mode
 */
-int sock_read_line(sock_t sock, char *buff, const int len)
+int igloo_sock_read_line(sock_t sock, char *buff, const int len)
 {
     char c = '\0';
     int read_bytes, pos;
   
-    /*if (!sock_valid_socket(sock)) {
+    /*if (!igloo_sock_valid_socket(sock)) {
         return 0;
     } else*/ if (!buff) {
         return 0;
@@ -523,7 +523,7 @@ int sock_read_line(sock_t sock, char *buff, const int len)
  * return 1 for ok 
  */
 #ifdef HAVE_POLL
-int sock_connected (sock_t sock, int timeout)
+int igloo_sock_connected (sock_t sock, int timeout)
 {
     struct pollfd check;
     int val = SOCK_ERROR;
@@ -540,11 +540,11 @@ int sock_connected (sock_t sock, int timeout)
             {
                 if (val == 0)
                     return 1;
-                sock_set_error (val);
+                igloo_sock_set_error (val);
             }
             /* fall through */
         case -1:
-            if (sock_recoverable (sock_error()))
+            if (igloo_sock_recoverable (igloo_sock_error()))
                 return 0;
             return SOCK_ERROR;
     }                                           
@@ -552,7 +552,7 @@ int sock_connected (sock_t sock, int timeout)
 
 #else
 
-int sock_connected (sock_t sock, int timeout)
+int igloo_sock_connected (sock_t sock, int timeout)
 {
     fd_set wfds;
     int val = SOCK_ERROR;
@@ -580,25 +580,25 @@ int sock_connected (sock_t sock, int timeout)
             {
                 if (val == 0)
                     return 1;
-                sock_set_error (val);
+                igloo_sock_set_error (val);
             }
             /* fall through */
         case -1:
-            if (sock_recoverable (sock_error()))
+            if (igloo_sock_recoverable (igloo_sock_error()))
                 return 0;
             return SOCK_ERROR;
     }
 }
 #endif
 
-sock_t sock_connect_wto (const char *hostname, int port, int timeout)
+sock_t igloo_sock_connect_wto (const char *hostname, int port, int timeout)
 {
-    return sock_connect_wto_bind(hostname, port, NULL, timeout);
+    return igloo_sock_connect_wto_bind(hostname, port, NULL, timeout);
 }
 
 #ifdef HAVE_GETADDRINFO
 
-sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
+sock_t igloo_sock_connect_non_blocking (const char *hostname, unsigned port)
 {
     int sock = SOCK_ERROR;
     struct addrinfo *ai, *head, hints;
@@ -619,11 +619,11 @@ sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
         if ((sock = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol)) 
                 > -1)
         {
-            sock_set_blocking (sock, 0);
+            igloo_sock_set_blocking (sock, 0);
             if (connect(sock, ai->ai_addr, ai->ai_addrlen) < 0 && 
-                    !sock_connect_pending(sock_error()))
+                    !sock_connect_pending(igloo_sock_error()))
             {
-                sock_close (sock);
+                igloo_sock_close (sock);
                 sock = SOCK_ERROR;
             }
             else
@@ -640,7 +640,7 @@ sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
  * timeout is 0 or less then we will wait until the OS gives up on the connect
  * The socket is returned
  */
-sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, int timeout)
+sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *bnd, int timeout)
 {
     sock_t sock = SOCK_ERROR;
     struct addrinfo *ai, *head, *b_head=NULL, hints;
@@ -660,7 +660,7 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
         if ((sock = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol)) >= 0)
         {
             if (timeout > 0)
-                sock_set_blocking (sock, 0);
+                igloo_sock_set_blocking (sock, 0);
 
             if (bnd)
             {
@@ -672,7 +672,7 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
                 if (getaddrinfo (bnd, NULL, &b_hints, &b_head) ||
                         bind (sock, b_head->ai_addr, b_head->ai_addrlen) < 0)
                 {
-                    sock_close (sock);
+                    igloo_sock_close (sock);
                     sock = SOCK_ERROR;
                     break;
                 }
@@ -684,19 +684,19 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
             /* loop as the connect maybe async */
             while (sock != SOCK_ERROR)
             {
-                if (sock_recoverable (sock_error()))
+                if (igloo_sock_recoverable (igloo_sock_error()))
                 {
-                    int connected = sock_connected (sock, timeout);
+                    int connected = igloo_sock_connected (sock, timeout);
                     if (connected == 0)  /* try again, interrupted */
                         continue;
                     if (connected == 1) /* connected */
                     {
                         if (timeout >= 0)
-                            sock_set_blocking(sock, 1);
+                            igloo_sock_set_blocking(sock, 1);
                         break;
                     }
                 }
-                sock_close (sock);
+                igloo_sock_close (sock);
                 sock = SOCK_ERROR;
             }
             if (sock != SOCK_ERROR)
@@ -712,7 +712,7 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
 }
 
 
-sock_t sock_get_server_socket (int port, const char *sinterface)
+sock_t igloo_sock_get_server_socket (int port, const char *sinterface)
 {
     struct sockaddr_storage sa;
     struct addrinfo hints, *res, *ai;
@@ -748,7 +748,7 @@ sock_t sock_get_server_socket (int port, const char *sinterface)
 
         if (bind (sock, ai->ai_addr, ai->ai_addrlen) < 0)
         {
-            sock_close (sock);
+            igloo_sock_close (sock);
             continue;
         }
         freeaddrinfo (res);
@@ -775,15 +775,15 @@ int sock_try_connection (sock_t sock, const char *hostname, unsigned int port)
     memset(&sin, 0, sizeof(struct sockaddr_in));
     memset(&server, 0, sizeof(struct sockaddr_in));
 
-    if (!resolver_getip(hostname, ip, MAX_ADDR_LEN))
+    if (!igloo_resolver_getip(hostname, ip, MAX_ADDR_LEN))
     {
-        sock_close (sock);
+        igloo_sock_close (sock);
         return -1;
     }
 
     if (inet_aton(ip, (struct in_addr *)&sin.sin_addr) == 0)
     {
-        sock_close(sock);
+        igloo_sock_close(sock);
         return -1;
     }
 
@@ -795,7 +795,7 @@ int sock_try_connection (sock_t sock, const char *hostname, unsigned int port)
     return connect(sock, (struct sockaddr *)&server, sizeof(server));
 }
 
-sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
+sock_t igloo_sock_connect_non_blocking (const char *hostname, unsigned port)
 {
     sock_t sock;
 
@@ -803,13 +803,13 @@ sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
     if (sock == SOCK_ERROR)
         return SOCK_ERROR;
 
-    sock_set_blocking (sock, 0);
+    igloo_sock_set_blocking (sock, 0);
     sock_try_connection (sock, hostname, port);
     
     return sock;
 }
 
-sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, int timeout)
+sock_t igloo_sock_connect_wto_bind (const char *hostname, int port, const char *bnd, int timeout)
 {
     sock_t sock;
 
@@ -827,30 +827,30 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
         if (inet_aton (bnd, &sa.sin_addr) == 0 ||
             bind (sock, (struct sockaddr *)&sa, sizeof(sa)) < 0)
         {
-            sock_close (sock);
+            igloo_sock_close (sock);
             return SOCK_ERROR;
         }
     }
 
     if (timeout)
     {
-        sock_set_blocking (sock, 0);
+        igloo_sock_set_blocking (sock, 0);
         if (sock_try_connection (sock, hostname, port) < 0)
         {
-            int ret = sock_connected (sock, timeout);
+            int ret = igloo_sock_connected (sock, timeout);
             if (ret <= 0)
             {
-                sock_close (sock);
+                igloo_sock_close (sock);
                 return SOCK_ERROR;
             }
         }
-        sock_set_blocking(sock, 1);
+        igloo_sock_set_blocking(sock, 1);
     }
     else
     {
         if (sock_try_connection (sock, hostname, port) < 0)
         {
-            sock_close (sock);
+            igloo_sock_close (sock);
             sock = SOCK_ERROR;
         }
     }
@@ -858,13 +858,13 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
 }
 
 
-/* sock_get_server_socket
+/* igloo_sock_get_server_socket
 **
 ** create a socket for incoming requests on a specified port and
 ** interface.  if interface is null, listen on all interfaces.
 ** returns the socket, or SOCK_ERROR on failure
 */
-sock_t sock_get_server_socket(int port, const char *sinterface)
+sock_t igloo_sock_get_server_socket(int port, const char *sinterface)
 {
     struct sockaddr_in sa;
     int error, opt;
@@ -879,7 +879,7 @@ sock_t sock_get_server_socket(int port, const char *sinterface)
 
     /* set the interface to bind to if specified */
     if (sinterface != NULL) {
-        if (!resolver_getip(sinterface, ip, sizeof (ip)))
+        if (!igloo_resolver_getip(sinterface, ip, sizeof (ip)))
             return SOCK_ERROR;
 
         if (!inet_aton(ip, &sa.sin_addr)) {
@@ -913,14 +913,14 @@ sock_t sock_get_server_socket(int port, const char *sinterface)
 
 #endif
 
-void sock_set_send_buffer (sock_t sock, int win_size)
+void igloo_sock_set_send_buffer (sock_t sock, int win_size)
 {
     setsockopt (sock, SOL_SOCKET, SO_SNDBUF, (char *) &win_size, sizeof(win_size));
 }
 
-int sock_listen(sock_t serversock, int backlog)
+int igloo_sock_listen(sock_t serversock, int backlog)
 {
-    if (!sock_valid_socket(serversock))
+    if (!igloo_sock_valid_socket(serversock))
         return 0;
 
     if (backlog <= 0)
@@ -929,7 +929,7 @@ int sock_listen(sock_t serversock, int backlog)
     return (listen(serversock, backlog) == 0);
 }
 
-sock_t sock_accept(sock_t serversock, char *ip, size_t len)
+sock_t igloo_sock_accept(sock_t serversock, char *ip, size_t len)
 {
 #ifdef HAVE_GETNAMEINFO
     struct sockaddr_storage sa;
@@ -939,7 +939,7 @@ sock_t sock_accept(sock_t serversock, char *ip, size_t len)
     sock_t ret;
     socklen_t slen;
 
-    if (ip == NULL || len == 0 || !sock_valid_socket(serversock))
+    if (ip == NULL || len == 0 || !igloo_sock_valid_socket(serversock))
         return SOCK_ERROR;
 
     slen = sizeof(sa);
@@ -954,8 +954,8 @@ sock_t sock_accept(sock_t serversock, char *ip, size_t len)
         /* inet_ntoa is not reentrant, we should protect this */
         strncpy(ip, inet_ntoa(sa.sin_addr), len);
 #endif
-        sock_set_nolinger(ret);
-        sock_set_keepalive(ret);
+        igloo_sock_set_nolinger(ret);
+        igloo_sock_set_keepalive(ret);
     }
 
     return ret;

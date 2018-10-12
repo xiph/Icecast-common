@@ -64,8 +64,8 @@
 #define mutex_t pthread_mutex_t
 #endif
 
-static mutex_t _logger_mutex;
-static int _initialized = 0;
+static mutex_t igloo__logger_mutex;
+static int igloo__initialized = 0;
 
 typedef struct _log_entry_t
 {
@@ -96,7 +96,7 @@ typedef struct log_tag
     char *buffer;
 } log_t;
 
-static log_t loglist[LOG_MAXLOGS];
+static log_t igloo_loglist[LOG_MAXLOGS];
 
 static int _get_log_id(void);
 static void _lock_logger(void);
@@ -105,87 +105,87 @@ static void _unlock_logger(void);
 
 static int _log_open (int id)
 {
-    if (loglist [id] . in_use == 0)
+    if (igloo_loglist [id] . in_use == 0)
         return 0;
 
     /* check for cases where an open of the logfile is wanted */
-    if (loglist [id] . logfile == NULL || 
-       (loglist [id] . trigger_level && loglist [id] . size > loglist [id] . trigger_level))
+    if (igloo_loglist [id] . logfile == NULL || 
+       (igloo_loglist [id] . trigger_level && igloo_loglist [id] . size > igloo_loglist [id] . trigger_level))
     {
-        if (loglist [id] . filename)  /* only re-open files where we have a name */
+        if (igloo_loglist [id] . filename)  /* only re-open files where we have a name */
         {
             struct stat st;
 
-            if (loglist [id] . logfile)
+            if (igloo_loglist [id] . logfile)
             {
                 char new_name [4096];
-                fclose (loglist [id] . logfile);
-                loglist [id] . logfile = NULL;
+                fclose (igloo_loglist [id] . logfile);
+                igloo_loglist [id] . logfile = NULL;
                 /* simple rename, but could use time providing locking were used */
-                if (loglist[id].archive_timestamp)
+                if (igloo_loglist[id].archive_timestamp)
                 {
                     char timestamp [128];
                     time_t now = time(NULL);
 
                     strftime (timestamp, sizeof (timestamp), "%Y%m%d_%H%M%S", localtime (&now));
-                    snprintf (new_name,  sizeof(new_name), "%s.%s", loglist[id].filename, timestamp);
+                    snprintf (new_name,  sizeof(new_name), "%s.%s", igloo_loglist[id].filename, timestamp);
                 }
                 else {
-                    snprintf (new_name,  sizeof(new_name), "%s.old", loglist [id] . filename);
+                    snprintf (new_name,  sizeof(new_name), "%s.old", igloo_loglist [id] . filename);
                 }
 #ifdef _WIN32
                 if (stat (new_name, &st) == 0)
                     remove (new_name);
 #endif
-                rename (loglist [id] . filename, new_name);
+                rename (igloo_loglist [id] . filename, new_name);
             }
-            loglist [id] . logfile = fopen (loglist [id] . filename, "a");
-            if (loglist [id] . logfile == NULL)
+            igloo_loglist [id] . logfile = fopen (igloo_loglist [id] . filename, "a");
+            if (igloo_loglist [id] . logfile == NULL)
                 return 0;
-            setvbuf (loglist [id] . logfile, NULL, IO_BUFFER_TYPE, 0);
-            if (stat (loglist [id] . filename, &st) < 0)
-                loglist [id] . size = 0;
+            setvbuf (igloo_loglist [id] . logfile, NULL, IO_BUFFER_TYPE, 0);
+            if (stat (igloo_loglist [id] . filename, &st) < 0)
+                igloo_loglist [id] . size = 0;
             else
-                loglist [id] . size = st.st_size;
+                igloo_loglist [id] . size = st.st_size;
         }
         else
-            loglist [id] . size = 0;
+            igloo_loglist [id] . size = 0;
     }
     return 1;
 }
 
-void log_initialize(void)
+void igloo_log_initialize(void)
 {
     int i;
 
-    if (_initialized) return;
+    if (igloo__initialized) return;
 
     for (i = 0; i < LOG_MAXLOGS; i++) {
-        loglist[i].in_use = 0;
-        loglist[i].level = 2;
-        loglist[i].size = 0;
-        loglist[i].trigger_level = 1000000000;
-        loglist[i].filename = NULL;
-        loglist[i].logfile = NULL;
-        loglist[i].buffer = NULL;
-        loglist[i].total = 0;
-        loglist[i].entries = 0;
-        loglist[i].keep_entries = 0;
-        loglist[i].log_head = NULL;
-        loglist[i].log_tail = &loglist[i].log_head;
+        igloo_loglist[i].in_use = 0;
+        igloo_loglist[i].level = 2;
+        igloo_loglist[i].size = 0;
+        igloo_loglist[i].trigger_level = 1000000000;
+        igloo_loglist[i].filename = NULL;
+        igloo_loglist[i].logfile = NULL;
+        igloo_loglist[i].buffer = NULL;
+        igloo_loglist[i].total = 0;
+        igloo_loglist[i].entries = 0;
+        igloo_loglist[i].keep_entries = 0;
+        igloo_loglist[i].log_head = NULL;
+        igloo_loglist[i].log_tail = &igloo_loglist[i].log_head;
     }
 
     /* initialize mutexes */
 #ifndef _WIN32
-    pthread_mutex_init(&_logger_mutex, NULL);
+    pthread_mutex_init(&igloo__logger_mutex, NULL);
 #else
-    InitializeCriticalSection(&_logger_mutex);
+    InitializeCriticalSection(&igloo__logger_mutex);
 #endif
 
-    _initialized = 1;
+    igloo__initialized = 1;
 }
 
-int log_open_file(FILE *file)
+int igloo_log_open_file(FILE *file)
 {
     int log_id;
 
@@ -194,15 +194,15 @@ int log_open_file(FILE *file)
     log_id = _get_log_id();
     if (log_id < 0) return LOG_ENOMORELOGS;
 
-    loglist[log_id].logfile = file;
-    loglist[log_id].filename = NULL;
-    loglist[log_id].size = 0;
+    igloo_loglist[log_id].logfile = file;
+    igloo_loglist[log_id].filename = NULL;
+    igloo_loglist[log_id].size = 0;
 
     return log_id;
 }
 
 
-int log_open(const char *filename)
+int igloo_log_open(const char *filename)
 {
     int id;
     FILE *file;
@@ -212,19 +212,19 @@ int log_open(const char *filename)
     
     file = fopen(filename, "a");
 
-    id = log_open_file(file);
+    id = igloo_log_open_file(file);
 
     if (id >= 0)
     {
         struct stat st;
 
-        setvbuf (loglist [id] . logfile, NULL, IO_BUFFER_TYPE, 0);
-        loglist [id] . filename = strdup (filename);
-        if (stat (loglist [id] . filename, &st) == 0)
-            loglist [id] . size = st.st_size;
-        loglist [id] . entries = 0;
-        loglist [id] . log_head = NULL;
-        loglist [id] . log_tail = &loglist [id] . log_head;
+        setvbuf (igloo_loglist [id] . logfile, NULL, IO_BUFFER_TYPE, 0);
+        igloo_loglist [id] . filename = strdup (filename);
+        if (stat (igloo_loglist [id] . filename, &st) == 0)
+            igloo_loglist [id] . size = st.st_size;
+        igloo_loglist [id] . entries = 0;
+        igloo_loglist [id] . log_head = NULL;
+        igloo_loglist [id] . log_tail = &igloo_loglist [id] . log_head;
     }
 
     return id;
@@ -232,184 +232,184 @@ int log_open(const char *filename)
 
 
 /* set the trigger level to trigger, represented in kilobytes */
-void log_set_trigger(int id, unsigned trigger)
+void igloo_log_set_trigger(int id, unsigned trigger)
 {
-    if (id >= 0 && id < LOG_MAXLOGS && loglist [id] . in_use)
+    if (id >= 0 && id < LOG_MAXLOGS && igloo_loglist [id] . in_use)
     {
-         loglist [id] . trigger_level = trigger*1024;
+         igloo_loglist [id] . trigger_level = trigger*1024;
     }
 }
 
 
-int log_set_filename(int id, const char *filename)
+int igloo_log_set_filename(int id, const char *filename)
 {
     if (id < 0 || id >= LOG_MAXLOGS)
         return LOG_EINSANE;
     /* NULL filename is ok, empty filename is not. */
-    if ((filename && !strcmp(filename, "")) || loglist [id] . in_use == 0)
+    if ((filename && !strcmp(filename, "")) || igloo_loglist [id] . in_use == 0)
         return LOG_EINSANE;
      _lock_logger();
-    if (loglist [id] . filename)
-        free (loglist [id] . filename);
+    if (igloo_loglist [id] . filename)
+        free (igloo_loglist [id] . filename);
     if (filename)
-        loglist [id] . filename = strdup (filename);
+        igloo_loglist [id] . filename = strdup (filename);
     else
-        loglist [id] . filename = NULL;
+        igloo_loglist [id] . filename = NULL;
      _unlock_logger();
     return id;
 }
 
-int log_set_archive_timestamp(int id, int value)
+int igloo_log_set_archive_timestamp(int id, int value)
 {
     if (id < 0 || id >= LOG_MAXLOGS)
         return LOG_EINSANE;
      _lock_logger();
-     loglist[id].archive_timestamp = value;
+     igloo_loglist[id].archive_timestamp = value;
      _unlock_logger();
     return id;
 }
 
 
-int log_open_with_buffer(const char *filename, int size)
+int igloo_log_open_with_buffer(const char *filename, int size)
 {
     /* not implemented */
     return LOG_ENOTIMPL;
 }
 
 
-void log_set_lines_kept (int log_id, unsigned int count)
+void igloo_log_set_lines_kept (int log_id, unsigned int count)
 {
     if (log_id < 0 || log_id >= LOG_MAXLOGS) return;
-    if (loglist[log_id].in_use == 0) return;
+    if (igloo_loglist[log_id].in_use == 0) return;
 
     _lock_logger ();
-    loglist[log_id].keep_entries = count;
-    while (loglist[log_id].entries > count)
+    igloo_loglist[log_id].keep_entries = count;
+    while (igloo_loglist[log_id].entries > count)
     {
-        log_entry_t *to_go = loglist [log_id].log_head;
-        loglist [log_id].log_head = to_go->next;
-        loglist [log_id].total -= to_go->len;
+        log_entry_t *to_go = igloo_loglist [log_id].log_head;
+        igloo_loglist [log_id].log_head = to_go->next;
+        igloo_loglist [log_id].total -= to_go->len;
         free (to_go->line);
         free (to_go);
-        loglist [log_id].entries--;
+        igloo_loglist [log_id].entries--;
     }
     _unlock_logger ();
 }
 
 
-void log_set_level(int log_id, unsigned level)
+void igloo_log_set_level(int log_id, unsigned level)
 {
     if (log_id < 0 || log_id >= LOG_MAXLOGS) return;
-    if (loglist[log_id].in_use == 0) return;
+    if (igloo_loglist[log_id].in_use == 0) return;
 
-    loglist[log_id].level = level;
+    igloo_loglist[log_id].level = level;
 }
 
-void log_flush(int log_id)
+void igloo_log_flush(int log_id)
 {
     if (log_id < 0 || log_id >= LOG_MAXLOGS) return;
-    if (loglist[log_id].in_use == 0) return;
+    if (igloo_loglist[log_id].in_use == 0) return;
 
     _lock_logger();
-    if (loglist[log_id].logfile)
-        fflush(loglist[log_id].logfile);
+    if (igloo_loglist[log_id].logfile)
+        fflush(igloo_loglist[log_id].logfile);
     _unlock_logger();
 }
 
-void log_reopen(int log_id)
+void igloo_log_reopen(int log_id)
 {
     if (log_id < 0 || log_id >= LOG_MAXLOGS)
         return;
-    if (loglist [log_id] . filename && loglist [log_id] . logfile)
+    if (igloo_loglist [log_id] . filename && igloo_loglist [log_id] . logfile)
     {
         _lock_logger();
 
-        fclose (loglist [log_id] . logfile);
-        loglist [log_id] . logfile = NULL;
+        fclose (igloo_loglist [log_id] . logfile);
+        igloo_loglist [log_id] . logfile = NULL;
 
         _unlock_logger();
     }
 }
 
-void log_close(int log_id)
+void igloo_log_close(int log_id)
 {
     if (log_id < 0 || log_id >= LOG_MAXLOGS) return;
 
     _lock_logger();
 
-    if (loglist[log_id].in_use == 0)
+    if (igloo_loglist[log_id].in_use == 0)
     {
         _unlock_logger();
         return;
     }
 
-    loglist[log_id].in_use = 0;
-    loglist[log_id].level = 2;
-    if (loglist[log_id].filename) free(loglist[log_id].filename);
-    if (loglist[log_id].buffer) free(loglist[log_id].buffer);
+    igloo_loglist[log_id].in_use = 0;
+    igloo_loglist[log_id].level = 2;
+    if (igloo_loglist[log_id].filename) free(igloo_loglist[log_id].filename);
+    if (igloo_loglist[log_id].buffer) free(igloo_loglist[log_id].buffer);
 
-    if (loglist [log_id] . logfile)
+    if (igloo_loglist [log_id] . logfile)
     {
-        fclose (loglist [log_id] . logfile);
-        loglist [log_id] . logfile = NULL;
+        fclose (igloo_loglist [log_id] . logfile);
+        igloo_loglist [log_id] . logfile = NULL;
     }
-    while (loglist[log_id].entries)
+    while (igloo_loglist[log_id].entries)
     {
-        log_entry_t *to_go = loglist [log_id].log_head;
-        loglist [log_id].log_head = to_go->next;
-        loglist [log_id].total -= to_go->len;
+        log_entry_t *to_go = igloo_loglist [log_id].log_head;
+        igloo_loglist [log_id].log_head = to_go->next;
+        igloo_loglist [log_id].total -= to_go->len;
         free (to_go->line);
         free (to_go);
-        loglist [log_id].entries--;
+        igloo_loglist [log_id].entries--;
     }
     _unlock_logger();
 }
 
-void log_shutdown(void)
+void igloo_log_shutdown(void)
 {
     /* destroy mutexes */
 #ifndef _WIN32
-    pthread_mutex_destroy(&_logger_mutex);
+    pthread_mutex_destroy(&igloo__logger_mutex);
 #else
-    DeleteCriticalSection(&_logger_mutex);
+    DeleteCriticalSection(&igloo__logger_mutex);
 #endif 
 
-    _initialized = 0;
+    igloo__initialized = 0;
 }
 
 
-static int create_log_entry (int log_id, const char *pre, const char *line)
+static int igloo_create_log_entry (int log_id, const char *pre, const char *line)
 {
     log_entry_t *entry;
 
-    if (loglist[log_id].keep_entries == 0)
-        return fprintf (loglist[log_id].logfile, "%s%s\n", pre, line); 
+    if (igloo_loglist[log_id].keep_entries == 0)
+        return fprintf (igloo_loglist[log_id].logfile, "%s%s\n", pre, line); 
     
     entry = calloc (1, sizeof (log_entry_t));
     entry->len = strlen (pre) + strlen (line) + 2;
     entry->line = malloc (entry->len);
     snprintf (entry->line, entry->len, "%s%s\n", pre, line);
-    loglist [log_id].total += entry->len;
-    fprintf (loglist[log_id].logfile, "%s", entry->line);
+    igloo_loglist [log_id].total += entry->len;
+    fprintf (igloo_loglist[log_id].logfile, "%s", entry->line);
 
-    *loglist [log_id].log_tail = entry;
-    loglist [log_id].log_tail = &entry->next;
+    *igloo_loglist [log_id].log_tail = entry;
+    igloo_loglist [log_id].log_tail = &entry->next;
 
-    if (loglist [log_id].entries >= loglist [log_id].keep_entries)
+    if (igloo_loglist [log_id].entries >= igloo_loglist [log_id].keep_entries)
     {
-        log_entry_t *to_go = loglist [log_id].log_head;
-        loglist [log_id].log_head = to_go->next;
-        loglist [log_id].total -= to_go->len;
+        log_entry_t *to_go = igloo_loglist [log_id].log_head;
+        igloo_loglist [log_id].log_head = to_go->next;
+        igloo_loglist [log_id].total -= to_go->len;
         free (to_go->line);
         free (to_go);
     }
     else
-        loglist [log_id].entries++;
+        igloo_loglist [log_id].entries++;
     return entry->len;
 }
 
 
-void log_contents (int log_id, char **_contents, unsigned int *_len)
+void igloo_log_contents (int log_id, char **_contents, unsigned int *_len)
 {
     int remain;
     log_entry_t *entry;
@@ -419,12 +419,12 @@ void log_contents (int log_id, char **_contents, unsigned int *_len)
     if (log_id >= LOG_MAXLOGS) return; /* Bad log number */
 
     _lock_logger ();
-    remain = loglist [log_id].total + 1;
+    remain = igloo_loglist [log_id].total + 1;
     *_contents = malloc (remain);
     **_contents= '\0';
-    *_len = loglist [log_id].total;
+    *_len = igloo_loglist [log_id].total;
 
-    entry = loglist [log_id].log_head;
+    entry = igloo_loglist [log_id].log_head;
     ptr = *_contents;
     while (entry)
     {
@@ -653,7 +653,7 @@ static void __vsnprintf(char *str, size_t size, const char *format, va_list ap) 
     *str = 0;
 }
 
-void log_write(int log_id, unsigned priority, const char *cat, const char *func, 
+void igloo_log_write(int log_id, unsigned priority, const char *cat, const char *func, 
         const char *fmt, ...)
 {
     static const char *prior[] = { "EROR", "WARN", "INFO", "DBUG" };
@@ -664,7 +664,7 @@ void log_write(int log_id, unsigned priority, const char *cat, const char *func,
     va_list ap;
 
     if (log_id < 0 || log_id >= LOG_MAXLOGS) return; /* Bad log number */
-    if (loglist[log_id].level < priority) return;
+    if (igloo_loglist[log_id].level < priority) return;
     if (!priority || priority > sizeof(prior)/sizeof(prior[0])) return; /* Bad priority */
 
 
@@ -679,14 +679,14 @@ void log_write(int log_id, unsigned priority, const char *cat, const char *func,
     _lock_logger();
     if (_log_open (log_id))
     {
-        int len = create_log_entry (log_id, pre, line);
+        int len = igloo_create_log_entry (log_id, pre, line);
         if (len > 0)
-            loglist[log_id].size += len;
+            igloo_loglist[log_id].size += len;
     }
     _unlock_logger();
 }
 
-void log_write_direct(int log_id, const char *fmt, ...)
+void igloo_log_write_direct(int log_id, const char *fmt, ...)
 {
     va_list ap;
     char line[LOG_MAXLINELEN];
@@ -699,15 +699,15 @@ void log_write_direct(int log_id, const char *fmt, ...)
     __vsnprintf(line, LOG_MAXLINELEN, fmt, ap);
     if (_log_open (log_id))
     {
-        int len = create_log_entry (log_id, "", line);
+        int len = igloo_create_log_entry (log_id, "", line);
         if (len > 0)
-            loglist[log_id].size += len;
+            igloo_loglist[log_id].size += len;
     }
     _unlock_logger();
 
     va_end(ap);
 
-    fflush(loglist[log_id].logfile);
+    fflush(igloo_loglist[log_id].logfile);
 }
 
 static int _get_log_id(void)
@@ -719,8 +719,8 @@ static int _get_log_id(void)
     _lock_logger();
 
     for (i = 0; i < LOG_MAXLOGS; i++)
-        if (loglist[i].in_use == 0) {
-            loglist[i].in_use = 1;
+        if (igloo_loglist[i].in_use == 0) {
+            igloo_loglist[i].in_use = 1;
             id = i;
             break;
         }
@@ -734,17 +734,17 @@ static int _get_log_id(void)
 static void _lock_logger(void)
 {
 #ifndef _WIN32
-    pthread_mutex_lock(&_logger_mutex);
+    pthread_mutex_lock(&igloo__logger_mutex);
 #else
-    EnterCriticalSection(&_logger_mutex);
+    EnterCriticalSection(&igloo__logger_mutex);
 #endif
 }
 
 static void _unlock_logger(void)
 {
 #ifndef _WIN32
-    pthread_mutex_unlock(&_logger_mutex);
+    pthread_mutex_unlock(&igloo__logger_mutex);
 #else
-    LeaveCriticalSection(&_logger_mutex);
+    LeaveCriticalSection(&igloo__logger_mutex);
 #endif    
 }

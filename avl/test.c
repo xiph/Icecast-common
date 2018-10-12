@@ -25,21 +25,21 @@ int main(int argc, char **argv)
 
     printf("avl test... max_nodes = %d...\n", max_nodes);
 
-    tree = avl_tree_new(_compare, NULL);
+    tree = igloo_avl_tree_new(_compare, NULL);
 
     printf("Filling tree...\n");
     for (i = 0; i < max_nodes; i++) {
-        avl_insert(tree, (void *)rand());
+        igloo_avl_insert(tree, (void *)rand());
     }
     
     printf("Traversing tree...\n");
-    node = avl_get_first(tree);
+    node = igloo_avl_get_first(tree);
     while (node) {
         i = (int)node->key;
 
         printf("...%5d\n", i);
 
-        node = avl_get_next(node);
+        node = igloo_avl_get_next(node);
     }
 
     printf("Trying to go backwards...\n");
@@ -47,13 +47,13 @@ int main(int argc, char **argv)
     while (node) {
         i = (int)node->key;
         printf("...%5d\n", i);
-        node = avl_get_prev(node);
+        node = igloo_avl_get_prev(node);
     }
 
     printf("Printing tree...\n");
-    avl_print_tree(tree, _printer);
+    igloo_avl_print_tree(tree, _printer);
 
-    avl_tree_free(tree, _free);
+    igloo_avl_tree_free(tree, _free);
     
     return 0;
 }

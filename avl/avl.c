@@ -40,7 +40,7 @@
 #include "avl.h"
 
 avl_node *
-avl_node_new (void *        key,
+igloo_avl_node_new (void *        key,
           avl_node *    parent)
 {
   avl_node * node = (avl_node *) malloc (sizeof (avl_node));
@@ -63,7 +63,7 @@ avl_node_new (void *        key,
 }         
 
 avl_tree *
-avl_tree_new (avl_key_compare_fun_type compare_fun,
+igloo_avl_tree_new (avl_key_compare_fun_type compare_fun,
           void * compare_arg)
 {
   avl_tree * t = (avl_tree *) malloc (sizeof (avl_tree));
@@ -71,7 +71,7 @@ avl_tree_new (avl_key_compare_fun_type compare_fun,
   if (!t) {
     return NULL;
   } else {
-    avl_node * root = avl_node_new((void *)NULL, (avl_node *) NULL);
+    avl_node * root = igloo_avl_node_new((void *)NULL, (avl_node *) NULL);
     if (!root) {
       free (t);
       return NULL;
@@ -88,44 +88,44 @@ avl_tree_new (avl_key_compare_fun_type compare_fun,
 }
   
 static void
-avl_tree_free_helper (avl_node * node, avl_free_key_fun_type free_key_fun)
+igloo_avl_tree_free_helper (avl_node * node, avl_free_key_fun_type free_key_fun)
 {
   if (node->left) {
-    avl_tree_free_helper (node->left, free_key_fun);
+    igloo_avl_tree_free_helper (node->left, free_key_fun);
   }
   if (free_key_fun)
       free_key_fun (node->key);
   if (node->right) {
-    avl_tree_free_helper (node->right, free_key_fun);
+    igloo_avl_tree_free_helper (node->right, free_key_fun);
   }
 #ifdef HAVE_AVL_NODE_LOCK
-  thread_rwlock_destroy (&node->rwlock);
+  igloo_thread_rwlock_destroy (&node->rwlock);
 #endif
   free (node);
 }
   
 void
-avl_tree_free (avl_tree * tree, avl_free_key_fun_type free_key_fun)
+igloo_avl_tree_free (avl_tree * tree, avl_free_key_fun_type free_key_fun)
 {
   if (tree->length) {
-    avl_tree_free_helper (tree->root->right, free_key_fun);
+    igloo_avl_tree_free_helper (tree->root->right, free_key_fun);
   }
   if (tree->root) {
 #ifdef HAVE_AVL_NODE_LOCK
-    thread_rwlock_destroy(&tree->root->rwlock);
+    igloo_thread_rwlock_destroy(&tree->root->rwlock);
 #endif
     free (tree->root);
   }
-  thread_rwlock_destroy(&tree->rwlock);
+  igloo_thread_rwlock_destroy(&tree->rwlock);
   free (tree);
 }
 
 int
-avl_insert (avl_tree * ob,
+igloo_avl_insert (avl_tree * ob,
            void * key)
 {
   if (!(ob->root->right)) {
-    avl_node * node = avl_node_new (key, ob->root);
+    avl_node * node = igloo_avl_node_new (key, ob->root);
     if (!node) {
       return -1;
     } else {
@@ -147,7 +147,7 @@ avl_insert (avl_tree * ob,
     q = p->left;
     if (!q) {
       /* insert */
-      avl_node * q_node = avl_node_new (key, p);
+      avl_node * q_node = igloo_avl_node_new (key, p);
       if (!q_node) {
         return (-1);
       } else {
@@ -165,7 +165,7 @@ avl_insert (avl_tree * ob,
     q = p->right;
     if (!q) {
       /* insert */
-      avl_node * q_node = avl_node_new (key, p);
+      avl_node * q_node = igloo_avl_node_new (key, p);
       if (!q_node) {
         return -1;
       } else {
@@ -297,7 +297,7 @@ avl_insert (avl_tree * ob,
 }
 
 int
-avl_get_by_index (avl_tree * tree,
+igloo_avl_get_by_index (avl_tree * tree,
            unsigned long index,
            void ** value_address)
 {
@@ -320,7 +320,7 @@ avl_get_by_index (avl_tree * tree,
 }
            
 int
-avl_get_by_key (avl_tree * tree,
+igloo_avl_get_by_key (avl_tree * tree,
          void * key,
          void **value_address)
 {
@@ -349,7 +349,7 @@ avl_get_by_key (avl_tree * tree,
   }
 }
 
-int avl_delete(avl_tree *tree, void *key, avl_free_key_fun_type free_key_fun)
+int igloo_avl_delete(avl_tree *tree, void *key, avl_free_key_fun_type free_key_fun)
 {
   avl_node *x, *y, *p, *q, *r, *top, *x_child;
   int shortened_side, shorter;
@@ -458,7 +458,7 @@ int avl_delete(avl_tree *tree, void *key, avl_free_key_fun_type free_key_fun)
   if (free_key_fun)
       free_key_fun (x->key);
 #ifdef HAVE_AVL_NODE_LOCK
-  thread_rwlock_destroy (&x->rwlock);
+  igloo_thread_rwlock_destroy (&x->rwlock);
 #endif
   free (x);
 
@@ -625,13 +625,13 @@ int avl_delete(avl_tree *tree, void *key, avl_free_key_fun_type free_key_fun)
 }
 
 static int
-avl_iterate_inorder_helper (avl_node * node,
+igloo_avl_iterate_inorder_helper (avl_node * node,
             avl_iter_fun_type iter_fun,
             void * iter_arg)
 {
   int result;
   if (node->left) {
-    result = avl_iterate_inorder_helper (node->left, iter_fun, iter_arg);
+    result = igloo_avl_iterate_inorder_helper (node->left, iter_fun, iter_arg);
     if (result != 0) {
       return result;
     }
@@ -641,7 +641,7 @@ avl_iterate_inorder_helper (avl_node * node,
     return result;
   }
   if (node->right) {
-    result = avl_iterate_inorder_helper (node->right, iter_fun, iter_arg);
+    result = igloo_avl_iterate_inorder_helper (node->right, iter_fun, iter_arg);
     if (result != 0) {
       return result;
     }
@@ -650,21 +650,21 @@ avl_iterate_inorder_helper (avl_node * node,
 }
 
 int
-avl_iterate_inorder (avl_tree * tree,
+igloo_avl_iterate_inorder (avl_tree * tree,
          avl_iter_fun_type iter_fun,
          void * iter_arg)
 {
   int result;
 
   if (tree->length) {
-    result = avl_iterate_inorder_helper (tree->root->right, iter_fun, iter_arg);
+    result = igloo_avl_iterate_inorder_helper (tree->root->right, iter_fun, iter_arg);
     return (result);
   } else {
     return 0;
   }
 }
 
-avl_node *avl_get_first(avl_tree *tree)
+avl_node *igloo_avl_get_first(avl_tree *tree)
 {
     avl_node *node;
     
@@ -677,7 +677,7 @@ avl_node *avl_get_first(avl_tree *tree)
     return node;
 }
 
-avl_node *avl_get_prev(avl_node *node)
+avl_node *igloo_avl_get_prev(avl_node *node)
 {
     if (node->left) {
         node = node->left;
@@ -700,7 +700,7 @@ avl_node *avl_get_prev(avl_node *node)
     }
 }
 
-avl_node *avl_get_next(avl_node *node)
+avl_node *igloo_avl_get_next(avl_node *node)
 {
     if (node->right) {
         node = node->right;
@@ -726,7 +726,7 @@ avl_node *avl_get_next(avl_node *node)
 /* iterate a function over a range of indices, using get_predecessor */
 
 int
-avl_iterate_index_range (avl_tree * tree,
+igloo_avl_iterate_index_range (avl_tree * tree,
              avl_iter_index_fun_type iter_fun,
              unsigned long low,
              unsigned long high,
@@ -759,7 +759,7 @@ avl_iterate_index_range (avl_tree * tree,
     if (iter_fun (num_left, node->key, iter_arg) != 0) {
       return -1;
     }
-    node = avl_get_prev (node);
+    node = igloo_avl_get_prev (node);
   }
   return 0;
 }
@@ -770,7 +770,7 @@ avl_iterate_index_range (avl_tree * tree,
  */
 
 static avl_node *
-avl_get_index_by_key (avl_tree * tree,
+igloo_avl_get_index_by_key (avl_tree * tree,
           void * key,
           unsigned long * index)
 {
@@ -811,7 +811,7 @@ avl_get_index_by_key (avl_tree * tree,
 /* return the (low index, high index) pair that spans the given key */
 
 int
-avl_get_span_by_key (avl_tree * tree,
+igloo_avl_get_span_by_key (avl_tree * tree,
          void * key,
          unsigned long * low,
          unsigned long * high)
@@ -819,7 +819,7 @@ avl_get_span_by_key (avl_tree * tree,
   unsigned long m, i, j;
   avl_node * node;
 
-  node = avl_get_index_by_key (tree, key, &m);
+  node = igloo_avl_get_index_by_key (tree, key, &m);
 
   /* did we find an exact match?
    * if so, we have to search left and right
@@ -829,17 +829,17 @@ avl_get_span_by_key (avl_tree * tree,
   if (node) {
     avl_node * left, * right;
     /* search left */
-    left = avl_get_prev (node);
+    left = igloo_avl_get_prev (node);
     i = m;
     while (left && (i > 0) && (tree->compare_fun (tree->compare_arg, key, left->key) == 0)) {
-      left = avl_get_prev (left);
+      left = igloo_avl_get_prev (left);
       i = i - 1;
     }
     /* search right */
-    right = avl_get_next (node);
+    right = igloo_avl_get_next (node);
     j = m;
     while (right && (j <= tree->length) && (tree->compare_fun (tree->compare_arg, key, right->key) == 0)) {
-      right = avl_get_next (right);
+      right = igloo_avl_get_next (right);
       j = j + 1;
     }
     *low = i;
@@ -854,7 +854,7 @@ avl_get_span_by_key (avl_tree * tree,
 /* return the (low index, high index) pair that spans the given key */
 
 int
-avl_get_span_by_two_keys (avl_tree * tree,
+igloo_avl_get_span_by_two_keys (avl_tree * tree,
               void * low_key,
               void * high_key,
               unsigned long * low,
@@ -872,15 +872,15 @@ avl_get_span_by_two_keys (avl_tree * tree,
     high_key = temp;
   }
 
-  low_node = avl_get_index_by_key (tree, low_key, &i);
-  high_node = avl_get_index_by_key (tree, high_key, &j);
+  low_node = igloo_avl_get_index_by_key (tree, low_key, &i);
+  high_node = igloo_avl_get_index_by_key (tree, high_key, &j);
 
   if (low_node) {
     avl_node * left;
     /* search left */
-    left = avl_get_prev (low_node);
+    left = igloo_avl_get_prev (low_node);
     while (left && (i > 0) && (tree->compare_fun (tree->compare_arg, low_key, left->key) == 0)) {
-      left = avl_get_prev (left);
+      left = igloo_avl_get_prev (left);
       i = i - 1;
     }
   } else {
@@ -889,9 +889,9 @@ avl_get_span_by_two_keys (avl_tree * tree,
   if (high_node) {
     avl_node * right;
     /* search right */
-    right = avl_get_next (high_node);
+    right = igloo_avl_get_next (high_node);
     while (right && (j <= tree->length) && (tree->compare_fun (tree->compare_arg, high_key, right->key) == 0)) {
-      right = avl_get_next (right);
+      right = igloo_avl_get_next (right);
       j = j + 1;
     }
   } else {
@@ -905,7 +905,7 @@ avl_get_span_by_two_keys (avl_tree * tree,
 
            
 int
-avl_get_item_by_key_most (avl_tree * tree,
+igloo_avl_get_item_by_key_most (avl_tree * tree,
               void * key,
               void **value_address)
 {
@@ -949,7 +949,7 @@ avl_get_item_by_key_most (avl_tree * tree,
 }
 
 int
-avl_get_item_by_key_least (avl_tree * tree,
+igloo_avl_get_item_by_key_least (avl_tree * tree,
                void * key,
                void **value_address)
 {
@@ -993,13 +993,13 @@ avl_get_item_by_key_least (avl_tree * tree,
 #define AVL_MAX(X, Y)  ((X) > (Y) ? (X) : (Y))
 
 static long
-avl_verify_balance (avl_node * node)
+igloo_avl_verify_balance (avl_node * node)
 {
   if (!node) {
     return 0;
   } else {
-    long lh = avl_verify_balance (node->left);
-    long rh = avl_verify_balance (node->right);
+    long lh = igloo_avl_verify_balance (node->left);
+    long rh = igloo_avl_verify_balance (node->right);
     if ((rh - lh) != AVL_GET_BALANCE(node)) {
       return 0;
     }
@@ -1011,31 +1011,31 @@ avl_verify_balance (avl_node * node)
 }
     
 static void
-avl_verify_parent (avl_node * node, avl_node * parent)
+igloo_avl_verify_parent (avl_node * node, avl_node * parent)
 {
   if (node->parent != parent) {
     return;
   }
   if (node->left) {
-    avl_verify_parent (node->left, node);
+    igloo_avl_verify_parent (node->left, node);
   }
   if (node->right) {
-    avl_verify_parent (node->right, node);
+    igloo_avl_verify_parent (node->right, node);
   }
 }
 
 static long
-avl_verify_rank (avl_node * node)
+igloo_avl_verify_rank (avl_node * node)
 {
   if (!node) {
     return 0;
   } else {
     unsigned long num_left=0, num_right=0;
     if (node->left) {
-      num_left = avl_verify_rank (node->left);
+      num_left = igloo_avl_verify_rank (node->left);
     }
     if (node->right) {
-      num_right = avl_verify_rank (node->right);
+      num_right = igloo_avl_verify_rank (node->right);
     }
     if (AVL_GET_RANK (node) != num_left + 1) {
       fprintf (stderr, "invalid rank at node %ld\n", (long) node->key);
@@ -1048,12 +1048,12 @@ avl_verify_rank (avl_node * node)
 /* sanity-check the tree */
 
 int
-avl_verify (avl_tree * tree)
+igloo_avl_verify (avl_tree * tree)
 {
   if (tree->length) {
-    avl_verify_balance (tree->root->right);
-    avl_verify_parent  (tree->root->right, tree->root);
-    avl_verify_rank    (tree->root->right);
+    igloo_avl_verify_balance (tree->root->right);
+    igloo_avl_verify_parent  (tree->root->right, tree->root);
+    igloo_avl_verify_rank    (tree->root->right);
   }
   return (0);
 }
@@ -1070,10 +1070,10 @@ typedef struct _link_node {
   int            width;
 } link_node;  
 
-static char balance_chars[3] = {'\\', '-', '/'};
+static char igloo_balance_chars[3] = {'\\', '-', '/'};
 
 static int
-default_key_printer (char * buffer, void * key)
+igloo_default_key_printer (char * buffer, void * key)
 {
   return snprintf (buffer, AVL_KEY_PRINTER_BUFLEN, "%p", key);
 }  
@@ -1086,10 +1086,10 @@ default_key_printer (char * buffer, void * key)
  */
 
 static void
-print_connectors (link_node * link)
+igloo_print_connectors (link_node * link)
 {
   if (link->parent) {
-    print_connectors (link->parent);
+    igloo_print_connectors (link->parent);
   }
   if (link->parent && (link->parent->direction != link->direction) && (link->parent->parent)) {
     int i;
@@ -1113,7 +1113,7 @@ print_connectors (link_node * link)
  */
 
 static void
-print_node (avl_key_printer_fun_type key_printer,
+igloo_print_node (avl_key_printer_fun_type key_printer,
         avl_node * node,
         link_node * link)
 {
@@ -1126,11 +1126,11 @@ print_node (avl_key_printer_fun_type key_printer,
       here.parent = link;
       here.direction = 1;
       here.width = width + 11;
-    print_node (key_printer, node->right, &here);
+    igloo_print_node (key_printer, node->right, &here);
   }
-  print_connectors (link);
+  igloo_print_connectors (link);
   fprintf (stdout, "+-[%c %s %03d]",
-       balance_chars[AVL_GET_BALANCE(node)+1],
+       igloo_balance_chars[AVL_GET_BALANCE(node)+1],
        buffer,
        (int)AVL_GET_RANK(node));
   if (node->left || node->right) {
@@ -1143,36 +1143,36 @@ print_node (avl_key_printer_fun_type key_printer,
       here.parent = link;
       here.direction = -1;
       here.width = width + 11;
-      print_node (key_printer, node->left, &here);
+      igloo_print_node (key_printer, node->left, &here);
   } 
 }  
 
 void
-avl_print_tree (avl_tree * tree, avl_key_printer_fun_type key_printer)
+igloo_avl_print_tree (avl_tree * tree, avl_key_printer_fun_type key_printer)
 {
   link_node top = {NULL, 0, 0};
   if (!key_printer) {
-    key_printer = default_key_printer;
+    key_printer = igloo_default_key_printer;
   }
   if (tree->length) {
-    print_node (key_printer, tree->root->right, &top);
+    igloo_print_node (key_printer, tree->root->right, &top);
   } else {
     fprintf (stdout, "<empty tree>\n");
   }  
 }
 
 
-void avl_tree_rlock(avl_tree *tree)
+void igloo_avl_tree_rlock(avl_tree *tree)
 {
     thread_rwlock_rlock(&tree->rwlock);
 }
 
-void avl_tree_wlock(avl_tree *tree)
+void igloo_avl_tree_wlock(avl_tree *tree)
 {
     thread_rwlock_wlock(&tree->rwlock);
 }
 
-void avl_tree_unlock(avl_tree *tree)
+void igloo_avl_tree_unlock(avl_tree *tree)
 {
     thread_rwlock_unlock(&tree->rwlock);
 }

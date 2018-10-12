@@ -40,7 +40,7 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 #endif
 
-uint64_t timing_get_time(void);
-void timing_sleep(uint64_t sleeptime);
+uint64_t igloo_timing_get_time(void);
+void igloo_timing_sleep(uint64_t sleeptime);
 
 #endif  /* __TIMING_H__ */

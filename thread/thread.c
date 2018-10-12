@@ -59,22 +59,22 @@
 
 #ifdef THREAD_DEBUG
 #define CATMODULE "thread"
-#define LOG_ERROR(y) log_write(_logid, 1, CATMODULE "/", __FUNCTION__, y)
-#define LOG_ERROR3(y, z1, z2, z3) log_write(_logid, 1, CATMODULE "/", __FUNCTION__, y, z1, z2, z3)
-#define LOG_ERROR7(y, z1, z2, z3, z4, z5, z6, z7) log_write(_logid, 1, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5, z6, z7)
+#define LOG_ERROR(y) igloo_log_write(_logid, 1, CATMODULE "/", __FUNCTION__, y)
+#define LOG_ERROR3(y, z1, z2, z3) igloo_log_write(_logid, 1, CATMODULE "/", __FUNCTION__, y, z1, z2, z3)
+#define LOG_ERROR7(y, z1, z2, z3, z4, z5, z6, z7) igloo_log_write(_logid, 1, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5, z6, z7)
 
-#define LOG_WARN(y) log_write(_logid, 2, CATMODULE "/", __FUNCTION__, y)
-#define LOG_WARN3(y, z1, z2, z3) log_write(_logid, 2, CATMODULE "/", __FUNCTION__, y, z1, z2, z3)
-#define LOG_WARN5(y, z1, z2, z3, z4, z5) log_write(_logid, 2, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5)
-#define LOG_WARN7(y, z1, z2, z3, z4, z5, z6, z7) log_write(_logid, 2, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5, z6, z7)
+#define LOG_WARN(y) igloo_log_write(_logid, 2, CATMODULE "/", __FUNCTION__, y)
+#define LOG_WARN3(y, z1, z2, z3) igloo_log_write(_logid, 2, CATMODULE "/", __FUNCTION__, y, z1, z2, z3)
+#define LOG_WARN5(y, z1, z2, z3, z4, z5) igloo_log_write(_logid, 2, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5)
+#define LOG_WARN7(y, z1, z2, z3, z4, z5, z6, z7) igloo_log_write(_logid, 2, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5, z6, z7)
 
-#define LOG_INFO(y) log_write(_logid, 3, CATMODULE "/", __FUNCTION__, y)
-#define LOG_INFO4(y, z1, z2, z3, z4) log_write(_logid, 3, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4)
-#define LOG_INFO5(y, z1, z2, z3, z4, z5) log_write(_logid, 3, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5)
+#define LOG_INFO(y) igloo_log_write(_logid, 3, CATMODULE "/", __FUNCTION__, y)
+#define LOG_INFO4(y, z1, z2, z3, z4) igloo_log_write(_logid, 3, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4)
+#define LOG_INFO5(y, z1, z2, z3, z4, z5) igloo_log_write(_logid, 3, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5)
 
-#define LOG_DEBUG(y) log_write(_logid, 4, CATMODULE "/", __FUNCTION__, y)
-#define LOG_DEBUG2(y, z1, z2) log_write(_logid, 4, CATMODULE "/", __FUNCTION__, y, z1, z2)
-#define LOG_DEBUG5(y, z1, z2, z3, z4, z5) log_write(_logid, 4, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5)
+#define LOG_DEBUG(y) igloo_log_write(_logid, 4, CATMODULE "/", __FUNCTION__, y)
+#define LOG_DEBUG2(y, z1, z2) igloo_log_write(_logid, 4, CATMODULE "/", __FUNCTION__, y, z1, z2)
+#define LOG_DEBUG5(y, z1, z2, z3, z4, z5) igloo_log_write(_logid, 4, CATMODULE "/", __FUNCTION__, y, z1, z2, z3, z4, z5)
 #endif
 
 /* thread starting structure */
@@ -90,15 +90,15 @@ typedef struct thread_start_tag {
     pthread_t sys_thread;
 } thread_start_t;
 
-static long _next_thread_id = 0;
-static int _initialized = 0;
-static avl_tree *_threadtree = NULL;
+static long igloo__next_thread_id = 0;
+static int igloo__initialized = 0;
+static avl_tree *igloo__threadtree = NULL;
 
 #ifdef DEBUG_MUTEXES
-static mutex_t _threadtree_mutex = { -1, NULL, MUTEX_STATE_UNINIT, NULL, -1,
+static mutex_t igloo__threadtree_mutex = { -1, NULL, MUTEX_STATE_UNINIT, NULL, -1,
     PTHREAD_MUTEX_INITIALIZER};
 #else
-static mutex_t _threadtree_mutex = { PTHREAD_MUTEX_INITIALIZER };
+static mutex_t igloo__threadtree_mutex = { PTHREAD_MUTEX_INITIALIZER };
 #endif
 
 
@@ -113,10 +113,10 @@ static mutex_t _mutextree_mutex = { -1, NULL, MUTEX_STATE_UNINIT, NULL, -1,
 #endif
 
 #ifdef DEBUG_MUTEXES
-static mutex_t _library_mutex = { -1, NULL, MUTEX_STATE_UNINIT, NULL, -1,
+static mutex_t igloo__library_mutex = { -1, NULL, MUTEX_STATE_UNINIT, NULL, -1,
     PTHREAD_MUTEX_INITIALIZER};
 #else
-static mutex_t _library_mutex = { PTHREAD_MUTEX_INITIALIZER };
+static mutex_t igloo__library_mutex = { PTHREAD_MUTEX_INITIALIZER };
 #endif
 
 /* INTERNAL FUNCTIONS */
@@ -127,8 +127,8 @@ static int _compare_mutexes(void *compare_arg, void *a, void *b);
 static int _free_mutex(void *key);
 #endif
 
-static int _compare_threads(void *compare_arg, void *a, void *b);
-static int _free_thread(void *key);
+static int igloo__compare_threads(void *compare_arg, void *a, void *b);
+static int igloo__free_thread(void *key);
 
 /* mutex fuctions */
 static void _mutex_create(mutex_t *mutex);
@@ -136,28 +136,28 @@ static void _mutex_lock(mutex_t *mutex);
 static void _mutex_unlock(mutex_t *mutex);
 
 /* misc thread stuff */
-static void *_start_routine(void *arg);
+static void *igloo__start_routine(void *arg);
 static void _catch_signals(void);
 static void _block_signals(void);
 
 /* LIBRARY INITIALIZATION */
 
-void thread_initialize(void)
+void igloo_thread_initialize(void)
 {
     thread_type *thread;
 
     /* set up logging */
 
 #ifdef THREAD_DEBUG
-    log_initialize();
-    _logid = log_open("thread.log");
-    log_set_level(_logid, THREAD_DEBUG);
+    igloo_log_initialize();
+    _logid = igloo_log_open("thread.log");
+    igloo_log_set_level(_logid, THREAD_DEBUG);
 #endif
 
 #ifdef DEBUG_MUTEXES
     /* create all the internal mutexes, and initialize the mutex tree */
 
-    _mutextree = avl_tree_new(_compare_mutexes, NULL);
+    _mutextree = igloo_avl_tree_new(_compare_mutexes, NULL);
 
     /* we have to create this one by hand, because there's no
     ** mutextree_mutex to lock yet!
@@ -165,49 +165,49 @@ void thread_initialize(void)
     _mutex_create(&_mutextree_mutex);
 
     _mutextree_mutex.mutex_id = _next_mutex_id++;
-    avl_insert(_mutextree, (void *)&_mutextree_mutex);
+    igloo_avl_insert(_mutextree, (void *)&_mutextree_mutex);
 #endif
 
-    thread_mutex_create(&_threadtree_mutex);
-    thread_mutex_create(&_library_mutex);
+    thread_mutex_create(&igloo__threadtree_mutex);
+    thread_mutex_create(&igloo__library_mutex);
 
     /* initialize the thread tree and insert the main thread */
 
-    _threadtree = avl_tree_new(_compare_threads, NULL);
+    igloo__threadtree = igloo_avl_tree_new(igloo__compare_threads, NULL);
 
     thread = (thread_type *)malloc(sizeof(thread_type));
 
-    thread->thread_id = _next_thread_id++;
+    thread->thread_id = igloo__next_thread_id++;
     thread->line = 0;
     thread->file = strdup("main.c");
     thread->sys_thread = pthread_self();
     thread->create_time = time(NULL);
     thread->name = strdup("Main Thread");
 
-    avl_insert(_threadtree, (void *)thread);
+    igloo_avl_insert(igloo__threadtree, (void *)thread);
 
     _catch_signals();
 
-    _initialized = 1;
+    igloo__initialized = 1;
 }
 
-void thread_shutdown(void)
+void igloo_thread_shutdown(void)
 {
-    if (_initialized == 1) {
-        thread_mutex_destroy(&_library_mutex);
-        thread_mutex_destroy(&_threadtree_mutex);
+    if (igloo__initialized == 1) {
+        igloo_thread_mutex_destroy(&igloo__library_mutex);
+        igloo_thread_mutex_destroy(&igloo__threadtree_mutex);
 #ifdef THREAD_DEBUG
-        thread_mutex_destroy(&_mutextree_mutex);
+        igloo_thread_mutex_destroy(&_mutextree_mutex);
 
-        avl_tree_free(_mutextree, _free_mutex);
+        igloo_avl_tree_free(_mutextree, _free_mutex);
 #endif
-        avl_tree_free(_threadtree, _free_thread);
-        _threadtree = NULL;
+        igloo_avl_tree_free(igloo__threadtree, igloo__free_thread);
+        igloo__threadtree = NULL;
     }
 
 #ifdef THREAD_DEBUG
-    log_close(_logid);
-    log_shutdown();
+    igloo_log_close(_logid);
+    igloo_log_shutdown();
 #endif
 
 }
@@ -268,7 +268,7 @@ static void _catch_signals(void)
 }
 
 
-thread_type *thread_create_c(char *name, void *(*start_routine)(void *),
+thread_type *igloo_thread_create_c(char *name, void *(*start_routine)(void *),
         void *arg, int detached, int line, char *file)
 {
     thread_type *thread = NULL;
@@ -288,9 +288,9 @@ thread_type *thread_create_c(char *name, void *(*start_routine)(void *),
         thread->line = line;
         thread->file = strdup(file);
 
-        _mutex_lock (&_threadtree_mutex);
-        thread->thread_id = _next_thread_id++;
-        _mutex_unlock (&_threadtree_mutex);
+        _mutex_lock (&igloo__threadtree_mutex);
+        thread->thread_id = igloo__next_thread_id++;
+        _mutex_unlock (&igloo__threadtree_mutex);
 
         thread->name = strdup(name);
         thread->create_time = time(NULL);
@@ -311,7 +311,7 @@ thread_type *thread_create_c(char *name, void *(*start_routine)(void *),
             thread->detached = 1;
         }
 
-        if (pthread_create (&thread->sys_thread, &attr, _start_routine, start) == 0)
+        if (pthread_create (&thread->sys_thread, &attr, igloo__start_routine, start) == 0)
         {
             pthread_attr_destroy (&attr);
             return thread;
@@ -343,35 +343,35 @@ static void _mutex_create(mutex_t *mutex)
     pthread_mutex_init(&mutex->sys_mutex, NULL);
 }
 
-void thread_mutex_create_c(mutex_t *mutex, int line, char *file)
+void igloo_thread_mutex_create_c(mutex_t *mutex, int line, char *file)
 {
     _mutex_create(mutex);
 
 #ifdef DEBUG_MUTEXES
     _mutex_lock(&_mutextree_mutex);
     mutex->mutex_id = _next_mutex_id++;
-    avl_insert(_mutextree, (void *)mutex);
+    igloo_avl_insert(_mutextree, (void *)mutex);
     _mutex_unlock(&_mutextree_mutex);
 #endif
 }
 
-void thread_mutex_destroy (mutex_t *mutex)
+void igloo_thread_mutex_destroy (mutex_t *mutex)
 {
     pthread_mutex_destroy(&mutex->sys_mutex);
 
 #ifdef DEBUG_MUTEXES
     _mutex_lock(&_mutextree_mutex);
-    avl_delete(_mutextree, mutex, _free_mutex);
+    igloo_avl_delete(_mutextree, mutex, _free_mutex);
     _mutex_unlock(&_mutextree_mutex);
 #endif
 }
 
-void thread_mutex_lock_c(mutex_t *mutex, int line, char *file)
+void igloo_thread_mutex_lock_c(mutex_t *mutex, int line, char *file)
 {
 #ifdef DEBUG_MUTEXES
-    thread_type *th = thread_self();
+    thread_type *th = igloo_thread_self();
 
-    if (!th) LOG_WARN("No mt record for %u in lock [%s:%d]", thread_self(), file, line);
+    if (!th) LOG_WARN("No mt record for %u in lock [%s:%d]", igloo_thread_self(), file, line);
 
     LOG_DEBUG5("Locking %p (%s) on line %d in file %s by thread %d", mutex, mutex->name, line, file, th ? th->thread_id : -1);
 
@@ -387,7 +387,7 @@ void thread_mutex_lock_c(mutex_t *mutex, int line, char *file)
 
         _mutex_lock(&_mutextree_mutex);
 
-        node = avl_get_first (_mutextree);
+        node = igloo_avl_get_first (_mutextree);
 
         while (node) {
             tmutex = (mutex_t *)node->key;
@@ -406,7 +406,7 @@ void thread_mutex_lock_c(mutex_t *mutex, int line, char *file)
                 locks++;
             }
 
-            node = avl_get_next(node);
+            node = igloo_avl_get_next(node);
         }
 
         if (locks > 0) {
@@ -438,13 +438,13 @@ void thread_mutex_lock_c(mutex_t *mutex, int line, char *file)
 #endif /* DEBUG_MUTEXES */
 }
 
-void thread_mutex_unlock_c(mutex_t *mutex, int line, char *file)
+void igloo_thread_mutex_unlock_c(mutex_t *mutex, int line, char *file)
 {
 #ifdef DEBUG_MUTEXES
-    thread_type *th = thread_self();
+    thread_type *th = igloo_thread_self();
 
     if (!th) {
-        LOG_ERROR3("No record for %u in unlock [%s:%d]", thread_self(), file, line);
+        LOG_ERROR3("No record for %u in unlock [%s:%d]", igloo_thread_self(), file, line);
     }
 
     LOG_DEBUG5("Unlocking %p (%s) on line %d in file %s by thread %d", mutex, mutex->name, line, file, th ? th->thread_id : -1);
@@ -473,7 +473,7 @@ void thread_mutex_unlock_c(mutex_t *mutex, int line, char *file)
                 locks++;
             }
 
-            node = avl_get_next (node);
+            node = igloo_avl_get_next (node);
         }
 
         if ((locks > 0) && (_multi_mutex.thread_id != th->thread_id)) {
@@ -503,29 +503,29 @@ void thread_mutex_unlock_c(mutex_t *mutex, int line, char *file)
 #endif /* DEBUG_MUTEXES */
 }
 
-void thread_cond_create_c(cond_t *cond, int line, char *file)
+void igloo_thread_cond_create_c(cond_t *cond, int line, char *file)
 {
     pthread_cond_init(&cond->sys_cond, NULL);
     pthread_mutex_init(&cond->cond_mutex, NULL);
 }
 
-void thread_cond_destroy(cond_t *cond)
+void igloo_thread_cond_destroy(cond_t *cond)
 {
     pthread_mutex_destroy(&cond->cond_mutex);
     pthread_cond_destroy(&cond->sys_cond);
 }
 
-void thread_cond_signal_c(cond_t *cond, int line, char *file)
+void igloo_thread_cond_signal_c(cond_t *cond, int line, char *file)
 {
     pthread_cond_signal(&cond->sys_cond);
 }
 
-void thread_cond_broadcast_c(cond_t *cond, int line, char *file)
+void igloo_thread_cond_broadcast_c(cond_t *cond, int line, char *file)
 {
     pthread_cond_broadcast(&cond->sys_cond);
 }
 
-void thread_cond_timedwait_c(cond_t *cond, int millis, int line, char *file)
+void igloo_thread_cond_timedwait_c(cond_t *cond, int millis, int line, char *file)
 {
     struct timespec time;
 
@@ -537,41 +537,41 @@ void thread_cond_timedwait_c(cond_t *cond, int millis, int line, char *file)
     pthread_mutex_unlock(&cond->cond_mutex);
 }
 
-void thread_cond_wait_c(cond_t *cond, int line, char *file)
+void igloo_thread_cond_wait_c(cond_t *cond, int line, char *file)
 {
     pthread_mutex_lock(&cond->cond_mutex);
     pthread_cond_wait(&cond->sys_cond, &cond->cond_mutex);
     pthread_mutex_unlock(&cond->cond_mutex);
 }
 
-void thread_rwlock_create_c(rwlock_t *rwlock, int line, char *file)
+void igloo_thread_rwlock_create_c(rwlock_t *rwlock, int line, char *file)
 {
     pthread_rwlock_init(&rwlock->sys_rwlock, NULL);
 }
 
-void thread_rwlock_destroy(rwlock_t *rwlock)
+void igloo_thread_rwlock_destroy(rwlock_t *rwlock)
 {
     pthread_rwlock_destroy(&rwlock->sys_rwlock);
 }
 
-void thread_rwlock_rlock_c(rwlock_t *rwlock, int line, char *file)
+void igloo_thread_rwlock_rlock_c(rwlock_t *rwlock, int line, char *file)
 {
     pthread_rwlock_rdlock(&rwlock->sys_rwlock);
 }
 
-void thread_rwlock_wlock_c(rwlock_t *rwlock, int line, char *file)
+void igloo_thread_rwlock_wlock_c(rwlock_t *rwlock, int line, char *file)
 {
     pthread_rwlock_wrlock(&rwlock->sys_rwlock);
 }
 
-void thread_rwlock_unlock_c(rwlock_t *rwlock, int line, char *file)
+void igloo_thread_rwlock_unlock_c(rwlock_t *rwlock, int line, char *file)
 {
     pthread_rwlock_unlock(&rwlock->sys_rwlock);
 }
 
-void thread_exit_c(long val, int line, char *file)
+void igloo_thread_exit_c(long val, int line, char *file)
 {
-    thread_type *th = thread_self();
+    thread_type *th = igloo_thread_self();
 
 #if defined(DEBUG_MUTEXES) && defined(CHECK_MUTEXES)
     if (th) {
@@ -589,7 +589,7 @@ void thread_exit_c(long val, int line, char *file)
                      th->thread_id, th->name, file, line, mutex_to_string(tmutex, name));
             }
 
-            node = avl_get_next (node);
+            node = igloo_avl_get_next (node);
         }
 
         _mutex_unlock(&_mutextree_mutex);
@@ -602,16 +602,16 @@ void thread_exit_c(long val, int line, char *file)
         LOG_INFO4("Removing thread %d [%s] started at [%s:%d], reason: 'Thread Exited'", th->thread_id, th->name, th->file, th->line);
 #endif
 
-        _mutex_lock(&_threadtree_mutex);
-        avl_delete(_threadtree, th, _free_thread);
-        _mutex_unlock(&_threadtree_mutex);
+        _mutex_lock(&igloo__threadtree_mutex);
+        igloo_avl_delete(igloo__threadtree, th, igloo__free_thread);
+        _mutex_unlock(&igloo__threadtree_mutex);
     }
 
     pthread_exit ((void*)val);
 }
 
 /* sleep for a number of microseconds */
-void thread_sleep(unsigned long len)
+void igloo_thread_sleep(unsigned long len)
 {
 #ifdef _WIN32
     Sleep(len / 1000);
@@ -642,7 +642,7 @@ void thread_sleep(unsigned long len)
 #endif
 }
 
-static void *_start_routine(void *arg)
+static void *igloo__start_routine(void *arg)
 {
     thread_start_t *start = (thread_start_t *)arg;
     void *(*start_routine)(void *) = start->start_routine;
@@ -652,10 +652,10 @@ static void *_start_routine(void *arg)
     _block_signals();
 
     /* insert thread into thread tree here */
-    _mutex_lock(&_threadtree_mutex);
+    _mutex_lock(&igloo__threadtree_mutex);
     thread->sys_thread = pthread_self();
-    avl_insert(_threadtree, (void *)thread);
-    _mutex_unlock(&_threadtree_mutex);
+    igloo_avl_insert(igloo__threadtree, (void *)thread);
+    _mutex_unlock(&igloo__threadtree_mutex);
 
 #ifdef THREAD_DEBUG
     LOG_INFO4("Added thread %d [%s] started at [%s:%d]", thread->thread_id, thread->name, thread->file, thread->line);
@@ -671,43 +671,43 @@ static void *_start_routine(void *arg)
 
     if (thread->detached)
     {
-        _mutex_lock (&_threadtree_mutex);
-        avl_delete (_threadtree, thread, _free_thread);
-        _mutex_unlock (&_threadtree_mutex);
+        _mutex_lock (&igloo__threadtree_mutex);
+        igloo_avl_delete (igloo__threadtree, thread, igloo__free_thread);
+        _mutex_unlock (&igloo__threadtree_mutex);
     }
 
     return NULL;
 }
 
-thread_type *thread_self(void)
+thread_type *igloo_thread_self(void)
 {
     avl_node *node;
     thread_type *th;
     pthread_t sys_thread = pthread_self();
 
-    _mutex_lock(&_threadtree_mutex);
+    _mutex_lock(&igloo__threadtree_mutex);
 
-    if (_threadtree == NULL) {
+    if (igloo__threadtree == NULL) {
 #ifdef THREAD_DEBUG
         LOG_WARN("Thread tree is empty, this must be wrong!");
 #endif
-        _mutex_unlock(&_threadtree_mutex);
+        _mutex_unlock(&igloo__threadtree_mutex);
         return NULL;
     }
 
-    node = avl_get_first(_threadtree);
+    node = igloo_avl_get_first(igloo__threadtree);
 
     while (node) {
         th = (thread_type *)node->key;
 
         if (th && pthread_equal(sys_thread, th->sys_thread)) {
-            _mutex_unlock(&_threadtree_mutex);
+            _mutex_unlock(&igloo__threadtree_mutex);
             return th;
         }
 
-        node = avl_get_next(node);
+        node = igloo_avl_get_next(node);
     }
-    _mutex_unlock(&_threadtree_mutex);
+    _mutex_unlock(&igloo__threadtree_mutex);
 
 
 #ifdef THREAD_DEBUG
@@ -717,11 +717,11 @@ thread_type *thread_self(void)
     return NULL;
 }
 
-void thread_rename(const char *name)
+void igloo_thread_rename(const char *name)
 {
     thread_type *th;
 
-    th = thread_self();
+    th = igloo_thread_self();
     if (th->name) free(th->name);
 
     th->name = strdup(name);
@@ -738,24 +738,24 @@ static void _mutex_unlock(mutex_t *mutex)
 }
 
 
-void thread_library_lock(void)
+void igloo_thread_library_lock(void)
 {
-    _mutex_lock(&_library_mutex);
+    _mutex_lock(&igloo__library_mutex);
 }
 
-void thread_library_unlock(void)
+void igloo_thread_library_unlock(void)
 {
-    _mutex_unlock(&_library_mutex);
+    _mutex_unlock(&igloo__library_mutex);
 }
 
-void thread_join(thread_type *thread)
+void igloo_thread_join(thread_type *thread)
 {
     void *ret;
 
     pthread_join(thread->sys_thread, &ret);
-    _mutex_lock(&_threadtree_mutex);
-    avl_delete(_threadtree, thread, _free_thread);
-    _mutex_unlock(&_threadtree_mutex);
+    _mutex_lock(&igloo__threadtree_mutex);
+    igloo_avl_delete(igloo__threadtree, thread, igloo__free_thread);
+    _mutex_unlock(&igloo__threadtree_mutex);
 }
 
 /* AVL tree functions */
@@ -776,7 +776,7 @@ static int _compare_mutexes(void *compare_arg, void *a, void *b)
 }
 #endif
 
-static int _compare_threads(void *compare_arg, void *a, void *b)
+static int igloo__compare_threads(void *compare_arg, void *a, void *b)
 {
     thread_type *t1, *t2;
 
@@ -808,7 +808,7 @@ static int _free_mutex(void *key)
 }
 #endif
 
-static int _free_thread(void *key)
+static int igloo__free_thread(void *key)
 {
     thread_type *t;
 
@@ -826,26 +826,26 @@ static int _free_thread(void *key)
 
 
 #ifdef HAVE_PTHREAD_SPIN_LOCK
-void thread_spin_create (spin_t *spin)
+void igloo_thread_spin_create (spin_t *spin)
 {
     int x = pthread_spin_init (&spin->lock, PTHREAD_PROCESS_PRIVATE);
     if (x)
         abort();
 }
 
-void thread_spin_destroy (spin_t *spin)
+void igloo_thread_spin_destroy (spin_t *spin)
 {
     pthread_spin_destroy (&spin->lock);
 }
 
-void thread_spin_lock (spin_t *spin)
+void igloo_thread_spin_lock (spin_t *spin)
 {
     int x = pthread_spin_lock (&spin->lock);
     if (x != 0)
         abort();
 }
 
-void thread_spin_unlock (spin_t *spin)
+void igloo_thread_spin_unlock (spin_t *spin)
 {
     pthread_spin_unlock (&spin->lock);
 }
