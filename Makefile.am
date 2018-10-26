@@ -6,6 +6,8 @@ SUBDIRS = avl httpp log net thread timing
 
 lib_LTLIBRARIES = libigloo.la
 
+pkginclude_HEADERS = include/igloo.h
+
 libigloo_la_SOURCES = libigloo.c
 libigloo_la_LIBADD = \
     avl/libiceavl.la \
