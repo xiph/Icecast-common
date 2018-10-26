@@ -1,4 +1,4 @@
-#include "log.h"
+#include "../include/igloo/log.h"
 
 #define CATMODULE "test"
 

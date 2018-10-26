@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include <avl/avl.h>
-#include "httpp.h"
+#include "../include/igloo/httpp.h"
 
 
 int main(int argc, char **argv)

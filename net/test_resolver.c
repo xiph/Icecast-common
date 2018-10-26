@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "resolver.h"
+#include "../include/igloo/resolver.h"
 
 int main()
 {

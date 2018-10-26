@@ -5,7 +5,6 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = BUILDING COPYING README TODO
 
 noinst_LTLIBRARIES = libicethread.la
-pkginclude_HEADERS = thread.h
 
 libicethread_la_SOURCES = thread.c
 

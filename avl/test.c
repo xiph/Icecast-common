@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "avl.h"
+#include "../include/igloo/avl.h"
 
 #ifdef _WIN32
 #define snprintf _snprintf

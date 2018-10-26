@@ -5,7 +5,6 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = BUILDING COPYING README TODO test_resolver.c
 
 noinst_LTLIBRARIES = libicenet.la
-pkginclude_HEADERS = resolver.h sock.h
 
 libicenet_la_SOURCES = sock.c resolver.c
 

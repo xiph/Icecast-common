@@ -38,8 +38,8 @@
 #include <strings.h>
 #endif
 
-#include <avl/avl.h>
-#include "httpp.h"
+#include "../include/igloo/avl.h"
+#include "../include/igloo/httpp.h"
 
 #define MAX_HEADERS 32
 

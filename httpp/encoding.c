@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "encoding.h"
+#include "../include/igloo/encoding.h"
 
 struct igloo_httpp_encoding_tag {
     size_t refc;

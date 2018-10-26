@@ -15,7 +15,7 @@ extern "C" {
 #define AVL_KEY_PRINTER_BUFLEN (256)
 
 #ifndef NO_THREAD
-#include "thread/thread.h"
+#include "thread.h"
 #else
 #define thread_rwlock_create(x) do{}while(0)
 #define igloo_thread_rwlock_destroy(x) do{}while(0)

@@ -27,7 +27,7 @@
 #ifndef _LIBIGLOO__HTTPP_H_
 #define _LIBIGLOO__HTTPP_H_
 
-#include <avl/avl.h>
+#include "avl.h"
 
 #define igloo_HTTPP_VAR_PROTOCOL "__protocol"
 #define igloo_HTTPP_VAR_VERSION "__version"
