@@ -61,6 +61,7 @@ struct igloo_ro_type_tag {
     /* Size of this control structure */
     size_t              control_length;
     /* ABI version of this structure */
+#define igloo_RO__CONTROL_VERSION	1
     int                 control_version;
 
     /* Total length of the objects to be created */
