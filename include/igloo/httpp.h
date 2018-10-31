@@ -40,32 +40,32 @@
 #define igloo_HTTPP_VAR_ICYPASSWORD "__icy_password"
 
 typedef enum {
-    HTTPP_NS_VAR,
-    HTTPP_NS_HEADER,
-    HTTPP_NS_QUERY_STRING,
-    HTTPP_NS_POST_BODY
+    igloo_HTTPP_NS_VAR,
+    igloo_HTTPP_NS_HEADER,
+    igloo_HTTPP_NS_QUERY_STRING,
+    igloo_HTTPP_NS_POST_BODY
 } igloo_httpp_ns_t;
 
 typedef enum httpp_request_type_tag {
     /* Initial and internally used state of the engine */
-    httpp_req_none = 0,
+    igloo_httpp_req_none = 0,
     /* Part of HTTP standard: GET, POST, PUT and HEAD */
-    httpp_req_get,
-    httpp_req_post,
-    httpp_req_put,
-    httpp_req_head,
-    httpp_req_options,
-    httpp_req_delete,
-    httpp_req_trace,
-    httpp_req_connect,
+    igloo_httpp_req_get,
+    igloo_httpp_req_post,
+    igloo_httpp_req_put,
+    igloo_httpp_req_head,
+    igloo_httpp_req_options,
+    igloo_httpp_req_delete,
+    igloo_httpp_req_trace,
+    igloo_httpp_req_connect,
     /* Icecast SOURCE, to be replaced with PUT some day */
-    httpp_req_source,
+    igloo_httpp_req_source,
     /* XXX: ??? */
-    httpp_req_play,
+    igloo_httpp_req_play,
     /* Icecast 2.x STATS, to request a live stream of stats events */
-    httpp_req_stats,
+    igloo_httpp_req_stats,
     /* Used if request method is unknown. MUST BE LAST ONE IN LIST. */
-    httpp_req_unknown
+    igloo_httpp_req_unknown
 } igloo_httpp_request_type_e;
 
 typedef unsigned int igloo_httpp_request_info_t;

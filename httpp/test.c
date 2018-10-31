@@ -19,19 +19,19 @@ int main(int argc, char **argv)
         printf("Parse succeeded...\n\n");
         printf("Request was ");
         switch (parser.req_type) {
-        case httpp_req_none:
+        case igloo_httpp_req_none:
             printf(" none\n");
             break;
-        case httpp_req_unknown:
+        case igloo_httpp_req_unknown:
             printf(" unknown\n");
             break;
-        case httpp_req_get:
+        case igloo_httpp_req_get:
             printf(" get\n");
             break;
-        case httpp_req_post:
+        case igloo_httpp_req_post:
             printf(" post\n");
             break;
-        case httpp_req_head:
+        case igloo_httpp_req_head:
             printf(" head\n");
             break;
         }
