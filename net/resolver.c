@@ -44,10 +44,10 @@
 #ifndef NO_THREAD
 #include "../include/igloo/thread.h"
 #else
-#define thread_mutex_create(x) do{}while(0)
+#define igloo_thread_mutex_create(x) do{}while(0)
 #define igloo_thread_mutex_destroy(x) do{}while(0)
-#define thread_mutex_lock(x) do{}while(0)
-#define thread_mutex_unlock(x) do{}while(0)
+#define igloo_thread_mutex_lock(x) do{}while(0)
+#define igloo_thread_mutex_unlock(x) do{}while(0)
 #endif
 
 #include "../include/igloo/resolver.h"
@@ -163,7 +163,7 @@ char *igloo_resolver_getname(const char *ip, char *buff, int len)
         return buff;
     }
 
-    thread_mutex_lock(&igloo__resolver_mutex);
+    igloo_thread_mutex_lock(&igloo__resolver_mutex);
     if (inet_aton (ip, &addr)) {
         /* casting &addr to const char* as it is recommended on win* */
         if ((host=gethostbyaddr ((const char *)&addr, sizeof (struct in_addr), AF_INET)))
@@ -173,7 +173,7 @@ char *igloo_resolver_getname(const char *ip, char *buff, int len)
         }
     }
 
-    thread_mutex_unlock(&igloo__resolver_mutex);
+    igloo_thread_mutex_unlock(&igloo__resolver_mutex);
     return ret;
 }
 
@@ -188,7 +188,7 @@ char *igloo_resolver_getip(const char *name, char *buff, int len)
         buff [len-1] = '\0';
         return buff;
     }
-    thread_mutex_lock(&igloo__resolver_mutex);
+    igloo_thread_mutex_lock(&igloo__resolver_mutex);
     host = gethostbyname(name);
     if (host)
     {
@@ -196,7 +196,7 @@ char *igloo_resolver_getip(const char *name, char *buff, int len)
         ret = strncpy(buff, temp, len);
         buff [len-1] = '\0';
     }
-    thread_mutex_unlock(&igloo__resolver_mutex);
+    igloo_thread_mutex_unlock(&igloo__resolver_mutex);
 
     return ret;
 }
@@ -210,7 +210,7 @@ void igloo_resolver_initialize()
     if (!igloo__initialized)
     {
         igloo__initialized = 1;
-        thread_mutex_create (&igloo__resolver_mutex);
+        igloo_thread_mutex_create (&igloo__resolver_mutex);
 
         /* keep dns connects (TCP) open */
 #ifdef HAVE_SETHOSTENT

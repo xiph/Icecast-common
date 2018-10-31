@@ -56,7 +56,7 @@ igloo_avl_node_new (void *        key,
     AVL_SET_BALANCE (node, 0);
     AVL_SET_RANK (node, 1);
 #ifdef HAVE_AVL_NODE_LOCK
-    thread_rwlock_create(&node->rwlock);
+    igloo_thread_rwlock_create(&node->rwlock);
 #endif
     return node;
   }
@@ -81,7 +81,7 @@ igloo_avl_tree_new (igloo_avl_key_compare_fun_type compare_fun,
       t->length = 0;
       t->compare_fun = compare_fun;
       t->compare_arg = compare_arg;
-      thread_rwlock_create(&t->rwlock);
+      igloo_thread_rwlock_create(&t->rwlock);
       return t;
     }
   }
@@ -1164,32 +1164,32 @@ igloo_avl_print_tree (igloo_avl_tree * tree, igloo_avl_key_printer_fun_type key_
 
 void igloo_avl_tree_rlock(igloo_avl_tree *tree)
 {
-    thread_rwlock_rlock(&tree->rwlock);
+    igloo_thread_rwlock_rlock(&tree->rwlock);
 }
 
 void igloo_avl_tree_wlock(igloo_avl_tree *tree)
 {
-    thread_rwlock_wlock(&tree->rwlock);
+    igloo_thread_rwlock_wlock(&tree->rwlock);
 }
 
 void igloo_avl_tree_unlock(igloo_avl_tree *tree)
 {
-    thread_rwlock_unlock(&tree->rwlock);
+    igloo_thread_rwlock_unlock(&tree->rwlock);
 }
 
 #ifdef HAVE_AVL_NODE_LOCK
 void avl_node_rlock(igloo_avl_node *node)
 {
-    thread_rwlock_rlock(&node->rwlock);
+    igloo_thread_rwlock_rlock(&node->rwlock);
 }
 
 void avl_node_wlock(igloo_avl_node *node)
 {
-    thread_rwlock_wlock(&node->rwlock);
+    igloo_thread_rwlock_wlock(&node->rwlock);
 }
 
 void avl_node_unlock(igloo_avl_node *node)
 {
-    thread_rwlock_unlock(&node->rwlock);
+    igloo_thread_rwlock_unlock(&node->rwlock);
 }
 #endif

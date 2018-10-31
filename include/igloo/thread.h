@@ -113,20 +113,20 @@ typedef igloo_mutex_t igloo_spin_t;
 #define igloo_thread_spin_unlock(x)    thread_mutex_unlock(x)
 #endif
 
-#define thread_create(n,x,y,z) igloo_thread_create_c(n,x,y,z,__LINE__,__FILE__)
-#define thread_mutex_create(x) igloo_thread_mutex_create_c(x,__LINE__,__FILE__)
-#define thread_mutex_lock(x) igloo_thread_mutex_lock_c(x,__LINE__,__FILE__)
-#define thread_mutex_unlock(x) igloo_thread_mutex_unlock_c(x,__LINE__,__FILE__)
-#define thread_cond_create(x) igloo_thread_cond_create_c(x,__LINE__,__FILE__)
-#define thread_cond_signal(x) igloo_thread_cond_signal_c(x,__LINE__,__FILE__)
-#define thread_cond_broadcast(x) igloo_thread_cond_broadcast_c(x,__LINE__,__FILE__)
-#define thread_cond_wait(x) igloo_thread_cond_wait_c(x,__LINE__,__FILE__)
-#define thread_cond_timedwait(x,t) igloo_thread_cond_wait_c(x,t,__LINE__,__FILE__)
-#define thread_rwlock_create(x) igloo_thread_rwlock_create_c(x,__LINE__,__FILE__)
-#define thread_rwlock_rlock(x) igloo_thread_rwlock_rlock_c(x,__LINE__,__FILE__)
-#define thread_rwlock_wlock(x) igloo_thread_rwlock_wlock_c(x,__LINE__,__FILE__)
-#define thread_rwlock_unlock(x) igloo_thread_rwlock_unlock_c(x,__LINE__,__FILE__)
-#define thread_exit(x) igloo_thread_exit_c(x,__LINE__,__FILE__)
+#define igloo_thread_create(n,x,y,z) igloo_thread_create_c(n,x,y,z,__LINE__,__FILE__)
+#define igloo_thread_mutex_create(x) igloo_thread_mutex_create_c(x,__LINE__,__FILE__)
+#define igloo_thread_mutex_lock(x) igloo_thread_mutex_lock_c(x,__LINE__,__FILE__)
+#define igloo_thread_mutex_unlock(x) igloo_thread_mutex_unlock_c(x,__LINE__,__FILE__)
+#define igloo_thread_cond_create(x) igloo_thread_cond_create_c(x,__LINE__,__FILE__)
+#define igloo_thread_cond_signal(x) igloo_thread_cond_signal_c(x,__LINE__,__FILE__)
+#define igloo_thread_cond_broadcast(x) igloo_thread_cond_broadcast_c(x,__LINE__,__FILE__)
+#define igloo_thread_cond_wait(x) igloo_thread_cond_wait_c(x,__LINE__,__FILE__)
+#define igloo_thread_cond_timedwait(x,t) igloo_thread_cond_wait_c(x,t,__LINE__,__FILE__)
+#define igloo_thread_rwlock_create(x) igloo_thread_rwlock_create_c(x,__LINE__,__FILE__)
+#define igloo_thread_rwlock_rlock(x) igloo_thread_rwlock_rlock_c(x,__LINE__,__FILE__)
+#define igloo_thread_rwlock_wlock(x) igloo_thread_rwlock_wlock_c(x,__LINE__,__FILE__)
+#define igloo_thread_rwlock_unlock(x) igloo_thread_rwlock_unlock_c(x,__LINE__,__FILE__)
+#define igloo_thread_exit(x) igloo_thread_exit_c(x,__LINE__,__FILE__)
 
 #define igloo_MUTEX_STATE_NOTLOCKED -1
 #define igloo_MUTEX_STATE_NEVERLOCKED -2
@@ -136,7 +136,7 @@ typedef igloo_mutex_t igloo_spin_t;
 
 /* init/shutdown of the library */
 void igloo_thread_initialize(void);
-void thread_initialize_with_log_id(int log_id);
+void igloo_thread_initialize_with_log_id(int log_id);
 void igloo_thread_shutdown(void);
 
 /* creation, destruction, locking, unlocking, signalling and waiting */

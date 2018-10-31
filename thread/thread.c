@@ -168,8 +168,8 @@ void igloo_thread_initialize(void)
     igloo_avl_insert(_mutextree, (void *)&_mutextree_mutex);
 #endif
 
-    thread_mutex_create(&igloo__threadtree_mutex);
-    thread_mutex_create(&igloo__library_mutex);
+    igloo_thread_mutex_create(&igloo__threadtree_mutex);
+    igloo_thread_mutex_create(&igloo__library_mutex);
 
     /* initialize the thread tree and insert the main thread */
 
