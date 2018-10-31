@@ -62,17 +62,52 @@ typedef enum httpp_request_type_tag {
     igloo_httpp_req_delete,
     igloo_httpp_req_trace,
     igloo_httpp_req_connect,
+    igloo_httpp_req_patch,
     /* Icecast SOURCE, to be replaced with PUT some day */
     igloo_httpp_req_source,
     /* XXX: ??? */
     igloo_httpp_req_play,
     /* Icecast 2.x STATS, to request a live stream of stats events */
     igloo_httpp_req_stats,
+    /* Other:
+     * Source: https://www.iana.org/assignments/http-methods/methods.csv, 2018-10-31
+     */
+    igloo_httpp_req_acl,
+    igloo_httpp_req_baseline_control,
+    igloo_httpp_req_bind,
+    igloo_httpp_req_checkin,
+    igloo_httpp_req_checkout,
+    igloo_httpp_req_copy,
+    igloo_httpp_req_label,
+    igloo_httpp_req_link,
+    igloo_httpp_req_lock,
+    igloo_httpp_req_merge,
+    igloo_httpp_req_mkactivity,
+    igloo_httpp_req_mkcalendar,
+    igloo_httpp_req_mkcol,
+    igloo_httpp_req_mkredirectref,
+    igloo_httpp_req_mkworkspace,
+    igloo_httpp_req_move,
+    igloo_httpp_req_orderpatch,
+    igloo_httpp_req_pri,
+    igloo_httpp_req_propfind,
+    igloo_httpp_req_proppatch,
+    igloo_httpp_req_rebind,
+    igloo_httpp_req_report,
+    igloo_httpp_req_search,
+    igloo_httpp_req_unbind,
+    igloo_httpp_req_uncheckout,
+    igloo_httpp_req_unlink,
+    igloo_httpp_req_unlock,
+    igloo_httpp_req_update,
+    igloo_httpp_req_updateredirectref,
+    igloo_httpp_req_version_control,
     /* Used if request method is unknown. MUST BE LAST ONE IN LIST. */
     igloo_httpp_req_unknown
 } igloo_httpp_request_type_e;
 
 typedef unsigned int igloo_httpp_request_info_t;
+#define igloo_HTTPP_REQUEST_INVALID                       ((igloo_httpp_request_info_t)0x1000U)
 #define igloo_HTTPP_REQUEST_IS_SAFE                       ((igloo_httpp_request_info_t)0x0001U)
 #define igloo_HTTPP_REQUEST_IS_IDEMPOTENT                 ((igloo_httpp_request_info_t)0x0002U)
 #define igloo_HTTPP_REQUEST_IS_CACHEABLE                  ((igloo_httpp_request_info_t)0x0004U)
@@ -127,6 +162,7 @@ int igloo_httpp_release(igloo_http_parser_t *parser);
 
 /* util functions */
 igloo_httpp_request_type_e igloo_httpp_str_to_method(const char * method);
+const char *               igloo_httpp_method_to_str(igloo_httpp_request_type_e method);
  
 #ifdef __cplusplus
 }
