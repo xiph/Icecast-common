@@ -18,7 +18,8 @@ pkginclude_HEADERS = \
     include/igloo/thread.h \
     include/igloo/timing.h \
     include/igloo/ro.h \
-    include/igloo/types.h
+    include/igloo/types.h \
+    include/igloo/typedef.h
 
 libigloo_la_SOURCES = \
     src/libigloo.c \
