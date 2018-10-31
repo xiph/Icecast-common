@@ -16,9 +16,12 @@ pkginclude_HEADERS = \
     include/igloo/resolver.h \
     include/igloo/sock.h \
     include/igloo/thread.h \
-    include/igloo/timing.h
+    include/igloo/timing.h \
+    include/igloo/ro.h
 
-libigloo_la_SOURCES = src/libigloo.c
+libigloo_la_SOURCES = \
+    src/libigloo.c \
+    src/ro.c
 libigloo_la_LIBADD = \
     avl/libiceavl.la \
     httpp/libicehttpp.la \
