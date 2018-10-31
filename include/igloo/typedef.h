@@ -28,6 +28,9 @@ extern "C" {
  * This header must be included before "types.h" and "ro.h" if used.
  */
 
+#define igloo_RO_TYPE(type)             type * subtype__ ## type;
+#define igloo_RO_FORWARD_TYPE(type)     extern const igloo_ro_type_t *igloo_ro__type__ ## type
+
 #ifdef __cplusplus
 }
 #endif

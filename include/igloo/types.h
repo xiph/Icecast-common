@@ -24,6 +24,46 @@
 extern "C" {
 #endif
 
+/* For NULL */
+#include <stddef.h>
+/* For size_t and ssize_t */
+#include <sys/types.h>
+
+/* Included in case is not yet included */
+#include "typedef.h"
+
+/*
+ * This header includes forward declarations for several basic types.
+ */
+
+typedef struct igloo_ro_type_tag igloo_ro_type_t;
+typedef struct igloo_ro_base_tag igloo_ro_base_t;
+igloo_RO_FORWARD_TYPE(igloo_ro_base_t);
+
+#ifdef igloo_HAVE_TYPE_ATTRIBUTE_TRANSPARENT_UNION
+typedef union __attribute__ ((__transparent_union__)) {
+    /* Those are libigloo's own types */
+    igloo_RO_TYPE(igloo_ro_base_t)
+
+    /* Now we add the current compilation unit's private types if any */
+#ifdef igloo_RO_PRIVATETYPES
+    igloo_RO_PRIVATETYPES
+#endif
+
+    /* Next are the application's types if any */
+#ifdef igloo_RO_APPTYPES
+    igloo_RO_APPTYPES
+#endif
+
+    /* And finnally all the types that are used by dependencies if any */
+#ifdef igloo_RO_LIBTYPES
+    igloo_RO_LIBTYPES
+#endif
+} igloo_ro_t;
+#else
+typedef void * igloo_ro_t;
+#endif
+
 #ifdef __cplusplus
 }
 #endif
