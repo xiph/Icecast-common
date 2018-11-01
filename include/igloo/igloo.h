@@ -1,4 +1,5 @@
-/* Copyright (C) 2018   Marvin Scholz <epirat07@gmail.com>
+/* Copyright (C) 2018       Marvin Scholz <epirat07@gmail.com>
+ * Copyright (C) 2018       Philipp "ph3-der-loewe" Schafft <lion@lion.leolix.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
