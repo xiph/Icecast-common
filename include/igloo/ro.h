@@ -84,6 +84,7 @@ struct igloo_ro_base_tag {
 	/* Associated objects */
     igloo_ro_t associated;
 };
+int igloo_ro_new__return_zero(igloo_ro_t self, const igloo_ro_type_t *type, va_list ap);
 /* ---[ END PRIVATE ]--- */
 
 #ifdef igloo_HAVE_TYPE_ATTRIBUTE_TRANSPARENT_UNION
