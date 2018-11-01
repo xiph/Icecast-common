@@ -29,6 +29,24 @@ extern "C" {
 
 /* Put stuff here */
 
+#include "ro.h"
+
+/*
+ * This initializes libigloo. This MUST BE called before any
+ * other functions can be called.
+ *
+ * Returns a refobject on success or igloo_RO_NULL on failure.
+ * This can be called multiple times (e.g. by the application
+ * and by the libraries it uses independently).
+ *
+ * The library is deinitialized when the last reference
+ * to a returned object is gone. This happens by
+ * calling igloo_ro_unref() on the last reference.
+ *
+ * All igloo_ro_*() functions can be used on this object.
+ */
+igloo_ro_t     igloo_initialize(void);
+
 #ifdef __cplusplus
 }
 #endif
