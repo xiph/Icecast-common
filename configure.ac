@@ -148,6 +148,7 @@ CPPFLAGS="${CPPFLAGS} ${PTHREAD_CPPFLAGS}"
 LIBS="${LIBS} ${PTHREAD_LIBS}"
 
 AC_CONFIG_HEADERS([config.h])
+AX_PREFIX_CONFIG_H([include/igloo/config.h], [igloo_CTC])
 
 AC_CONFIG_FILES([
   Makefile

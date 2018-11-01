@@ -28,10 +28,12 @@
 #ifndef _LIBIGLOO__TIMING_H_
 #define _LIBIGLOO__TIMING_H_
 
+#include "config.h"
+
 #include <sys/types.h>
-#ifdef HAVE_INTTYPES_H
+#ifdef IGLOO_CTC_HAVE_INTTYPES_H
 #include <inttypes.h>
-#elif defined(HAVE_STDINT_H)
+#elif defined(IGLOO_CTC_HAVE_STDINT_H)
 #include <stdint.h>
 #endif
 

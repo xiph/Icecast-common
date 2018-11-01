@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+#include "config.h"
+
 #define AVL_KEY_PRINTER_BUFLEN (256)
 
 #ifndef NO_THREAD
@@ -35,7 +37,7 @@ typedef struct igloo_avl_node_tag {
    * The rest of the bits are used for <rank>
    */
   unsigned int        rank_and_balance;
-#if !defined(NO_THREAD) && defined(HAVE_AVL_NODE_LOCK)
+#if !defined(NO_THREAD) && defined(IGLOO_CTC_HAVE_AVL_NODE_LOCK)
   igloo_rwlock_t rwlock;
 #endif
 } igloo_avl_node;

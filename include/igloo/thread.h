@@ -27,6 +27,8 @@
 #ifndef _LIBIGLOO__THREAD_H_
 #define _LIBIGLOO__THREAD_H_
 
+#include "config.h"
+
 #include <pthread.h>
 
 /* renamed from thread_t due to conflict on OS X */
@@ -95,7 +97,7 @@ typedef struct {
     pthread_rwlock_t sys_rwlock;
 } igloo_rwlock_t;
 
-#ifdef HAVE_PTHREAD_SPIN_LOCK
+#ifdef IGLOO_CTC_HAVE_PTHREAD_SPIN_LOCK
 typedef struct
 {
     pthread_spinlock_t lock;

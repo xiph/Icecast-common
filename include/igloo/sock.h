@@ -28,19 +28,21 @@
 #ifndef _LIBIGLOO__SOCK_H_
 #define _LIBIGLOO__SOCK_H_
 
+#include "config.h"
+
 #include <stdarg.h>
 
-#ifdef HAVE_WINSOCK2_H
+#ifdef IGLOO_CTC_HAVE_WINSOCK2_H
 #include <winsock2.h>
 #endif
 
-#ifdef HAVE_UNISTD_H
+#ifdef IGLOO_CTC_HAVE_UNISTD_H
 #include <unistd.h>
 #elif _WIN32
 #include <compat.h>
 #endif
 
-#ifdef HAVE_SYS_UIO_H
+#ifdef IGLOO_CTC_HAVE_SYS_UIO_H
 #include <sys/uio.h>
 #else
 #ifndef _SYS_UIO_H
@@ -52,7 +54,7 @@ struct iovec
 #endif
 #endif
 
-#if !defined(HAVE_INET_ATON) && defined(HAVE_INET_PTON)
+#if !defined(IGLOO_CTC_HAVE_INET_ATON) && defined(IGLOO_CTC_HAVE_INET_PTON)
 #define inet_aton(a,b) inet_pton(AF_INET, (a), (b))
 #endif
 
