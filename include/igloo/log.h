@@ -47,7 +47,6 @@ extern "C" {
 #define IO_BUFFER_TYPE _IOLBF
 #endif
 
-void igloo_log_initialize(void);
 int igloo_log_open_file(FILE *file);
 int igloo_log_open(const char *filename);
 int igloo_log_open_with_buffer(const char *filename, int size);
@@ -60,7 +59,6 @@ int igloo_log_set_archive_timestamp(int id, int value);
 void igloo_log_flush(int log_id);
 void igloo_log_reopen(int log_id);
 void igloo_log_close(int log_id);
-void igloo_log_shutdown(void);
 
 void igloo_log_write(int log_id, unsigned priority, const char *cat, const char *func, 
         const char *fmt, ...);

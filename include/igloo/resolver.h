@@ -43,9 +43,6 @@ extern "C" {
 **
 */
 
-void igloo_resolver_initialize(void);
-void igloo_resolver_shutdown(void);
-
 char *igloo_resolver_getname(const char *ip, char *buff, int len);
 char *igloo_resolver_getip(const char *name, char *buff, int len);
 

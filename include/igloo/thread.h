@@ -140,11 +140,6 @@ typedef igloo_mutex_t igloo_spin_t;
 #define igloo_THREAD_DETACHED 1
 #define igloo_THREAD_ATTACHED 0
 
-/* init/shutdown of the library */
-void igloo_thread_initialize(void);
-void igloo_thread_initialize_with_log_id(int log_id);
-void igloo_thread_shutdown(void);
-
 /* creation, destruction, locking, unlocking, signalling and waiting */
 igloo_thread_type *igloo_thread_create_c(char *name, void *(*start_routine)(void *), 
         void *arg, int detached, int line, char *file);

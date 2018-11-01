@@ -28,6 +28,7 @@ typedef struct igloo_instance_tag igloo_instance_t;
 #define igloo_RO_PRIVATETYPES igloo_RO_TYPE(igloo_instance_t)
 
 #include "../include/igloo/ro.h"
+#include "private.h"
 
 struct igloo_instance_tag {
     igloo_ro_base_t __base;
@@ -41,7 +42,10 @@ static void igloo_initialize__free(igloo_ro_t self)
     if (igloo_initialize__refc)
         return;
 
-    /* TODO: Add any uninit code here. */
+    igloo_resolver_shutdown();
+    igloo_sock_shutdown();
+    igloo_thread_shutdown();
+    igloo_log_shutdown();
 }
 
 igloo_RO_PRIVATE_TYPE(igloo_instance_t,
@@ -54,7 +58,10 @@ igloo_ro_t     igloo_initialize(void)
     char name[128];
 
     if (!igloo_initialize__refc) {
-        /* TODO: Add any init code here. */
+        igloo_log_initialize();
+        igloo_thread_initialize();
+        igloo_sock_initialize();
+        igloo_resolver_initialize();
     }
 
     snprintf(name, sizeof(name), "<libigloo instance %zu>", igloo_initialize__refc);
