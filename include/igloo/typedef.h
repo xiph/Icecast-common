@@ -28,8 +28,25 @@ extern "C" {
  * This header must be included before "types.h" and "ro.h" if used.
  */
 
-#define igloo_RO_TYPE(type)             type * subtype__ ## type;
-#define igloo_RO_FORWARD_TYPE(type)     extern const igloo_ro_type_t *igloo_ro__type__ ## type
+#define igloo_RO_TYPE(type)                         type * subtype__ ## type;
+
+#define igloo_RO__CONTROL_VERSION	1
+#define igloo_RO__DEFINE_TYPE(type, suffix, ...) \
+static const igloo_ro_type_t igloo_ro__typedef__ ## type = \
+{ \
+    .control_length = sizeof(igloo_ro_type_t), \
+    .control_version = igloo_RO__CONTROL_VERSION, \
+    .type_length = sizeof(type), \
+    .type_name = # type suffix \
+    , ## __VA_ARGS__ \
+}
+
+#define igloo_RO_FORWARD_TYPE(type)                 extern const igloo_ro_type_t *igloo_ro__type__ ## type
+#define igloo_RO_PUBLIC_TYPE(type, ...)             igloo_RO__DEFINE_TYPE(type, "", ## __VA_ARGS__); const igloo_ro_type_t * igloo_ro__type__ ## type = &igloo_ro__typedef__ ## type
+#define igloo_RO_PRIVATE_TYPE(type, ...)            igloo_RO__DEFINE_TYPE(type, " (private)", ## __VA_ARGS__); static const igloo_ro_type_t * igloo_ro__type__ ## type = &igloo_ro__typedef__ ## type
+#define igloo_RO_TYPEDECL_FREE(cb)                  .type_freecb = (cb)
+#define igloo_RO_TYPEDECL_NEW(cb)                   .type_newcb = (cb)
+#define igloo_RO_TYPEDECL_NEW_NOOP()                .type_newcb = igloo_ro_new__return_zero
 
 #ifdef __cplusplus
 }

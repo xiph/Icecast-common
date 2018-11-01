@@ -26,6 +26,17 @@
 
 #include <igloo/ro.h>
 
+/* This is not static as it is used by igloo_RO_TYPEDECL_NEW_NOOP() */
+int igloo_ro_new__return_zero(igloo_ro_t self, const igloo_ro_type_t *type, va_list ap)
+{
+    (void)self, (void)type, (void)ap;
+    return 0;
+}
+
+igloo_RO_PUBLIC_TYPE(igloo_ro_base_t,
+        igloo_RO_TYPEDECL_NEW_NOOP()
+        );
+
 static inline int check_type(const igloo_ro_type_t *type)
 {
     return type->control_length == sizeof(igloo_ro_type_t) && type->control_version == igloo_RO__CONTROL_VERSION &&
