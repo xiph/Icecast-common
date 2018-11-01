@@ -16,15 +16,7 @@ extern "C" {
 
 #define AVL_KEY_PRINTER_BUFLEN (256)
 
-#ifndef NO_THREAD
 #include "thread.h"
-#else
-#define thread_rwlock_create(x) do{}while(0)
-#define igloo_thread_rwlock_destroy(x) do{}while(0)
-#define thread_rwlock_rlock(x) do{}while(0)
-#define thread_rwlock_wlock(x) do{}while(0)
-#define thread_rwlock_unlock(x) do{}while(0)
-#endif
 
 typedef struct igloo_avl_node_tag {
   void *        key;
@@ -37,7 +29,7 @@ typedef struct igloo_avl_node_tag {
    * The rest of the bits are used for <rank>
    */
   unsigned int        rank_and_balance;
-#if !defined(NO_THREAD) && defined(IGLOO_CTC_HAVE_AVL_NODE_LOCK)
+#if defined(IGLOO_CTC_HAVE_AVL_NODE_LOCK)
   igloo_rwlock_t rwlock;
 #endif
 } igloo_avl_node;
@@ -73,9 +65,7 @@ typedef struct igloo__avl_tree {
   unsigned int          length;
   igloo_avl_key_compare_fun_type    compare_fun;
   void *             compare_arg;
-#ifndef NO_THREAD
   igloo_rwlock_t rwlock;
-#endif
 } igloo_avl_tree;
 
 igloo_avl_tree * igloo_avl_tree_new (igloo_avl_key_compare_fun_type compare_fun, void * compare_arg);
