@@ -58,6 +58,7 @@
 
 #include <igloo/sock.h>
 #include <igloo/resolver.h>
+#include "../src/private.h"
 
 /* for older C libraries */
 #ifndef AI_NUMERICSERV

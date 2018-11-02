@@ -81,8 +81,6 @@ struct iovec
 #define igloo_sock_connect(h, p) igloo_sock_connect_wto(h, p, 0)
 
 /* Misc socket functions */
-void igloo_sock_initialize(void);
-void igloo_sock_shutdown(void);
 char *igloo_sock_get_localip(char *buff, int len);
 int igloo_sock_error(void);
 int igloo_sock_recoverable(int error);
