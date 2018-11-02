@@ -16,8 +16,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef IGLOO_H
-# define IGLOO_H 1
+#ifndef _LIBIGLOO__IGLOO_H_
+#define _LIBIGLOO__IGLOO_H_
 /**
  * @file
  * Put a good description of this file here
@@ -33,4 +33,4 @@ extern "C" {
 }
 #endif
 
-#endif /* ! IGLOO_H */
+#endif /* ! _LIBIGLOO__IGLOO_H_ */
