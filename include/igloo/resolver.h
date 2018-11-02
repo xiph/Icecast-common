@@ -54,8 +54,3 @@ char *igloo_resolver_getip(const char *name, char *buff, int len);
 #endif
 
 #endif
-
-
-
-
-
