@@ -19,11 +19,13 @@ pkginclude_HEADERS = \
     include/igloo/timing.h \
     include/igloo/ro.h \
     include/igloo/types.h \
-    include/igloo/typedef.h
+    include/igloo/typedef.h \
+    include/igloo/buffer.h
 
 libigloo_la_SOURCES = \
     src/libigloo.c \
-    src/ro.c
+    src/ro.c \
+    src/buffer.c
 libigloo_la_LIBADD = \
     avl/libiceavl.la \
     httpp/libicehttpp.la \

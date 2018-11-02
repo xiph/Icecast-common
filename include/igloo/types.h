@@ -32,6 +32,8 @@ extern "C" {
 /* Included in case is not yet included */
 #include "typedef.h"
 
+typedef struct igloo_buffer_tag igloo_buffer_t;
+
 /*
  * This header includes forward declarations for several basic types.
  */
@@ -44,6 +46,7 @@ igloo_RO_FORWARD_TYPE(igloo_ro_base_t);
 typedef union __attribute__ ((__transparent_union__)) {
     /* Those are libigloo's own types */
     igloo_RO_TYPE(igloo_ro_base_t)
+    igloo_RO_TYPE(igloo_buffer_t)
 
     /* Now we add the current compilation unit's private types if any */
 #ifdef igloo_RO_PRIVATETYPES
