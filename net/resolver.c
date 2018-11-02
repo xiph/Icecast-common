@@ -41,14 +41,7 @@
 #include <winsock2.h>
 #endif
 
-#ifndef NO_THREAD
 #include <igloo/thread.h>
-#else
-#define igloo_thread_mutex_create(x) do{}while(0)
-#define igloo_thread_mutex_destroy(x) do{}while(0)
-#define igloo_thread_mutex_lock(x) do{}while(0)
-#define igloo_thread_mutex_unlock(x) do{}while(0)
-#endif
 
 #include <igloo/resolver.h>
 #include <igloo/sock.h>
@@ -59,9 +52,7 @@ static int _isip(const char *what);
 
 /* internal data */
 
-#ifndef NO_THREAD
 static igloo_mutex_t igloo__resolver_mutex;
-#endif
 static int igloo__initialized = 0;
 
 #ifdef HAVE_INET_PTON
