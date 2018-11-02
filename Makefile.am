@@ -7,6 +7,7 @@ SUBDIRS = avl httpp log net thread timing
 lib_LTLIBRARIES = libigloo.la
 
 pkginclude_HEADERS = \
+    include/igloo/config.h \
     include/igloo/avl.h \
     include/igloo/encoding.h \
     include/igloo/httpp.h \
