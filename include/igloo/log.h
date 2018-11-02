@@ -29,6 +29,10 @@
 #ifndef _LIBIGLOO__LOG_H_
 #define _LIBIGLOO__LOG_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 
 #define igloo_LOG_EINSANE -1
@@ -61,5 +65,9 @@ void igloo_log_shutdown(void);
 void igloo_log_write(int log_id, unsigned priority, const char *cat, const char *func, 
         const char *fmt, ...);
 void igloo_log_write_direct(int log_id, const char *fmt, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* __LOG_H__ */

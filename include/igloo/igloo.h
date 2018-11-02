@@ -23,6 +23,14 @@
  * Put a good description of this file here
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Put stuff here */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ! IGLOO_H */

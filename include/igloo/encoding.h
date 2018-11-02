@@ -25,6 +25,10 @@
 #ifndef _LIBIGLOO__ENCODING_H_
 #define _LIBIGLOO__ENCODING_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <sys/types.h>
 
 /* known encodings */
@@ -85,5 +89,9 @@ ssize_t           igloo_httpp_encoding_pending(igloo_httpp_encoding_t *self);
  * this is to be written out as soon as the encoding supports.
  */
 int               igloo_httpp_encoding_append_meta(igloo_httpp_encoding_t *self, httpp_meta_t *meta);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

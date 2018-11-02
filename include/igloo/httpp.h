@@ -27,6 +27,10 @@
 #ifndef _LIBIGLOO__HTTPP_H_
 #define _LIBIGLOO__HTTPP_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <igloo/avl.h>
 
 #define igloo_HTTPP_VAR_PROTOCOL "__protocol"
@@ -124,4 +128,8 @@ int igloo_httpp_release(igloo_http_parser_t *parser);
 /* util functions */
 igloo_httpp_request_type_e igloo_httpp_str_to_method(const char * method);
  
+#ifdef __cplusplus
+}
+#endif
+
 #endif

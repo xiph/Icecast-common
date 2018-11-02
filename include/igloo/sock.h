@@ -28,6 +28,10 @@
 #ifndef _LIBIGLOO__SOCK_H_
 #define _LIBIGLOO__SOCK_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <igloo/config.h>
 
 #include <stdarg.h>
@@ -118,6 +122,10 @@ igloo_sock_t igloo_sock_accept(igloo_sock_t serversock, char *ip, size_t len);
 
 #ifdef _WIN32
 int inet_aton(const char *s, struct in_addr *a);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif  /* __SOCK_H */

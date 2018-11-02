@@ -28,6 +28,10 @@
 #ifndef _LIBIGLOO__TIMING_H_
 #define _LIBIGLOO__TIMING_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <igloo/config.h>
 
 #include <sys/types.h>
@@ -44,5 +48,9 @@ typedef unsigned __int64 uint64_t;
 
 uint64_t igloo_timing_get_time(void);
 void igloo_timing_sleep(uint64_t sleeptime);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* __TIMING_H__ */

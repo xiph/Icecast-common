@@ -27,6 +27,10 @@
 #ifndef _LIBIGLOO__THREAD_H_
 #define _LIBIGLOO__THREAD_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <igloo/config.h>
 
 #include <pthread.h>
@@ -177,5 +181,9 @@ void igloo_thread_rename(const char *name);
 
 /* waits until thread_exit is called for another thread */
 void igloo_thread_join(igloo_thread_type *thread);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* __THREAD_H__ */

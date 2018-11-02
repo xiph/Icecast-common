@@ -27,6 +27,10 @@
 #ifndef _LIBIGLOO__RESOLVER_H_
 #define _LIBIGLOO__RESOLVER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /*
 ** resolver_lookup
@@ -44,6 +48,10 @@ void igloo_resolver_shutdown(void);
 
 char *igloo_resolver_getname(const char *ip, char *buff, int len);
 char *igloo_resolver_getip(const char *name, char *buff, int len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
