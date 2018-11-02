@@ -8,7 +8,7 @@ noinst_LTLIBRARIES = libiceavl.la
 
 libiceavl_la_SOURCES = avl.c
 
-AM_CPPFLAGS = -I$(srcdir)/..
+AM_CFLAGS = -I$(top_srcdir)/include
 
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"

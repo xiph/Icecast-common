@@ -8,7 +8,7 @@ noinst_LTLIBRARIES = libicenet.la
 
 libicenet_la_SOURCES = sock.c resolver.c
 
-AM_CPPFLAGS = -I$(srcdir)/..
+AM_CFLAGS = -I$(top_srcdir)/include
 
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"

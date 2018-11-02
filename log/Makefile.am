@@ -8,6 +8,8 @@ noinst_LTLIBRARIES = libicelog.la
 
 libicelog_la_SOURCES = log.c
 
+AM_CFLAGS = -I$(top_srcdir)/include
+
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"
 

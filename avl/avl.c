@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../include/igloo/avl.h"
+#include <igloo/avl.h>
 
 igloo_avl_node *
 igloo_avl_node_new (void *        key,

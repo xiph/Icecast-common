@@ -8,6 +8,8 @@ noinst_LTLIBRARIES = libicetiming.la
 
 libicetiming_la_SOURCES = timing.c
 
+AM_CFLAGS = -I$(top_srcdir)/include
+
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"
 

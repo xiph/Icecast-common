@@ -8,7 +8,7 @@ noinst_LTLIBRARIES = libicethread.la
 
 libicethread_la_SOURCES = thread.c
 
-AM_CPPFLAGS = -I$(srcdir)/..
+AM_CFLAGS = -I$(top_srcdir)/include
 
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"

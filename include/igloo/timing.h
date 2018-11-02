@@ -28,7 +28,7 @@
 #ifndef _LIBIGLOO__TIMING_H_
 #define _LIBIGLOO__TIMING_H_
 
-#include "config.h"
+#include <igloo/config.h>
 
 #include <sys/types.h>
 #ifdef IGLOO_CTC_HAVE_INTTYPES_H

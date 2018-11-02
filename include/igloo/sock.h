@@ -28,7 +28,7 @@
 #ifndef _LIBIGLOO__SOCK_H_
 #define _LIBIGLOO__SOCK_H_
 
-#include "config.h"
+#include <igloo/config.h>
 
 #include <stdarg.h>
 

@@ -51,7 +51,7 @@
 #include <windows.h>
 #endif
 
-#include "../include/igloo/log.h"
+#include <igloo/log.h>
 
 #define LOG_MAXLOGS 25
 #define LOG_MAXLINELEN 1024

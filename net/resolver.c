@@ -42,7 +42,7 @@
 #endif
 
 #ifndef NO_THREAD
-#include "../include/igloo/thread.h"
+#include <igloo/thread.h>
 #else
 #define igloo_thread_mutex_create(x) do{}while(0)
 #define igloo_thread_mutex_destroy(x) do{}while(0)
@@ -50,8 +50,8 @@
 #define igloo_thread_mutex_unlock(x) do{}while(0)
 #endif
 
-#include "../include/igloo/resolver.h"
-#include "../include/igloo/sock.h"
+#include <igloo/resolver.h>
+#include <igloo/sock.h>
 
 /* internal function */
 

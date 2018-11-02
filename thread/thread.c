@@ -47,10 +47,10 @@
 
 #include <signal.h>
 
-#include "../include/igloo/thread.h"
-#include "../include/igloo/avl.h"
+#include <igloo/thread.h>
+#include <igloo/avl.h>
 #ifdef THREAD_DEBUG
-#include "../include/igloo/log.h"
+#include <igloo/log.h>
 #endif
 
 #ifdef _WIN32

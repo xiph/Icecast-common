@@ -27,7 +27,7 @@
 #ifndef _LIBIGLOO__THREAD_H_
 #define _LIBIGLOO__THREAD_H_
 
-#include "config.h"
+#include <igloo/config.h>
 
 #include <pthread.h>
 

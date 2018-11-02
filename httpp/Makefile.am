@@ -5,7 +5,8 @@ AUTOMAKE_OPTIONS = foreign
 noinst_LTLIBRARIES = libicehttpp.la
 
 libicehttpp_la_SOURCES = httpp.c encoding.c
-AM_CPPFLAGS = -I$(srcdir)/..
+
+AM_CFLAGS = -I$(top_srcdir)/include
 
 # SCCS stuff (for BitKeeper)
 GET = true

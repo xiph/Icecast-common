@@ -12,11 +12,11 @@
 extern "C" {
 #endif
 
-#include "config.h"
+#include <igloo/config.h>
 
 #define AVL_KEY_PRINTER_BUFLEN (256)
 
-#include "thread.h"
+#include <igloo/thread.h>
 
 typedef struct igloo_avl_node_tag {
   void *        key;

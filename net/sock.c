@@ -56,8 +56,8 @@
 #include <winsock2.h>
 #endif
 
-#include "../include/igloo/sock.h"
-#include "../include/igloo/resolver.h"
+#include <igloo/sock.h>
+#include <igloo/resolver.h>
 
 /* for older C libraries */
 #ifndef AI_NUMERICSERV

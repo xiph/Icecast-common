@@ -59,7 +59,7 @@
 #include <sys/timeb.h>
 #endif
 
-#include "../include/igloo/timing.h"
+#include <igloo/timing.h>
 
 /* 
  * Returns milliseconds no matter what. 

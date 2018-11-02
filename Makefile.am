@@ -28,5 +28,7 @@ libigloo_la_LIBADD = \
 
 pkgconfig_DATA = igloo.pc
 
+AM_CFLAGS = -I$(top_srcdir)/include
+
 static:
 	$(MAKE) all LDFLAGS="${LDFLAGS} -all-static"
