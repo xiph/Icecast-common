@@ -40,3 +40,5 @@ AM_CFLAGS = -I$(top_srcdir)/include
 
 static:
 	$(MAKE) all LDFLAGS="${LDFLAGS} -all-static"
+
+include $(srcdir)/src/tests/Makefile.am
