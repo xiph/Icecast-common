@@ -23,6 +23,55 @@
 extern "C" {
 #endif
 
+#include <igloo/ro.h>
+
+/* About thread safety:
+ * This set of functions is intentinally not thread safe.
+ */
+
+typedef struct igloo_list_iterator_tag igloo_list_iterator_t;
+typedef struct igloo_list_iterator_tag igloo_list_iterator_storage_t;
+
+igloo_RO_FORWARD_TYPE(igloo_list_t);
+
+/* ---[ PRIVATE ]--- */
+struct igloo_list_iterator_tag {
+    igloo_list_t *list;
+    size_t idx;
+};
+/* ---[ END PRIVATE ]--- */
+
+/*
+ * Those types are defined here as they must be known to the compiler.
+ * Nobody should ever try to access them directly.
+ */
+void                    igloo_list_preallocate(igloo_list_t *list, size_t request);
+int                     igloo_list_set_type__real(igloo_list_t *list, const igloo_ro_type_t *type);
+#define                 igloo_list_set_type(list,type) igloo_list_set_type__real((list),(igloo_ro__type__ ## type))
+int                     igloo_list_push(igloo_list_t *list, igloo_ro_t element);
+int                     igloo_list_unshift(igloo_list_t *list, igloo_ro_t element);
+igloo_ro_t              igloo_list_shift(igloo_list_t *list);
+igloo_ro_t              igloo_list_pop(igloo_list_t *list);
+
+int                     igloo_list_merge(igloo_list_t *list, igloo_list_t *elements);
+
+igloo_list_iterator_t * igloo_list_iterator_start(igloo_list_t *list, void *storage, size_t storage_length);
+igloo_ro_t              igloo_list_iterator_next(igloo_list_iterator_t *iterator);
+void                    igloo_list_iterator_end(igloo_list_iterator_t *iterator);
+int                     igloo_list_iterator_rewind(igloo_list_iterator_t *iterator);
+
+#define                 igloo_list_foreach(list,type,var,code) \
+do { \
+    igloo_list_iterator_storage_t __igloo_list_iterator_storage; \
+    igloo_list_iterator_t *__igloo_list_iterator = igloo_list_iterator_start((list), &__igloo_list_iterator_storage, sizeof(__igloo_list_iterator_storage)); \
+    type var; \
+    for (; !igloo_RO_IS_NULL((var) = igloo_RO_TO_TYPE(igloo_list_iterator_next(__igloo_list_iterator),type));) { \
+        code; \
+        igloo_ro_unref((var)); \
+    } \
+    igloo_list_iterator_end(__igloo_list_iterator); \
+} while (0);
+
 #ifdef __cplusplus
 }
 #endif
