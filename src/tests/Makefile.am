@@ -24,6 +24,12 @@ ctest_suite_test_SOURCES = %reldir%/ctest_suite.c
 ctest_suite_test_LDADD = libice_ctest.la
 check_PROGRAMS += ctest_suite.test
 
+ctest_refobject_test_SOURCES = %reldir%/ctest_refobject.c
+ctest_refobject_test_LDADD = libice_ctest.la \
+			     thread/libicethread.la \
+			     avl/libiceavl.la \
+			     src/ro.o
+check_PROGRAMS += ctest_refobject.test
 
 ctest_buffer_test_SOURCES = %reldir%/ctest_buffer.c
 ctest_buffer_test_LDADD = libice_ctest.la \
