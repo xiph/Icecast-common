@@ -294,7 +294,7 @@ igloo_ro_t              igloo_list_iterator_next(igloo_list_iterator_t *iterator
     if (physical >= iterator->list->fill)
         return igloo_RO_NULL;
 
-    if (igloo_ro_unref(iterator->list->elements[physical]) == 0)
+    if (igloo_ro_ref(iterator->list->elements[physical]) != 0)
         return igloo_RO_NULL;
 
     iterator->idx++;
