@@ -45,6 +45,7 @@ struct igloo_list_iterator_tag {
  * Those types are defined here as they must be known to the compiler.
  * Nobody should ever try to access them directly.
  */
+int                     igloo_list_clear(igloo_list_t *list);
 void                    igloo_list_preallocate(igloo_list_t *list, size_t request);
 int                     igloo_list_set_type__real(igloo_list_t *list, const igloo_ro_type_t *type);
 #define                 igloo_list_set_type(list,type) igloo_list_set_type__real((list),(igloo_ro__type__ ## type))

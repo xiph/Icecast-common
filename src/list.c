@@ -44,11 +44,24 @@ igloo_RO_PUBLIC_TYPE(igloo_list_t,
 static void __free(igloo_ro_t self)
 {
     igloo_list_t *list = igloo_RO_TO_TYPE(self, igloo_list_t);
+    igloo_list_clear(list);
+}
+
+int                     igloo_list_clear(igloo_list_t *list)
+{
     size_t i;
+
+    if (!igloo_RO_IS_VALID(list, igloo_list_t))
+        return -1;
 
     for (i = list->offset; i < list->fill; i++) {
         igloo_ro_unref(list->elements[i]);
     }
+
+    list->offset = 0;
+    list->fill = 0;
+
+    return 0;
 }
 
 static inline void igloo_list_preallocate__realign(igloo_list_t *list)
