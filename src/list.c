@@ -53,10 +53,15 @@ static void __free(igloo_ro_t self)
 
 static inline void igloo_list_preallocate__realign(igloo_list_t *list)
 {
+    size_t new_len;
+
     if (!list->offset)
         return;
 
-    memmove(list->elements, list->elements + list->offset, (list->fill - list->offset)*sizeof(*list->elements));
+    new_len = list->fill - list->offset;
+    memmove(list->elements, list->elements + list->offset, new_len*sizeof(*list->elements));
+    list->offset = 0;
+    list->fill = new_len;
 }
 
 void                    igloo_list_preallocate(igloo_list_t *list, size_t request)
