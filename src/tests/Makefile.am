@@ -39,6 +39,13 @@ ctest_buffer_test_LDADD = libice_ctest.la \
 			  src/buffer.o
 check_PROGRAMS += ctest_buffer.test
 
+ctest_list_test_SOURCES = %reldir%/ctest_list.c
+ctest_list_test_LDADD = libice_ctest.la \
+			thread/libicethread.la \
+			avl/libiceavl.la \
+			src/ro.o \
+			src/list.o
+check_PROGRAMS += ctest_list.test
 
 # Add all programs to TESTS
 TESTS = $(check_PROGRAMS)

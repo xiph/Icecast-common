@@ -102,6 +102,7 @@ int igloo_ro_new__return_zero(igloo_ro_t self, const igloo_ro_type_t *type, va_l
 #define igloo_RO_GET_TYPE(x)		(igloo_RO__GETBASE((x)) == NULL ? NULL : igloo_RO__GETBASE((x))->type)
 #define igloo_RO_GET_TYPENAME(x)	(igloo_RO_GET_TYPE((x)) == NULL ? NULL : igloo_RO_GET_TYPE((x))->type_name)
 #define igloo_RO_IS_VALID(x,type)	(!igloo_RO_IS_NULL((x)) && igloo_RO_GET_TYPE((x)) == (igloo_ro__type__ ## type))
+#define igloo_RO_HAS_TYPE(x,type)	(!igloo_RO_IS_NULL((x)) && igloo_RO_GET_TYPE((x)) == (type))
 
 /* Create a new refobject
  * The type argument gives the type for the new object,
