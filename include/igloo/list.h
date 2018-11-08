@@ -35,16 +35,16 @@ typedef struct igloo_list_iterator_tag igloo_list_iterator_storage_t;
 igloo_RO_FORWARD_TYPE(igloo_list_t);
 
 /* ---[ PRIVATE ]--- */
+/*
+ * Those types are defined here as they must be known to the compiler.
+ * Nobody should ever try to access them directly.
+ */
 struct igloo_list_iterator_tag {
     igloo_list_t *list;
     size_t idx;
 };
 /* ---[ END PRIVATE ]--- */
 
-/*
- * Those types are defined here as they must be known to the compiler.
- * Nobody should ever try to access them directly.
- */
 int                     igloo_list_clear(igloo_list_t *list);
 void                    igloo_list_preallocate(igloo_list_t *list, size_t request);
 int                     igloo_list_set_type__real(igloo_list_t *list, const igloo_ro_type_t *type);
