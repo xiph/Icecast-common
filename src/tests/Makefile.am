@@ -47,5 +47,13 @@ ctest_list_test_LDADD = libice_ctest.la \
 			src/list.o
 check_PROGRAMS += ctest_list.test
 
+ctest_reportxml_test_SOURCES = %reldir%/ctest_reportxml.c
+ctest_reportxml_test_LDADD = libice_ctest.la \
+			thread/libicethread.la \
+			avl/libiceavl.la \
+			src/ro.o \
+			src/reportxml.o
+check_PROGRAMS += ctest_reportxml.test
+
 # Add all programs to TESTS
 TESTS = $(check_PROGRAMS)

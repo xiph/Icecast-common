@@ -35,6 +35,10 @@ extern "C" {
 typedef struct igloo_buffer_tag igloo_buffer_t;
 typedef struct igloo_list_tag igloo_list_t;
 
+typedef struct igloo_reportxml_tag igloo_reportxml_t;
+typedef struct igloo_reportxml_node_tag igloo_reportxml_node_t;
+typedef struct igloo_reportxml_database_tag igloo_reportxml_database_t;
+
 /*
  * This header includes forward declarations for several basic types.
  */
@@ -49,6 +53,9 @@ typedef union __attribute__ ((__transparent_union__)) {
     igloo_RO_TYPE(igloo_ro_base_t)
     igloo_RO_TYPE(igloo_buffer_t)
     igloo_RO_TYPE(igloo_list_t)
+    igloo_RO_TYPE(igloo_reportxml_t)
+    igloo_RO_TYPE(igloo_reportxml_node_t)
+    igloo_RO_TYPE(igloo_reportxml_database_t)
 
     /* Now we add the current compilation unit's private types if any */
 #ifdef igloo_RO_PRIVATETYPES
