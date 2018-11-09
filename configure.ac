@@ -147,6 +147,17 @@ CFLAGS="${CFLAGS} ${PTHREAD_CFLAGS}"
 CPPFLAGS="${CPPFLAGS} ${PTHREAD_CPPFLAGS}"
 LIBS="${LIBS} ${PTHREAD_LIBS}"
 
+dnl
+dnl libxml2
+dnl
+PKG_CHECK_MODULES([LIBXML2], [libxml-2.0], [], [
+    AC_MSG_ERROR([${LIBXML2_PKG_ERRORS}. libxml2 is required.])
+    ])
+
+CFLAGS="${CFLAGS} ${LIBXML2_CFLAGS}"
+LIBS="${LIBS} ${LIBXML2_LIBS}"
+
+
 AC_REQUIRE_AUX_FILE([tap-driver.sh])
 
 AC_CONFIG_HEADERS([config.h])
