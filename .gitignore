@@ -7,6 +7,7 @@ config.h
 *.o
 *.lo
 *.la
+igloo.pc
 
 # Autofoo stuff
 stamp-h1
@@ -19,13 +20,17 @@ configure
 build-aux/
 autom4te.cache/
 aclocal.m4
+.dirstamp
 
 # Ignore generated Makefiles
 Makefile
 Makefile.in
 
-# Ignore auxiliary files
-/tap-driver.sh
+# Ignore test temp files
+ctest_*.log
+ctest_*.test
+ctest_*.trs
+test-suite.log
 
 # Ignore vim swap files
 .*.swp
