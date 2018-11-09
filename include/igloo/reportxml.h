@@ -29,44 +29,44 @@ igloo_RO_FORWARD_TYPE(igloo_reportxml_database_t);
  */
 typedef enum {
     /* This is a virtual type used to indicate error conditions */
-    REPORTXML_NODE_TYPE__ERROR,
+    igloo_REPORTXML_NODE_TYPE__ERROR,
     /* <report> is the root element of report XML documents */
-    REPORTXML_NODE_TYPE_REPORT,
+    igloo_REPORTXML_NODE_TYPE_REPORT,
     /* <definition> is used to define templates */
-    REPORTXML_NODE_TYPE_DEFINITION,
+    igloo_REPORTXML_NODE_TYPE_DEFINITION,
     /* <incident> defines an event that is reported */
-    REPORTXML_NODE_TYPE_INCIDENT,
+    igloo_REPORTXML_NODE_TYPE_INCIDENT,
     /* <state> defines the state an <incident> resulted in */
-    REPORTXML_NODE_TYPE_STATE,
+    igloo_REPORTXML_NODE_TYPE_STATE,
     /* <backtrace> provides helpful information about the location some event happend */
-    REPORTXML_NODE_TYPE_BACKTRACE,
+    igloo_REPORTXML_NODE_TYPE_BACKTRACE,
     /* <position> defines an element within <backtrace> */
-    REPORTXML_NODE_TYPE_POSITION,
+    igloo_REPORTXML_NODE_TYPE_POSITION,
     /* <more> allows to skip <position>s in <backtrace> for any reason
      * (e.g. they are unknown or consider of no intrest)
      */
-    REPORTXML_NODE_TYPE_MORE,
+    igloo_REPORTXML_NODE_TYPE_MORE,
     /* <fix> provides a machine readable way to actually fix the problem */
-    REPORTXML_NODE_TYPE_FIX,
+    igloo_REPORTXML_NODE_TYPE_FIX,
     /* <action> defines a specific action to do */
-    REPORTXML_NODE_TYPE_ACTION,
+    igloo_REPORTXML_NODE_TYPE_ACTION,
     /* <reason> allows to define why an event happend */
-    REPORTXML_NODE_TYPE_REASON,
+    igloo_REPORTXML_NODE_TYPE_REASON,
     /* <text> is used to provide messages to the user.
      * The content of <text> is not machine readable.
      */
-    REPORTXML_NODE_TYPE_TEXT,
+    igloo_REPORTXML_NODE_TYPE_TEXT,
     /* <timestamp> provides a way to present a point in time an event happend */
-    REPORTXML_NODE_TYPE_TIMESTAMP,
+    igloo_REPORTXML_NODE_TYPE_TIMESTAMP,
     /* <resource> names a resource that was involved in the event such as user input or the result */
-    REPORTXML_NODE_TYPE_RESOURCE,
+    igloo_REPORTXML_NODE_TYPE_RESOURCE,
     /* <value> provides an actual value for a <resource> */
-    REPORTXML_NODE_TYPE_VALUE,
+    igloo_REPORTXML_NODE_TYPE_VALUE,
     /* <reference> provides a way to refer to external documents such as documentation */
-    REPORTXML_NODE_TYPE_REFERENCE,
+    igloo_REPORTXML_NODE_TYPE_REFERENCE,
     /* <extension> is used to allow application specific extensions */
-    REPORTXML_NODE_TYPE_EXTENSION
-} reportxml_node_type_t;
+    igloo_REPORTXML_NODE_TYPE_EXTENSION
+} igloo_reportxml_node_type_t;
 
 
 /* ---[ Document level ]--- */
@@ -84,7 +84,7 @@ igloo_reportxml_node_t *      igloo_reportxml_get_root_node(igloo_reportxml_t *r
  */
 igloo_reportxml_node_t *      igloo_reportxml_get_node_by_attribute(igloo_reportxml_t *report, const char *key, const char *value, int include_definitions);
 /* This gets a node by it's type. Otherwise identical to igloo_reportxml_get_node_by_attribute() */
-igloo_reportxml_node_t *      igloo_reportxml_get_node_by_type(igloo_reportxml_t *report, reportxml_node_type_t type, int include_definitions);
+igloo_reportxml_node_t *      igloo_reportxml_get_node_by_type(igloo_reportxml_t *report, igloo_reportxml_node_type_t type, int include_definitions);
 /* This function parses an XML document and returns the parst report XML document */
 igloo_reportxml_t *           igloo_reportxml_parse_xmldoc(xmlDocPtr doc);
 /* This function renders an report XML document as XML structure */
@@ -98,7 +98,7 @@ xmlDocPtr               igloo_reportxml_render_xmldoc(igloo_reportxml_t *report)
 /* This creates a new node of type type.
  * It's id, definition, and akindof attributes can be given as parameters.
  */
-igloo_reportxml_node_t *      igloo_reportxml_node_new(reportxml_node_type_t type, const char *id, const char *definition, const char *akindof);
+igloo_reportxml_node_t *      igloo_reportxml_node_new(igloo_reportxml_node_type_t type, const char *id, const char *definition, const char *akindof);
 /* This parses an XML node and returns the resulting report XML node */
 igloo_reportxml_node_t *      igloo_reportxml_node_parse_xmlnode(xmlNodePtr xmlnode);
 /* Copy an report XML node (and it's children) */
@@ -106,7 +106,7 @@ igloo_reportxml_node_t *      igloo_reportxml_node_copy(igloo_reportxml_node_t *
 /* Renders an report XML node as XML node */
 xmlNodePtr              igloo_reportxml_node_render_xmlnode(igloo_reportxml_node_t *node);
 /* This gets the type of an report XML node */
-reportxml_node_type_t   igloo_reportxml_node_get_type(igloo_reportxml_node_t *node);
+igloo_reportxml_node_type_t   igloo_reportxml_node_get_type(igloo_reportxml_node_t *node);
 /* Gets and Sets attribute values */
 int                     igloo_reportxml_node_set_attribute(igloo_reportxml_node_t *node, const char *key, const char *value);
 char *                  igloo_reportxml_node_get_attribute(igloo_reportxml_node_t *node, const char *key);
@@ -117,7 +117,7 @@ igloo_reportxml_node_t *      igloo_reportxml_node_get_child(igloo_reportxml_nod
 /* This gets an child by it's value of the given attribute. See igloo_reportxml_get_node_by_attribute() for more details. */
 igloo_reportxml_node_t *      igloo_reportxml_node_get_child_by_attribute(igloo_reportxml_node_t *node, const char *key, const char *value, int include_definitions);
 /* This gets a child by it's type. Otherwise identical to igloo_reportxml_node_get_child_by_attribute() */
-igloo_reportxml_node_t *      igloo_reportxml_node_get_child_by_type(igloo_reportxml_node_t *node, reportxml_node_type_t type, int include_definitions);
+igloo_reportxml_node_t *      igloo_reportxml_node_get_child_by_type(igloo_reportxml_node_t *node, igloo_reportxml_node_type_t type, int include_definitions);
 /* This gets and sets the text content of an node (used for <text>) */
 int                     igloo_reportxml_node_set_content(igloo_reportxml_node_t *node, const char *value);
 char *                  igloo_reportxml_node_get_content(igloo_reportxml_node_t *node);

@@ -37,7 +37,7 @@ struct igloo_reportxml_node_tag {
     /* an XML node used to store the attributes */
     xmlNodePtr xmlnode;
     /* the type of the node */
-    reportxml_node_type_t type;
+    igloo_reportxml_node_type_t type;
     /* the report XML childs */
     igloo_reportxml_node_t **childs;
     size_t childs_len;
@@ -90,15 +90,15 @@ enum nodecontent {
 /* This structure is used to define a node */
 struct nodedef {
     /* the type of the node */
-    reportxml_node_type_t type;
+    igloo_reportxml_node_type_t type;
     /* the name of the corresponding XML node */
     const char *name;
     /* The type of the content the node may have */
     enum nodecontent content;
     /* __attr__eol terminated list of attributes the node may have */
     const struct nodeattr *attr[12];
-    /* REPORTXML_NODE_TYPE__ERROR terminated list of child node types the node may have */
-    const reportxml_node_type_t childs[12];
+    /* igloo_REPORTXML_NODE_TYPE__ERROR terminated list of child node types the node may have */
+    const igloo_reportxml_node_type_t childs[12];
 };
 
 static void __report_free(igloo_ro_t self);
@@ -123,7 +123,7 @@ igloo_RO_PUBLIC_TYPE(igloo_reportxml_database_t,
 
 /* Prototypes */
 static int __attach_copy_of_node_or_definition(igloo_reportxml_node_t *parent, igloo_reportxml_node_t *node, igloo_reportxml_database_t *db, ssize_t depth);
-static igloo_reportxml_node_t *      __reportxml_database_build_node_ext(igloo_reportxml_database_t *db, const char *id, ssize_t depth, reportxml_node_type_t *acst_type_ret);
+static igloo_reportxml_node_t *      __reportxml_database_build_node_ext(igloo_reportxml_database_t *db, const char *id, ssize_t depth, igloo_reportxml_node_type_t *acst_type_ret);
 
 /* definition of known attributes */
 static const struct nodeattr __attr__eol[1]             = {{NULL,           NULL,           NULL,     0,  NULL, {NULL}}};
@@ -157,45 +157,45 @@ static const struct nodeattr __attr__reference_type[1]  = {{"type",         NULL
 
 /* definition of known nodes */
 /* Helper:
- * grep '^ *REPORTXML_NODE_TYPE_' reportxml.h | sed 's/^\( *REPORTXML_NODE_TYPE_\([^,]*\)\),*$/\1 \2/;' | while read l s; do c=$(tr A-Z a-z <<<"$s"); printf "    {%-32s \"%-16s 0, {__attr__eol}},\n" "$l," "$c\","; done
+ * grep '^ *igloo_REPORTXML_NODE_TYPE_' reportxml.h | sed 's/^\( *igloo_REPORTXML_NODE_TYPE_\([^,]*\)\),*$/\1 \2/;' | while read l s; do c=$(tr A-Z a-z <<<"$s"); printf "    {%-32s \"%-16s 0, {__attr__eol}},\n" "$l," "$c\","; done
  */
 #define __BASIC_ELEMENT __attr_id, __attr_definition, __attr_akindof, __attr__definition
 static const struct nodedef __nodedef[] = {
-    {REPORTXML_NODE_TYPE_REPORT,      "report",         NC_CHILDS,  {__attr_id, __attr_version, __attr_xmlns, __attr__eol},
-        {REPORTXML_NODE_TYPE_INCIDENT, REPORTXML_NODE_TYPE_DEFINITION, REPORTXML_NODE_TYPE_TIMESTAMP, REPORTXML_NODE_TYPE_REFERENCE, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_DEFINITION,  "definition",     NC_CHILDS,  {__BASIC_ELEMENT, __attr_template, __attr_defines, __attr__eol},
-        {REPORTXML_NODE_TYPE_INCIDENT, REPORTXML_NODE_TYPE_STATE, REPORTXML_NODE_TYPE_TIMESTAMP, REPORTXML_NODE_TYPE_RESOURCE, REPORTXML_NODE_TYPE_REFERENCE, REPORTXML_NODE_TYPE_FIX, REPORTXML_NODE_TYPE_RESOURCE, REPORTXML_NODE_TYPE_REASON, REPORTXML_NODE_TYPE_TEXT, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_INCIDENT,    "incident",       NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
-        {REPORTXML_NODE_TYPE_STATE, REPORTXML_NODE_TYPE_TIMESTAMP, REPORTXML_NODE_TYPE_RESOURCE, REPORTXML_NODE_TYPE_REFERENCE, REPORTXML_NODE_TYPE_FIX, REPORTXML_NODE_TYPE_REASON, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_STATE,       "state",          NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
-        {REPORTXML_NODE_TYPE_TEXT, REPORTXML_NODE_TYPE_TIMESTAMP, REPORTXML_NODE_TYPE_BACKTRACE, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_BACKTRACE,   "backtrace",      NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
-        {REPORTXML_NODE_TYPE_POSITION, REPORTXML_NODE_TYPE_MORE, REPORTXML_NODE_TYPE_TEXT, REPORTXML_NODE_TYPE_REFERENCE, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_POSITION,    "position",       NC_CHILDS,  {__BASIC_ELEMENT, __attr_function, __attr_filename, __attr_line, __attr_binary, __attr_offset, __attr__eol},
-        {REPORTXML_NODE_TYPE_TEXT, REPORTXML_NODE_TYPE_REFERENCE, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_MORE,        "more",           NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
-        {REPORTXML_NODE_TYPE_TEXT, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_FIX,         "fix",            NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
-        {REPORTXML_NODE_TYPE_ACTION, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_ACTION,      "action",         NC_CHILDS,  {__BASIC_ELEMENT, __attr__action_type, __attr__eol},
-        {REPORTXML_NODE_TYPE_TEXT, REPORTXML_NODE_TYPE_TIMESTAMP, REPORTXML_NODE_TYPE_VALUE, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_REASON,      "reason",         NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
-        {REPORTXML_NODE_TYPE_TEXT, REPORTXML_NODE_TYPE_RESOURCE, REPORTXML_NODE_TYPE_REFERENCE, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_TEXT,        "text",           NC_CONTENT, {__BASIC_ELEMENT, __attr_lang, __attr_dir, __attr__eol},
-        {REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_TIMESTAMP,   "timestamp",      NC_NONE,    {__BASIC_ELEMENT, __attr_absolute, __attr_relative, __attr__eol},
-        {REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_RESOURCE,    "resource",       NC_CHILDS,  {__BASIC_ELEMENT, __attr__resource_type, __attr_name, __attr__eol},
-        {REPORTXML_NODE_TYPE_VALUE, REPORTXML_NODE_TYPE_REFERENCE, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_VALUE,       "value",          NC_CHILDS,  {__BASIC_ELEMENT, __attr_member, __attr_value, __attr_state, __attr__value_type, __attr__eol},
-        {REPORTXML_NODE_TYPE_TEXT, REPORTXML_NODE_TYPE_REFERENCE, REPORTXML_NODE_TYPE_VALUE, REPORTXML_NODE_TYPE_POSITION, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_REFERENCE,   "reference",      NC_CHILDS,  {__BASIC_ELEMENT, __attr__reference_type, __attr_href, __attr__eol},
-        {REPORTXML_NODE_TYPE_TEXT, REPORTXML_NODE_TYPE_EXTENSION, REPORTXML_NODE_TYPE__ERROR}},
-    {REPORTXML_NODE_TYPE_EXTENSION,   "extension",      NC_XML,     {__BASIC_ELEMENT, __attr_application, __attr__eol},
-        {REPORTXML_NODE_TYPE__ERROR}}
+    {igloo_REPORTXML_NODE_TYPE_REPORT,      "report",         NC_CHILDS,  {__attr_id, __attr_version, __attr_xmlns, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_INCIDENT, igloo_REPORTXML_NODE_TYPE_DEFINITION, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_DEFINITION,  "definition",     NC_CHILDS,  {__BASIC_ELEMENT, __attr_template, __attr_defines, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_INCIDENT, igloo_REPORTXML_NODE_TYPE_STATE, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_RESOURCE, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_FIX, igloo_REPORTXML_NODE_TYPE_RESOURCE, igloo_REPORTXML_NODE_TYPE_REASON, igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_INCIDENT,    "incident",       NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_STATE, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_RESOURCE, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_FIX, igloo_REPORTXML_NODE_TYPE_REASON, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_STATE,       "state",          NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_BACKTRACE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_BACKTRACE,   "backtrace",      NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_POSITION, igloo_REPORTXML_NODE_TYPE_MORE, igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_POSITION,    "position",       NC_CHILDS,  {__BASIC_ELEMENT, __attr_function, __attr_filename, __attr_line, __attr_binary, __attr_offset, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_MORE,        "more",           NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_FIX,         "fix",            NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_ACTION, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_ACTION,      "action",         NC_CHILDS,  {__BASIC_ELEMENT, __attr__action_type, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_VALUE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_REASON,      "reason",         NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_RESOURCE, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_TEXT,        "text",           NC_CONTENT, {__BASIC_ELEMENT, __attr_lang, __attr_dir, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_TIMESTAMP,   "timestamp",      NC_NONE,    {__BASIC_ELEMENT, __attr_absolute, __attr_relative, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_RESOURCE,    "resource",       NC_CHILDS,  {__BASIC_ELEMENT, __attr__resource_type, __attr_name, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_VALUE, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_VALUE,       "value",          NC_CHILDS,  {__BASIC_ELEMENT, __attr_member, __attr_value, __attr_state, __attr__value_type, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_VALUE, igloo_REPORTXML_NODE_TYPE_POSITION, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_REFERENCE,   "reference",      NC_CHILDS,  {__BASIC_ELEMENT, __attr__reference_type, __attr_href, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
+    {igloo_REPORTXML_NODE_TYPE_EXTENSION,   "extension",      NC_XML,     {__BASIC_ELEMENT, __attr_application, __attr__eol},
+        {igloo_REPORTXML_NODE_TYPE__ERROR}}
 };
 
-static const struct nodedef * __get_nodedef(reportxml_node_type_t type)
+static const struct nodedef * __get_nodedef(igloo_reportxml_node_type_t type)
 {
     size_t i;
 
@@ -253,7 +253,7 @@ static void __report_free(igloo_ro_t self)
 static int  __report_new(igloo_ro_t self, const igloo_ro_type_t *type, va_list ap)
 {
     igloo_reportxml_t *ret = igloo_RO_TO_TYPE(self, igloo_reportxml_t);
-    igloo_reportxml_node_t *root = igloo_reportxml_node_new(REPORTXML_NODE_TYPE_REPORT, NULL, NULL, NULL);
+    igloo_reportxml_node_t *root = igloo_reportxml_node_new(igloo_REPORTXML_NODE_TYPE_REPORT, NULL, NULL, NULL);
 
     if (!root)
         return -1;
@@ -298,7 +298,7 @@ igloo_reportxml_node_t *      igloo_reportxml_get_node_by_attribute(igloo_report
     return igloo_reportxml_node_get_child_by_attribute(report->root, key, value, include_definitions);
 }
 
-igloo_reportxml_node_t *      igloo_reportxml_get_node_by_type(igloo_reportxml_t *report, reportxml_node_type_t type, int include_definitions)
+igloo_reportxml_node_t *      igloo_reportxml_get_node_by_type(igloo_reportxml_t *report, igloo_reportxml_node_type_t type, int include_definitions)
 {
     if (!report)
         return NULL;
@@ -323,7 +323,7 @@ igloo_reportxml_t *           igloo_reportxml_parse_xmldoc(xmlDocPtr doc)
     if (!root)
         return NULL;
 
-    if (igloo_reportxml_node_get_type(root) != REPORTXML_NODE_TYPE_REPORT) {
+    if (igloo_reportxml_node_get_type(root) != igloo_REPORTXML_NODE_TYPE_REPORT) {
         igloo_ro_unref(root);
         return NULL;
     }
@@ -380,7 +380,7 @@ static void __report_node_free(igloo_ro_t self)
     free(node->xml_childs);
 }
 
-igloo_reportxml_node_t *      igloo_reportxml_node_new(reportxml_node_type_t type, const char *id, const char *definition, const char *akindof)
+igloo_reportxml_node_t *      igloo_reportxml_node_new(igloo_reportxml_node_type_t type, const char *id, const char *definition, const char *akindof)
 {
     igloo_reportxml_node_t *ret;
     const struct nodedef *nodedef = __get_nodedef(type);
@@ -674,10 +674,10 @@ xmlNodePtr              igloo_reportxml_node_render_xmlnode(igloo_reportxml_node
     return ret;
 }
 
-reportxml_node_type_t   igloo_reportxml_node_get_type(igloo_reportxml_node_t *node)
+igloo_reportxml_node_type_t   igloo_reportxml_node_get_type(igloo_reportxml_node_t *node)
 {
     if (!node)
-        return REPORTXML_NODE_TYPE__ERROR;
+        return igloo_REPORTXML_NODE_TYPE__ERROR;
 
     return node->type;
 }
@@ -758,7 +758,7 @@ int                     igloo_reportxml_node_add_child(igloo_reportxml_node_t *n
         return -1;
 
     found = 0;
-    for (i = 0; nodedef->childs[i] != REPORTXML_NODE_TYPE__ERROR; i++) {
+    for (i = 0; nodedef->childs[i] != igloo_REPORTXML_NODE_TYPE__ERROR; i++) {
         if (nodedef->childs[i] == child->type) {
             found = 1;
             break;
@@ -826,7 +826,7 @@ igloo_reportxml_node_t *      igloo_reportxml_node_get_child_by_attribute(igloo_
         xmlFree(k);
     }
 
-    if (node->type == REPORTXML_NODE_TYPE_DEFINITION && !include_definitions)
+    if (node->type == igloo_REPORTXML_NODE_TYPE_DEFINITION && !include_definitions)
         return NULL;
 
     for (i = 0; i < node->childs_len; i++) {
@@ -838,7 +838,7 @@ igloo_reportxml_node_t *      igloo_reportxml_node_get_child_by_attribute(igloo_
     return NULL;
 }
 
-igloo_reportxml_node_t *      igloo_reportxml_node_get_child_by_type(igloo_reportxml_node_t *node, reportxml_node_type_t type, int include_definitions)
+igloo_reportxml_node_t *      igloo_reportxml_node_get_child_by_type(igloo_reportxml_node_t *node, igloo_reportxml_node_type_t type, int include_definitions)
 {
     size_t i;
 
@@ -851,7 +851,7 @@ igloo_reportxml_node_t *      igloo_reportxml_node_get_child_by_type(igloo_repor
         return node;
     }
 
-    if (node->type == REPORTXML_NODE_TYPE_DEFINITION && !include_definitions)
+    if (node->type == igloo_REPORTXML_NODE_TYPE_DEFINITION && !include_definitions)
         return NULL;
 
     for (i = 0; i < node->childs_len; i++) {
@@ -1020,7 +1020,7 @@ int                     igloo_reportxml_database_add_report(igloo_reportxml_data
         igloo_reportxml_node_t *node = igloo_reportxml_node_get_child(root, i);
         igloo_reportxml_node_t *copy;
 
-        if (igloo_reportxml_node_get_type(node) != REPORTXML_NODE_TYPE_DEFINITION) {
+        if (igloo_reportxml_node_get_type(node) != igloo_REPORTXML_NODE_TYPE_DEFINITION) {
             igloo_ro_unref(node);
             continue;
         }
@@ -1099,7 +1099,7 @@ static int __attach_copy_of_node_or_definition(igloo_reportxml_node_t *parent, i
     }
 }
 
-static igloo_reportxml_node_t *      __reportxml_database_build_node_ext(igloo_reportxml_database_t *db, const char *id, ssize_t depth, reportxml_node_type_t *acst_type_ret)
+static igloo_reportxml_node_t *      __reportxml_database_build_node_ext(igloo_reportxml_database_t *db, const char *id, ssize_t depth, igloo_reportxml_node_type_t *acst_type_ret)
 {
     igloo_reportxml_node_t *search;
     igloo_reportxml_node_t *found;
@@ -1109,7 +1109,7 @@ static igloo_reportxml_node_t *      __reportxml_database_build_node_ext(igloo_r
         ACST_YES,
         ACST_NO,
     } all_childs_same_type = ACST_FIRST;
-    reportxml_node_type_t acst_type = REPORTXML_NODE_TYPE__ERROR;
+    igloo_reportxml_node_type_t acst_type = igloo_REPORTXML_NODE_TYPE__ERROR;
     char *template;
     ssize_t count;
     size_t i;
@@ -1124,7 +1124,7 @@ static igloo_reportxml_node_t *      __reportxml_database_build_node_ext(igloo_r
     if (!depth)
         return NULL;
 
-    search = igloo_reportxml_node_new(REPORTXML_NODE_TYPE_DEFINITION, NULL, NULL, NULL);
+    search = igloo_reportxml_node_new(igloo_REPORTXML_NODE_TYPE_DEFINITION, NULL, NULL, NULL);
     if (!search)
         return NULL;
 
@@ -1167,7 +1167,7 @@ static igloo_reportxml_node_t *      __reportxml_database_build_node_ext(igloo_r
             ret = NULL;
         }
     } else {
-        ret = igloo_reportxml_node_new(REPORTXML_NODE_TYPE_DEFINITION, NULL, NULL, NULL);
+        ret = igloo_reportxml_node_new(igloo_REPORTXML_NODE_TYPE_DEFINITION, NULL, NULL, NULL);
     }
 
     if (!ret) {
@@ -1179,7 +1179,7 @@ static igloo_reportxml_node_t *      __reportxml_database_build_node_ext(igloo_r
         /* TODO: Look up definitions of our childs and childs' childs. */
 
         igloo_reportxml_node_t *node = igloo_reportxml_node_get_child(found, i);
-        reportxml_node_type_t type = igloo_reportxml_node_get_type(node);
+        igloo_reportxml_node_type_t type = igloo_reportxml_node_get_type(node);
 
         switch (all_childs_same_type) {
             case ACST_FIRST:
@@ -1237,7 +1237,7 @@ static igloo_reportxml_node_t *      __reportxml_database_build_node_ext(igloo_r
         if (all_childs_same_type == ACST_YES) {
             *acst_type_ret = acst_type;
         } else {
-            *acst_type_ret = REPORTXML_NODE_TYPE__ERROR;
+            *acst_type_ret = igloo_REPORTXML_NODE_TYPE__ERROR;
         }
     }
 
@@ -1256,7 +1256,7 @@ igloo_reportxml_t *           igloo_reportxml_database_build_report(igloo_report
     igloo_reportxml_node_t *child;
     igloo_reportxml_node_t *root;
     igloo_reportxml_node_t *attach_to;
-    reportxml_node_type_t type;
+    igloo_reportxml_node_type_t type;
     igloo_reportxml_t *ret;
     ssize_t count;
     size_t i;
@@ -1264,7 +1264,7 @@ igloo_reportxml_t *           igloo_reportxml_database_build_report(igloo_report
     if (!db || !id)
         return NULL;
 
-    /* first find the definition itself.  This will be some REPORTXML_NODE_TYPE_DEFINITION node. */
+    /* first find the definition itself.  This will be some igloo_REPORTXML_NODE_TYPE_DEFINITION node. */
     definition = __reportxml_database_build_node_ext(db, id, depth, &type);
     if (!definition) {
         return NULL;
@@ -1281,7 +1281,7 @@ igloo_reportxml_t *           igloo_reportxml_database_build_report(igloo_report
         return igloo_ro_new(igloo_reportxml_t);
     }
 
-    if (type == REPORTXML_NODE_TYPE__ERROR) {
+    if (type == igloo_REPORTXML_NODE_TYPE__ERROR) {
         /* Now the hard part: find out what level we are. */
         child = igloo_reportxml_node_get_child(definition, 0);
         if (!child) {
@@ -1295,8 +1295,8 @@ igloo_reportxml_t *           igloo_reportxml_database_build_report(igloo_report
 
     /* check for supported configurations */
     switch (type) {
-        case REPORTXML_NODE_TYPE_INCIDENT:
-        case REPORTXML_NODE_TYPE_STATE:
+        case igloo_REPORTXML_NODE_TYPE_INCIDENT:
+        case igloo_REPORTXML_NODE_TYPE_STATE:
         break;
         default:
             igloo_ro_unref(definition);
@@ -1317,10 +1317,10 @@ igloo_reportxml_t *           igloo_reportxml_database_build_report(igloo_report
         return NULL;
     }
 
-    if (type == REPORTXML_NODE_TYPE_INCIDENT) {
+    if (type == igloo_REPORTXML_NODE_TYPE_INCIDENT) {
         igloo_ro_ref(attach_to = root);
-    } else if (type == REPORTXML_NODE_TYPE_STATE) {
-        attach_to = igloo_reportxml_node_new(REPORTXML_NODE_TYPE_INCIDENT, NULL, NULL, NULL);
+    } else if (type == igloo_REPORTXML_NODE_TYPE_STATE) {
+        attach_to = igloo_reportxml_node_new(igloo_REPORTXML_NODE_TYPE_INCIDENT, NULL, NULL, NULL);
         if (attach_to) {
             if (igloo_reportxml_node_add_child(root, attach_to) != 0) {
                 igloo_ro_unref(attach_to);
