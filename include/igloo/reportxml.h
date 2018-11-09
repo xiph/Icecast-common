@@ -74,7 +74,7 @@ typedef enum {
 
 
 /* This gets the root node of a report XML document */
-igloo_reportxml_node_t *      reportxml_get_root_node(igloo_reportxml_t *report);
+igloo_reportxml_node_t *      igloo_reportxml_get_root_node(igloo_reportxml_t *report);
 /* This selects a node by an attribute and it's value.
  * This is mostly useful to look for an object by using it's ID.
  * If more than one node matches the first one found is returned.
@@ -82,13 +82,13 @@ igloo_reportxml_node_t *      reportxml_get_root_node(igloo_reportxml_t *report)
  * <definition> are also considered. If it is false nodes inside
  * <definition>s are skipped.
  */
-igloo_reportxml_node_t *      reportxml_get_node_by_attribute(igloo_reportxml_t *report, const char *key, const char *value, int include_definitions);
-/* This gets a node by it's type. Otherwise identical to reportxml_get_node_by_attribute() */
-igloo_reportxml_node_t *      reportxml_get_node_by_type(igloo_reportxml_t *report, reportxml_node_type_t type, int include_definitions);
+igloo_reportxml_node_t *      igloo_reportxml_get_node_by_attribute(igloo_reportxml_t *report, const char *key, const char *value, int include_definitions);
+/* This gets a node by it's type. Otherwise identical to igloo_reportxml_get_node_by_attribute() */
+igloo_reportxml_node_t *      igloo_reportxml_get_node_by_type(igloo_reportxml_t *report, reportxml_node_type_t type, int include_definitions);
 /* This function parses an XML document and returns the parst report XML document */
-igloo_reportxml_t *           reportxml_parse_xmldoc(xmlDocPtr doc);
+igloo_reportxml_t *           igloo_reportxml_parse_xmldoc(xmlDocPtr doc);
 /* This function renders an report XML document as XML structure */
-xmlDocPtr               reportxml_render_xmldoc(igloo_reportxml_t *report);
+xmlDocPtr               igloo_reportxml_render_xmldoc(igloo_reportxml_t *report);
 
 
 /* ---[ Node level ]--- */
@@ -98,33 +98,33 @@ xmlDocPtr               reportxml_render_xmldoc(igloo_reportxml_t *report);
 /* This creates a new node of type type.
  * It's id, definition, and akindof attributes can be given as parameters.
  */
-igloo_reportxml_node_t *      reportxml_node_new(reportxml_node_type_t type, const char *id, const char *definition, const char *akindof);
+igloo_reportxml_node_t *      igloo_reportxml_node_new(reportxml_node_type_t type, const char *id, const char *definition, const char *akindof);
 /* This parses an XML node and returns the resulting report XML node */
-igloo_reportxml_node_t *      reportxml_node_parse_xmlnode(xmlNodePtr xmlnode);
+igloo_reportxml_node_t *      igloo_reportxml_node_parse_xmlnode(xmlNodePtr xmlnode);
 /* Copy an report XML node (and it's children) */
-igloo_reportxml_node_t *      reportxml_node_copy(igloo_reportxml_node_t *node);
+igloo_reportxml_node_t *      igloo_reportxml_node_copy(igloo_reportxml_node_t *node);
 /* Renders an report XML node as XML node */
-xmlNodePtr              reportxml_node_render_xmlnode(igloo_reportxml_node_t *node);
+xmlNodePtr              igloo_reportxml_node_render_xmlnode(igloo_reportxml_node_t *node);
 /* This gets the type of an report XML node */
-reportxml_node_type_t   reportxml_node_get_type(igloo_reportxml_node_t *node);
+reportxml_node_type_t   igloo_reportxml_node_get_type(igloo_reportxml_node_t *node);
 /* Gets and Sets attribute values */
-int                     reportxml_node_set_attribute(igloo_reportxml_node_t *node, const char *key, const char *value);
-char *                  reportxml_node_get_attribute(igloo_reportxml_node_t *node, const char *key);
+int                     igloo_reportxml_node_set_attribute(igloo_reportxml_node_t *node, const char *key, const char *value);
+char *                  igloo_reportxml_node_get_attribute(igloo_reportxml_node_t *node, const char *key);
 /* Adds, counts, and get child nodes */
-int                     reportxml_node_add_child(igloo_reportxml_node_t *node, igloo_reportxml_node_t *child);
-ssize_t                 reportxml_node_count_child(igloo_reportxml_node_t *node);
-igloo_reportxml_node_t *      reportxml_node_get_child(igloo_reportxml_node_t *node, size_t idx);
-/* This gets an child by it's value of the given attribute. See reportxml_get_node_by_attribute() for more details. */
-igloo_reportxml_node_t *      reportxml_node_get_child_by_attribute(igloo_reportxml_node_t *node, const char *key, const char *value, int include_definitions);
-/* This gets a child by it's type. Otherwise identical to reportxml_node_get_child_by_attribute() */
-igloo_reportxml_node_t *      reportxml_node_get_child_by_type(igloo_reportxml_node_t *node, reportxml_node_type_t type, int include_definitions);
+int                     igloo_reportxml_node_add_child(igloo_reportxml_node_t *node, igloo_reportxml_node_t *child);
+ssize_t                 igloo_reportxml_node_count_child(igloo_reportxml_node_t *node);
+igloo_reportxml_node_t *      igloo_reportxml_node_get_child(igloo_reportxml_node_t *node, size_t idx);
+/* This gets an child by it's value of the given attribute. See igloo_reportxml_get_node_by_attribute() for more details. */
+igloo_reportxml_node_t *      igloo_reportxml_node_get_child_by_attribute(igloo_reportxml_node_t *node, const char *key, const char *value, int include_definitions);
+/* This gets a child by it's type. Otherwise identical to igloo_reportxml_node_get_child_by_attribute() */
+igloo_reportxml_node_t *      igloo_reportxml_node_get_child_by_type(igloo_reportxml_node_t *node, reportxml_node_type_t type, int include_definitions);
 /* This gets and sets the text content of an node (used for <text>) */
-int                     reportxml_node_set_content(igloo_reportxml_node_t *node, const char *value);
-char *                  reportxml_node_get_content(igloo_reportxml_node_t *node);
+int                     igloo_reportxml_node_set_content(igloo_reportxml_node_t *node, const char *value);
+char *                  igloo_reportxml_node_get_content(igloo_reportxml_node_t *node);
 /* Adds, counts, and gets XML childs (used for <extension>) */
-int                     reportxml_node_add_xml_child(igloo_reportxml_node_t *node, xmlNodePtr child);
-ssize_t                 reportxml_node_count_xml_child(igloo_reportxml_node_t *node);
-xmlNodePtr              reportxml_node_get_xml_child(igloo_reportxml_node_t *node, size_t idx);
+int                     igloo_reportxml_node_add_xml_child(igloo_reportxml_node_t *node, xmlNodePtr child);
+ssize_t                 igloo_reportxml_node_count_xml_child(igloo_reportxml_node_t *node);
+xmlNodePtr              igloo_reportxml_node_get_xml_child(igloo_reportxml_node_t *node, size_t idx);
 
 
 /* ---[ Database level ]--- */
@@ -132,14 +132,14 @@ xmlNodePtr              reportxml_node_get_xml_child(igloo_reportxml_node_t *nod
 
 
 /* Add an report to the database */
-int                     reportxml_database_add_report(igloo_reportxml_database_t *db, igloo_reportxml_t *report);
+int                     igloo_reportxml_database_add_report(igloo_reportxml_database_t *db, igloo_reportxml_t *report);
 /* Build a node (copy) from the data in the database based on the given ID (using "definition" and "defines" attributes)
  * depth may be used to select how many recursions may be used to resolve definitions within defines.
  * The default value is selected by passing -1 (recommended).
  */
-igloo_reportxml_node_t *      reportxml_database_build_node(igloo_reportxml_database_t *db, const char *id, ssize_t depth);
-/* This does the same as reportxml_database_build_node() except that a new report document is returned. */
-igloo_reportxml_t *           reportxml_database_build_report(igloo_reportxml_database_t *db, const char *id, ssize_t depth);
+igloo_reportxml_node_t *      igloo_reportxml_database_build_node(igloo_reportxml_database_t *db, const char *id, ssize_t depth);
+/* This does the same as igloo_reportxml_database_build_node() except that a new report document is returned. */
+igloo_reportxml_t *           igloo_reportxml_database_build_report(igloo_reportxml_database_t *db, const char *id, ssize_t depth);
 
 #ifdef __cplusplus
 }
