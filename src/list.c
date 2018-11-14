@@ -289,6 +289,9 @@ igloo_ro_t              igloo_list_iterator_next(igloo_list_iterator_t *iterator
 {
     size_t physical;
 
+    if (!iterator)
+        return igloo_RO_NULL;
+
     physical = iterator->idx + iterator->list->offset;
 
     if (physical >= iterator->list->fill)
