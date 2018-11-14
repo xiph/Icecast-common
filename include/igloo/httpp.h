@@ -158,7 +158,7 @@ char ** igloo_httpp_get_any_key(igloo_http_parser_t *parser, igloo_httpp_ns_t ns
 void igloo_httpp_free_any_key(char **keys);
 int igloo_httpp_addref(igloo_http_parser_t *parser);
 int igloo_httpp_release(igloo_http_parser_t *parser);
-#define httpp_destroy(x) igloo_httpp_release((x))
+#define igloo_httpp_destroy(x) igloo_httpp_release((x))
 
 /* util functions */
 igloo_httpp_request_type_e igloo_httpp_str_to_method(const char * method);
