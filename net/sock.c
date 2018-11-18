@@ -97,26 +97,6 @@ void igloo_sock_shutdown(void)
     igloo_resolver_shutdown();
 }
 
-/* igloo_sock_get_localip
-**
-** gets the local ip address for the machine
-** the ip it returns *should* be on the internet.
-** in any case, it's as close as we can hope to get
-** unless someone has better ideas on how to do this
-*/
-char *igloo_sock_get_localip(char *buff, int len)
-{
-    char temp[1024];
-
-    if (gethostname(temp, sizeof(temp)) != 0)
-        return NULL;
-
-    if (igloo_resolver_getip(temp, buff, len))
-        return buff;
-
-    return NULL;
-}
-
 /* igloo_sock_error
 ** 
 ** returns the last socket error
@@ -130,7 +110,7 @@ int igloo_sock_error(void)
 #endif
 }
 
-void igloo_sock_set_error(int val)
+static void igloo_sock_set_error(int val)
 {
 #ifdef _WIN32
      WSASetLastError (val);
@@ -144,7 +124,7 @@ void igloo_sock_set_error(int val)
 ** determines if the socket error is recoverable
 ** in terms of non blocking sockets
 */
-int igloo_sock_recoverable(int error)
+static int igloo_sock_recoverable(int error)
 {
     switch (error)
     {
@@ -152,31 +132,6 @@ int igloo_sock_recoverable(int error)
     case EAGAIN:
     case EINTR:
     case EINPROGRESS:
-#if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
-    case EWOULDBLOCK:
-#endif
-#if defined (WSAEWOULDBLOCK) && WSAEWOULDBLOCK != EWOULDBLOCK
-    case WSAEWOULDBLOCK:
-#endif
-#if defined (WSAEINPROGRESS) && WSAEINPROGRESS != EINPROGRESS
-    case WSAEINPROGRESS:
-#endif
-#ifdef ERESTART
-    case ERESTART:
-#endif
-        return 1;
-    default:
-        return 0;
-    }
-}
-
-int igloo_sock_stalled (int error)
-{
-    switch (error)
-    {
-    case EAGAIN:
-    case EINPROGRESS:
-    case EALREADY:
 #if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
     case EWOULDBLOCK:
 #endif
@@ -205,7 +160,7 @@ static int sock_connect_pending (int error)
 **
 ** determines if a igloo_sock_t represents a valid socket
 */
-int igloo_sock_valid_socket(igloo_sock_t sock)
+static int igloo_sock_valid_socket(igloo_sock_t sock)
 {
     int ret;
     int optval;
@@ -279,7 +234,7 @@ int igloo_sock_set_blocking(igloo_sock_t sock, int block)
 #endif
 }
 
-int igloo_sock_set_nolinger(igloo_sock_t sock)
+static int igloo_sock_set_nolinger(igloo_sock_t sock)
 {
     struct linger lin = { 0, 0 };
     return setsockopt(sock, SOL_SOCKET, SO_LINGER, (void *)&lin, 
@@ -294,7 +249,7 @@ int igloo_sock_set_nodelay(igloo_sock_t sock)
             sizeof(int));
 }
 
-int igloo_sock_set_keepalive(igloo_sock_t sock)
+static int igloo_sock_set_keepalive(igloo_sock_t sock)
 {
     int keepalive = 1;
     return setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepalive, 
@@ -314,45 +269,6 @@ int igloo_sock_close(igloo_sock_t sock)
 #endif
 }
 
-/* igloo_sock_writev
- *
- * write multiple buffers at once, return bytes actually written
- */
-#ifdef HAVE_WRITEV
-
-ssize_t igloo_sock_writev (igloo_sock_t sock, const struct iovec *iov, size_t count)
-{
-    return writev (sock, iov, count);
-}
-
-#else
-
-ssize_t igloo_sock_writev (igloo_sock_t sock, const struct iovec *iov, size_t count)
-{
-    int i = count, accum = 0, ret;
-    const struct iovec *v = iov;
-
-    while (i)
-    {
-        if (v->iov_base && v->iov_len)
-        {
-            ret = igloo_sock_write_bytes (sock, v->iov_base, v->iov_len);
-            if (ret == -1 && accum==0)
-                return -1;
-            if (ret == -1)
-                ret = 0;
-            accum += ret;
-            if (ret < (int)v->iov_len)
-                break;
-        }
-        v++;
-        i--;
-    }
-    return accum;
-}
-
-#endif
-
 /* igloo_sock_write_bytes
 **
 ** write bytes to the socket
@@ -370,16 +286,6 @@ int igloo_sock_write_bytes(igloo_sock_t sock, const void *buff, size_t len)
     } */
 
     return send(sock, buff, len, 0);
-}
-
-/* igloo_sock_write_string
-**
-** writes a string to a socket
-** This function must only be called with a blocking socket.
-*/
-int igloo_sock_write_string(igloo_sock_t sock, const char *buff)
-{
-    return (igloo_sock_write_bytes(sock, buff, strlen(buff)) > 0);
 }
 
 /* igloo_sock_write
