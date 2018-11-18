@@ -80,37 +80,6 @@ static int _isip(const char *what)
 
 
 #if defined (HAVE_GETNAMEINFO) && defined (HAVE_GETADDRINFO)
-char *igloo_resolver_getname(const char *ip, char *buff, int len)
-{
-    struct addrinfo *head = NULL, hints;
-    char *ret = NULL;
-
-    if (!_isip(ip)) {
-        strncpy(buff, ip, len);
-        buff [len-1] = '\0';
-        return buff;
-    }
-
-    memset (&hints, 0, sizeof (hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_CANONNAME;
-    if (getaddrinfo (ip, NULL, &hints, &head))
-        return NULL;
-
-    if (head)
-    {
-        if (getnameinfo(head->ai_addr, head->ai_addrlen, buff, len, NULL, 
-                    0, NI_NAMEREQD) == 0)
-            ret = buff;
-
-        freeaddrinfo (head);
-    }
-
-    return ret;
-}
-
-
 char *igloo_resolver_getip(const char *name, char *buff, int len)
 {
     struct addrinfo *head, hints;
@@ -140,33 +109,6 @@ char *igloo_resolver_getip(const char *name, char *buff, int len)
 }
 
 #else
-
-char *igloo_resolver_getname(const char *ip, char *buff, int len)
-{
-    struct hostent *host;
-    char *ret = NULL;
-    struct in_addr addr;
-
-    if (! _isip(ip))
-    {
-        strncpy(buff, ip, len);
-        buff [len-1] = '\0';
-        return buff;
-    }
-
-    igloo_thread_mutex_lock(&igloo__resolver_mutex);
-    if (inet_aton (ip, &addr)) {
-        /* casting &addr to const char* as it is recommended on win* */
-        if ((host=gethostbyaddr ((const char *)&addr, sizeof (struct in_addr), AF_INET)))
-        {
-            ret = strncpy (buff, host->h_name, len);
-            buff [len-1] = '\0';
-        }
-    }
-
-    igloo_thread_mutex_unlock(&igloo__resolver_mutex);
-    return ret;
-}
 
 char *igloo_resolver_getip(const char *name, char *buff, int len)
 {
