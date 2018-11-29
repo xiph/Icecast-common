@@ -151,8 +151,8 @@ static const struct nodeattr __attr_state[1]            = {{"state",        NULL
 static const struct nodeattr __attr_href[1]             = {{"href",         "URI",          NULL,     0,  NULL, {NULL}}};
 static const struct nodeattr __attr_application[1]      = {{"application",  "URI",          NULL,     1,  NULL, {NULL}}};
 static const struct nodeattr __attr__action_type[1]     = {{"type",         NULL,           NULL,     1,  NULL, {"retry", "choice", "see-other", "authenticate", "pay", "change-protocol", "slow-down", "ask-user", "ask-admin", "bug", NULL}}};
-static const struct nodeattr __attr__resource_type[1]   = {{"type",         NULL,           NULL,     1,  NULL, {"actor", "manipulation-target", "helper", "related", "result", "parameter", NULL}}};
-static const struct nodeattr __attr__value_type[1]      = {{"type",         NULL,           NULL,     1,  NULL, {"null", "int", "float", "uuid", "string", "structure", "uri", "pointer", "version", "protocol", "username", "password", NULL}}};
+static const struct nodeattr __attr__resource_type[1]   = {{"type",         NULL,           NULL,     1,  NULL, {"actor", "manipulation-target", "helper", "related", "result", "parameter", "state", NULL}}};
+static const struct nodeattr __attr__value_type[1]      = {{"type",         NULL,           NULL,     1,  NULL, {"null", "int", "float", "uuid", "string", "structure", "uri", "pointer", "version", "protocol", "username", "password", "boolean", NULL}}};
 static const struct nodeattr __attr__reference_type[1]  = {{"type",         NULL,           NULL,     1,  NULL, {"documentation", "log", "report", "related", NULL}}};
 
 /* definition of known nodes */
