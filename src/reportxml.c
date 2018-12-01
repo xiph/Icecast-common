@@ -130,6 +130,7 @@ static const struct nodeattr __attr__eol[1]             = {{NULL,           NULL
 static const struct nodeattr __attr_version[1]          = {{"version",      "CDATA",        "0.0.1",  1,  NULL, {"0.0.1", NULL}}};
 static const struct nodeattr __attr_xmlns[1]            = {{"xmlns",        "URI",          "http://icecast.org/specs/reportxml-0.0.1",    1,  NULL, {"http://icecast.org/specs/reportxml-0.0.1", NULL}}};
 static const struct nodeattr __attr_id[1]               = {{"id",           "ID",           NULL,     0,  NULL, {NULL}}};
+static const struct nodeattr __attr_documentid[1]       = {{"documentid",   "UUID",         NULL,     0,  NULL, {NULL}}};
 static const struct nodeattr __attr_definition[1]       = {{"definition",   "UUID",         NULL,     0,  NULL, {NULL}}};
 static const struct nodeattr __attr__definition[1]      = {{"_definition",  "UUID",         NULL,     0,  NULL, {NULL}}}; /* for internal use only */
 static const struct nodeattr __attr_akindof[1]          = {{"akindof",      "UUIDs",        NULL,     0,  NULL, {NULL}}};
@@ -161,7 +162,7 @@ static const struct nodeattr __attr__reference_type[1]  = {{"type",         NULL
  */
 #define __BASIC_ELEMENT __attr_id, __attr_definition, __attr_akindof, __attr__definition
 static const struct nodedef __nodedef[] = {
-    {igloo_REPORTXML_NODE_TYPE_REPORT,      "report",         NC_CHILDS,  {__attr_id, __attr_version, __attr_xmlns, __attr__eol},
+    {igloo_REPORTXML_NODE_TYPE_REPORT,      "report",         NC_CHILDS,  {__attr_id, __attr_version, __attr_xmlns, __attr_documentid, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_INCIDENT, igloo_REPORTXML_NODE_TYPE_DEFINITION, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
     {igloo_REPORTXML_NODE_TYPE_DEFINITION,  "definition",     NC_CHILDS,  {__BASIC_ELEMENT, __attr_template, __attr_defines, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_INCIDENT, igloo_REPORTXML_NODE_TYPE_STATE, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_RESOURCE, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_FIX, igloo_REPORTXML_NODE_TYPE_RESOURCE, igloo_REPORTXML_NODE_TYPE_REASON, igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
