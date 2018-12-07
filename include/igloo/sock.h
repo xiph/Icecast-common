@@ -106,6 +106,8 @@ igloo_sock_t igloo_sock_get_server_socket(int port, const char *sinterface);
 int igloo_sock_listen(igloo_sock_t serversock, int backlog);
 igloo_sock_t igloo_sock_accept(igloo_sock_t serversock, char *ip, size_t len);
 
+int igloo_sock_recoverable(int error);
+
 #ifdef _WIN32
 int inet_aton(const char *s, struct in_addr *a);
 #endif

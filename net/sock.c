@@ -124,7 +124,7 @@ static void igloo_sock_set_error(int val)
 ** determines if the socket error is recoverable
 ** in terms of non blocking sockets
 */
-static int igloo_sock_recoverable(int error)
+int igloo_sock_recoverable(int error)
 {
     switch (error)
     {
