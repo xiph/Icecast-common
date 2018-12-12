@@ -138,6 +138,8 @@ static const struct nodeattr __attr_lang[1]             = {{"lang",         "Lan
 static const struct nodeattr __attr_dir[1]              = {{"dir",          NULL,           NULL,     0,  NULL, {"ltr", "rtl", NULL}}};
 static const struct nodeattr __attr_template[1]         = {{"template",     "UUID",         NULL,     0,  NULL, {NULL}}};
 static const struct nodeattr __attr_defines[1]          = {{"defines",      "UUID",         NULL,     1,  NULL, {NULL}}};
+static const struct nodeattr __attr_updates[1]          = {{"updates",      "URI",          NULL,     0,  NULL, {NULL}}};
+static const struct nodeattr __attr_updatetype[1]       = {{"updatetype",   NULL,           "modify", 0,  NULL, {"add", "modify", "replace", "remove", NULL}}};
 static const struct nodeattr __attr_function[1]         = {{"function",     "CDATA",        NULL,     0,  NULL, {NULL}}};
 static const struct nodeattr __attr_filename[1]         = {{"filename",     "CDATA",        NULL,     0,  NULL, {NULL}}};
 static const struct nodeattr __attr_line[1]             = {{"line",         "CDATA",        NULL,     0,  NULL, {NULL}}};
@@ -166,7 +168,7 @@ static const struct nodedef __nodedef[] = {
         {igloo_REPORTXML_NODE_TYPE_INCIDENT, igloo_REPORTXML_NODE_TYPE_DEFINITION, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
     {igloo_REPORTXML_NODE_TYPE_DEFINITION,  "definition",     NC_CHILDS,  {__BASIC_ELEMENT, __attr_template, __attr_defines, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_INCIDENT, igloo_REPORTXML_NODE_TYPE_STATE, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_RESOURCE, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_FIX, igloo_REPORTXML_NODE_TYPE_RESOURCE, igloo_REPORTXML_NODE_TYPE_REASON, igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
-    {igloo_REPORTXML_NODE_TYPE_INCIDENT,    "incident",       NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
+    {igloo_REPORTXML_NODE_TYPE_INCIDENT,    "incident",       NC_CHILDS,  {__BASIC_ELEMENT, __attr_updates, __attr_updatetype, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_STATE, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_RESOURCE, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_FIX, igloo_REPORTXML_NODE_TYPE_REASON, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
     {igloo_REPORTXML_NODE_TYPE_STATE,       "state",          NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_BACKTRACE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
@@ -176,7 +178,7 @@ static const struct nodedef __nodedef[] = {
         {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
     {igloo_REPORTXML_NODE_TYPE_MORE,        "more",           NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE__ERROR}},
-    {igloo_REPORTXML_NODE_TYPE_FIX,         "fix",            NC_CHILDS,  {__BASIC_ELEMENT, __attr__eol},
+    {igloo_REPORTXML_NODE_TYPE_FIX,         "fix",            NC_CHILDS,  {__BASIC_ELEMENT, __attr_updates, __attr_updatetype, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_ACTION, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
     {igloo_REPORTXML_NODE_TYPE_ACTION,      "action",         NC_CHILDS,  {__BASIC_ELEMENT, __attr__action_type, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_TIMESTAMP, igloo_REPORTXML_NODE_TYPE_VALUE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
@@ -186,7 +188,7 @@ static const struct nodedef __nodedef[] = {
         {igloo_REPORTXML_NODE_TYPE__ERROR}},
     {igloo_REPORTXML_NODE_TYPE_TIMESTAMP,   "timestamp",      NC_NONE,    {__BASIC_ELEMENT, __attr_absolute, __attr_relative, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE__ERROR}},
-    {igloo_REPORTXML_NODE_TYPE_RESOURCE,    "resource",       NC_CHILDS,  {__BASIC_ELEMENT, __attr__resource_type, __attr_name, __attr__eol},
+    {igloo_REPORTXML_NODE_TYPE_RESOURCE,    "resource",       NC_CHILDS,  {__BASIC_ELEMENT, __attr_updates, __attr_updatetype, __attr__resource_type, __attr_name, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_VALUE, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
     {igloo_REPORTXML_NODE_TYPE_VALUE,       "value",          NC_CHILDS,  {__BASIC_ELEMENT, __attr_member, __attr_value, __attr_state, __attr__value_type, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_VALUE, igloo_REPORTXML_NODE_TYPE_POSITION, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
