@@ -194,7 +194,7 @@ static const struct nodedef __nodedef[] = {
         {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_REFERENCE, igloo_REPORTXML_NODE_TYPE_VALUE, igloo_REPORTXML_NODE_TYPE_POSITION, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
     {igloo_REPORTXML_NODE_TYPE_REFERENCE,   "reference",      NC_CHILDS,  {__BASIC_ELEMENT, __attr__reference_type, __attr_href, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE_TEXT, igloo_REPORTXML_NODE_TYPE_EXTENSION, igloo_REPORTXML_NODE_TYPE__ERROR}},
-    {igloo_REPORTXML_NODE_TYPE_EXTENSION,   "extension",      NC_XML,     {__BASIC_ELEMENT, __attr_application, __attr__eol},
+    {igloo_REPORTXML_NODE_TYPE_EXTENSION,   "extension",      NC_XML,     {__BASIC_ELEMENT, __attr_updates, __attr_updatetype, __attr_application, __attr__eol},
         {igloo_REPORTXML_NODE_TYPE__ERROR}}
 };
 
