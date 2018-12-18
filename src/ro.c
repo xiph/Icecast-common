@@ -166,6 +166,7 @@ int             igloo_ro_unref(igloo_ro_t self)
         /* only clear the object */
         base->associated = igloo_RO_NULL;
         base->name = NULL;
+        igloo_thread_mutex_unlock(&(base->lock));
     } else {
         igloo_ro__destory(base);
     }
