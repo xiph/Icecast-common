@@ -115,10 +115,22 @@ int             igloo_ro_ref(igloo_ro_t self)
         return -1;
 
     igloo_thread_mutex_lock(&(base->lock));
+    if (!base->refc) {
+        igloo_thread_mutex_unlock(&(base->lock));
+        return -1;
+    }
     base->refc++;
     igloo_thread_mutex_unlock(&(base->lock));
 
     return 0;
+}
+
+static inline void igloo_ro__destory(igloo_ro_base_t *base)
+{
+    igloo_thread_mutex_unlock(&(base->lock));
+    igloo_thread_mutex_destroy(&(base->lock));
+
+    free(base);
 }
 
 int             igloo_ro_unref(igloo_ro_t self)
@@ -129,6 +141,12 @@ int             igloo_ro_unref(igloo_ro_t self)
         return -1;
 
     igloo_thread_mutex_lock(&(base->lock));
+
+    if (!base->refc) {
+        igloo_thread_mutex_unlock(&(base->lock));
+        return -1;
+    }
+
     base->refc--;
 
     if (base->refc) {
@@ -144,10 +162,47 @@ int             igloo_ro_unref(igloo_ro_t self)
     if (base->name)
         free(base->name);
 
-    igloo_thread_mutex_unlock(&(base->lock));
-    igloo_thread_mutex_destroy(&(base->lock));
+    if (base->wrefc) {
+        /* only clear the object */
+        base->associated = igloo_RO_NULL;
+        base->name = NULL;
+    } else {
+        igloo_ro__destory(base);
+    }
 
-    free(base);
+    return 0;
+}
+
+int             igloo_ro_weak_ref(igloo_ro_t self)
+{
+    igloo_ro_base_t *base = igloo_RO__GETBASE(self);
+
+    if (!base)
+        return -1;
+
+    igloo_thread_mutex_lock(&(base->lock));
+    base->wrefc++;
+    igloo_thread_mutex_unlock(&(base->lock));
+
+    return 0;
+}
+
+int             igloo_ro_weak_unref(igloo_ro_t self)
+{
+    igloo_ro_base_t *base = igloo_RO__GETBASE(self);
+
+    if (!base)
+        return -1;
+
+    igloo_thread_mutex_lock(&(base->lock));
+    base->wrefc--;
+
+    if (base->refc || base->wrefc) {
+        igloo_thread_mutex_unlock(&(base->lock));
+        return 0;
+    }
+
+    igloo_ro__destory(base);
 
     return 0;
 }
@@ -161,6 +216,10 @@ const char *    igloo_ro_get_name(igloo_ro_t self)
         return NULL;
 
     igloo_thread_mutex_lock(&(base->lock));
+    if (!base->refc) {
+        igloo_thread_mutex_unlock(&(base->lock));
+        return NULL;
+    }
     ret = base->name;
     igloo_thread_mutex_unlock(&(base->lock));
 
@@ -176,6 +235,10 @@ igloo_ro_t      igloo_ro_get_associated(igloo_ro_t self)
         return igloo_RO_NULL;
 
     igloo_thread_mutex_lock(&(base->lock));
+    if (!base->refc) {
+        igloo_thread_mutex_unlock(&(base->lock));
+        return igloo_RO_NULL;
+    }
     ret = base->associated;
     if (!igloo_RO_IS_NULL(ret)) {
         if (igloo_ro_ref(ret) != 0) {
@@ -208,6 +271,11 @@ int             igloo_ro_set_associated(igloo_ro_t self, igloo_ro_t associated)
     }
 
     igloo_thread_mutex_lock(&(base->lock));
+    if (!base->refc) {
+        igloo_ro_unref(associated);
+        igloo_thread_mutex_unlock(&(base->lock));
+        return -1;
+    }
     old = base->associated;
     base->associated = associated;
     igloo_thread_mutex_unlock(&(base->lock));

@@ -75,8 +75,9 @@ struct igloo_ro_type_tag {
 struct igloo_ro_base_tag {
 	/* Type of the object */
     const igloo_ro_type_t * type;
-	/* Reference counter */
+	/* Reference counters */
     size_t refc;
+    size_t wrefc;
 	/* Mutex for igloo_ro_*(). */
     igloo_mutex_t lock;
 	/* Name of the object. */
@@ -101,7 +102,7 @@ int igloo_ro_new__return_zero(igloo_ro_t self, const igloo_ro_type_t *type, va_l
 
 #define igloo_RO_GET_TYPE(x)		(igloo_RO__GETBASE((x)) == NULL ? NULL : igloo_RO__GETBASE((x))->type)
 #define igloo_RO_GET_TYPENAME(x)	(igloo_RO_GET_TYPE((x)) == NULL ? NULL : igloo_RO_GET_TYPE((x))->type_name)
-#define igloo_RO_IS_VALID(x,type)	(!igloo_RO_IS_NULL((x)) && igloo_RO_GET_TYPE((x)) == (igloo_ro__type__ ## type))
+#define igloo_RO_IS_VALID(x,type)	(!igloo_RO_IS_NULL((x)) && igloo_RO_GET_TYPE((x)) == (igloo_ro__type__ ## type) && igloo_RO__GETBASE((x))->refc)
 #define igloo_RO_HAS_TYPE(x,type)	(!igloo_RO_IS_NULL((x)) && igloo_RO_GET_TYPE((x)) == (type))
 
 /* Create a new refobject
@@ -123,6 +124,10 @@ int             igloo_ro_ref(igloo_ro_t self);
  * If the object's reference counter reaches zero the object is freed.
  */
 int             igloo_ro_unref(igloo_ro_t self);
+
+/* This is the same as igloo_ro_ref() and igloo_ro_unref() but increases/decreases the week refernece counter. */
+int             igloo_ro_weak_ref(igloo_ro_t self);
+int             igloo_ro_weak_unref(igloo_ro_t self);
 
 /* This gets the object's name */
 const char *    igloo_ro_get_name(igloo_ro_t self);
