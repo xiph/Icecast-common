@@ -104,6 +104,20 @@ static void test_create_ref_unref(void)
     ctest_test("un-referenced (2 of 2)", igloo_ro_unref(a) == 0);
 }
 
+static void test_create_weak_ref_unref(void)
+{
+    igloo_ro_base_t *a;
+
+    a = igloo_ro_new(igloo_ro_base_t);
+    ctest_test("refobject created", !igloo_RO_IS_NULL(a));
+
+    ctest_test("weak referenced", igloo_ro_weak_ref(a) == 0);
+    ctest_test("un-referenced (1 of 2)", igloo_ro_unref(a) == 0);
+    ctest_test("referencing failed", igloo_ro_ref(a) != 0);
+    ctest_test("un-referencing (2 of 2) failed", igloo_ro_unref(a) != 0);
+    ctest_test("weak un-referenced", igloo_ro_weak_unref(a) == 0);
+}
+
 static void test_typename(void)
 {
     igloo_ro_base_t *a;
@@ -214,6 +228,16 @@ static void test_freecb(void)
     ctest_test("freecb uncalled", test_freecb__called == 0);
     ctest_test("un-referenced (2 of 2)", igloo_ro_unref(a) == 0);
     ctest_test("freecb called", test_freecb__called == 1);
+
+    test_freecb__called = 0;
+    a = igloo_ro_new(ctest_test_type_free_t);
+    ctest_test("refobject created", a != NULL);
+    ctest_test("weak referenced", igloo_ro_weak_ref(a) == 0);
+    ctest_test("freecb uncalled", test_freecb__called == 0);
+    ctest_test("un-referenced", igloo_ro_unref(a) == 0);
+    ctest_test("freecb called", test_freecb__called == 1);
+    ctest_test("weak un-referenced", igloo_ro_weak_unref(a) == 0);
+    ctest_test("freecb called once", test_freecb__called == 1);
 }
 
 int main (void)
@@ -228,6 +252,7 @@ int main (void)
     }
 
     test_create_ref_unref();
+    test_create_weak_ref_unref();
 
     test_typename();
     test_valid();
