@@ -125,7 +125,7 @@ int             igloo_ro_ref(igloo_ro_t self);
  */
 int             igloo_ro_unref(igloo_ro_t self);
 
-/* This is the same as igloo_ro_ref() and igloo_ro_unref() but increases/decreases the weak refernece counter. */
+/* This is the same as igloo_ro_ref() and igloo_ro_unref() but increases/decreases the weak reference counter. */
 int             igloo_ro_weak_ref(igloo_ro_t self);
 int             igloo_ro_weak_unref(igloo_ro_t self);
 
