@@ -43,7 +43,6 @@ typedef struct igloo_reportxml_database_tag igloo_reportxml_database_t;
  * This header includes forward declarations for several basic types.
  */
 
-typedef struct igloo_ro_type_tag igloo_ro_type_t;
 typedef struct igloo_ro_base_tag igloo_ro_base_t;
 igloo_RO_FORWARD_TYPE(igloo_ro_base_t);
 

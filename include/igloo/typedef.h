@@ -28,6 +28,8 @@ extern "C" {
  * This header must be included before "types.h" and "ro.h" if used.
  */
 
+typedef struct igloo_ro_type_tag igloo_ro_type_t;
+
 #define igloo_RO_TYPE(type)                         type * subtype__ ## type;
 
 #define igloo_RO__CONTROL_VERSION	1
