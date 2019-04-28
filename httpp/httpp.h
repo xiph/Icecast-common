@@ -5,7 +5,7 @@
 ** Copyright (C) 2014 Michael Smith <msmith@icecast.org>,
 **                    Ralph Giles <giles@xiph.org>,
 **                    Karl Heyes <karl@xiph.org>,
-**                    Philipp "ph3-der-loewe" Schafft <lion@lion.leolix.org>
+** Copyright (C) 2012-2019 by Philipp "ph3-der-loewe" Schafft <lion@lion.leolix.org>
 **
 ** This library is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU Library General Public

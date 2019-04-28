@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1995-1997 by Sam Rushing <rushing@nightmare.com>
+ * Copyright (C) 2013-2019 by Philipp "ph3-der-loewe" Schafft <lion@lion.leolix.org>
  * 
  *                         All Rights Reserved
  * 

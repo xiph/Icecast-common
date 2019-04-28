@@ -6,8 +6,8 @@
 **                    Ed "oddsock" Zaleski <oddsock@xiph.org>,
 **                    Karl Heyes <karl@xiph.org>,
 **                    Jack Moffitt <jack@icecast.org>,
-**                    Philipp "ph3-der-loewe" Schafft <lion@lion.leolix.org>,
-**                    Thomas Ruecker <thomas@ruecker.fi>
+**                    Thomas Ruecker <thomas@ruecker.fi>,
+** Copyright (C) 2013-2019 by Philipp "ph3-der-loewe" Schafft <lion@lion.leolix.org>
 **
 ** This library is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU Library General Public
