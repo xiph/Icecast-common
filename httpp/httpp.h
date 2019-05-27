@@ -112,8 +112,12 @@ typedef struct http_parser_tag {
 # define httpp_set_post_param _mangle(httpp_set_post_param)
 # define httpp_get_post_param _mangle(httpp_get_post_param)
 # define httpp_get_param _mangle(httpp_get_param)
-# define httpp_destroy _mangle(httpp_destroy)
+# define httpp_release _mangle(httpp_release)
+# define httpp_destroy _mangle(httpp_release)
+# define httpp_addref _mangle(httpp_addref)
 # define httpp_clear _mangle(httpp_clear)
+#else
+# define httpp_destroy(x) httpp_release((x))
 #endif
 
 httpp_request_info_t httpp_request_info(httpp_request_type_e req);
@@ -138,7 +142,6 @@ char ** httpp_get_any_key(http_parser_t *parser, httpp_ns_t ns);
 void httpp_free_any_key(char **keys);
 int httpp_addref(http_parser_t *parser);
 int httpp_release(http_parser_t *parser);
-#define httpp_destroy(x) httpp_release((x))
 
 /* util functions */
 httpp_request_type_e httpp_str_to_method(const char * method);
