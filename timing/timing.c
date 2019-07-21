@@ -35,6 +35,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <mmsystem.h>
+#include <winsock2.h>
 #else
 #ifdef TIME_WITH_SYS_TIME
 #  include <sys/time.h>
