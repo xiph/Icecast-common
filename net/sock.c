@@ -915,7 +915,7 @@ bool sock_is_ipv4_mapped_supported(void)
         return false;
     }
 
-    if (ssock_addr_len < sizeof(struct sockaddr_in6) || ssock_addr_in6->sin6_family != AF_INET6) {
+    if (ssock_addr_len < (socklen_t)sizeof(struct sockaddr_in6) || ssock_addr_in6->sin6_family != AF_INET6) {
         sock_close(ssock);
         return false;
     }
@@ -952,7 +952,7 @@ sock_family_t sock_get_family(sock_t sock)
     if (getsockname(sock, &addr, &len) != 0)
         return SOCK_FAMILY__ERROR;
 
-    if (len < sizeof(addr.sa_family))
+    if (len < (socklen_t)sizeof(addr.sa_family))
         return SOCK_FAMILY__ERROR;
 
     switch (addr.sa_family) {
