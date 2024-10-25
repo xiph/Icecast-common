@@ -33,8 +33,11 @@
 #include <sys/types.h>
 
 #ifdef _WIN32
-#include <windows.h>
-#include <mmsystem.h>
+#  include <windows.h>
+#  include <mmsystem.h>
+#  ifdef HAVE_SYS_TIME_H
+#    include <sys/time.h>
+#  endif
 #else
 #ifdef TIME_WITH_SYS_TIME
 #  include <sys/time.h>
