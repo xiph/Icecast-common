@@ -86,6 +86,9 @@ uint64_t timing_get_time(void)
 
 void timing_sleep(uint64_t sleeptime)
 {
+#ifdef WIN32
+	Sleep(sleeptime);
+#else
     struct timeval sleeper;
 
     sleeper.tv_sec = sleeptime / 1000;
@@ -96,9 +99,6 @@ void timing_sleep(uint64_t sleeptime)
      * says so.  The solaris manpage also says this is a legal
      * value.  If you think differerntly, please provide references.
      */
-#ifdef WIN32
-	Sleep(sleeptime);
-#else
     select(1, NULL, NULL, NULL, &sleeper);
 #endif
 }
