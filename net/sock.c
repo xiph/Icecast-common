@@ -946,16 +946,16 @@ bool sock_is_ipv4_mapped_supported(void)
 
 sock_family_t sock_get_family(sock_t sock)
 {
-    struct sockaddr addr;
+    struct sockaddr_storage addr;
     socklen_t len = sizeof(addr);
 
-    if (getsockname(sock, &addr, &len) != 0)
+    if (getsockname(sock, (struct sockaddr *)&addr, &len) != 0)
         return SOCK_FAMILY__ERROR;
 
-    if (len < (socklen_t)sizeof(addr.sa_family))
+    if (len < (socklen_t)sizeof(addr.ss_family))
         return SOCK_FAMILY__ERROR;
 
-    switch (addr.sa_family) {
+    switch (addr.ss_family) {
 #ifdef AF_UNSPEC
         case AF_UNSPEC: return SOCK_FAMILY_UNSPEC; break;
 #endif
