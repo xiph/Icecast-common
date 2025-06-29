@@ -62,6 +62,11 @@
 #include <ws2tcpip.h>
 #endif
 
+/* Workaround for 32 bit windows builds */
+#ifdef DISABLE_IPV6
+#undef AF_INET6
+#endif
+
 #include "sock.h"
 #include "resolver.h"
 
