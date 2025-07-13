@@ -645,7 +645,11 @@ sock_t sock_get_server_socket (int port, const char *sinterface, bool prefer_ine
     memset(&sa,    0, sizeof(sa));
     memset(&hints, 0, sizeof(hints));
 
+#ifndef AF_INET6
+    hints.ai_family   = AF_INET; /* workaround for 32 bit windows */
+#else
     hints.ai_family   = AF_UNSPEC;
+#endif
     hints.ai_flags    = AI_PASSIVE | AI_ADDRCONFIG | AI_NUMERICSERV | AI_NUMERICHOST;
     hints.ai_socktype = SOCK_STREAM;
     snprintf(service, sizeof(service), "%d", port);
